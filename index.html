@@ -67,34 +67,34 @@
   <script>
     const dictionary = {
       infinito: {
-        definición: "Que crece sin parar."
+        definicion: "Que crece sin parar."
       },
       ser: {
-        definición: "Existir, tener presencia real en el mundo."
+        definicion: "Existir, tener presencia real en el mundo."
       },
       monstruo: {
-        definición: "Animal fabulado, extraordinario, de figura horrible."
+        definicion: "Animal fabulado, extraordinario, de figura horrible."
       },
       tirabuzón: {
-        definición: "Cada una de las espirales que forma un cabello enrollado naturalmente."
+        definicion: "Cada una de las espirales que forma un cabello enrollado naturalmente."
       },
       ropa: {
-        definición: "Conjunto de prendas que sirven para cubrir el cuerpo humano."
+        definicion: "Conjunto de prendas que sirven para cubrir el cuerpo humano."
       },
       ilimitado: {
-        definición: "Que no tiene límite."
+        definicion: "Que no tiene límite."
       },
       universo: {
-        definición: "Todo lo que existe tanto fuera de la Tierra como dentro."
+        definicion: "Todo lo que existe tanto fuera de la Tierra como dentro."
       },
       dios: {
-        definición: "Ser supremo que puede todo lo coherente y que se le rinde culto en buena parte del mundo."
+        definicion: "Ser supremo que puede todo lo coherente y que se le rinde culto en buena parte del mundo."
       },
       cristo: {
-        definición: "Hijo de Dios."
+        definicion: "Hijo de Dios."
       },
       madre: {
-        definición: "Mujer especial que ha engendrado uno o más hijos y que es símbolo de protección.",
+        definicion: "Mujer especial que ha engendrado uno o más hijos y que es símbolo de protección.",
         cita: "«Madre: la palabra más bella pronunciada por el ser humano» — Kahlil Gibran"
       }
     };
@@ -113,7 +113,7 @@
         return;
       }
 
-      if (entry && entry.definición) {
+      if (entry && entry.definicion) {
         output.innerHTML = `<span class="term">${term}</span>: ${entry.definicion}<br><em>${entry.cita || ''}</em>`;
       } else {
         output.textContent = `La palabra "${term}" no está en el diccionario.`;
