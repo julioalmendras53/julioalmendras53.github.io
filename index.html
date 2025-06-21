@@ -78,9 +78,9 @@
   }
 
   const entry = dictionary[term];
-  if (entry) {
-    output.innerHTML = `<span class="term">${term}</span>: ${entry.definicion}<br><em>${entry.cita || ''}</em>`;
-  } else {
+ if (entry && entry.definicion) {
+  output.innerHTML = `<span class="term">${term}</span>: ${entry.definicion}<br><em>${entry.cita || ''}</em>`;
+}  else {
     output.textContent = `La palabra "${term}" no está en el diccionario.`;
   }
 }
