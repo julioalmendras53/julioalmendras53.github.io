@@ -54,44 +54,28 @@
       color: #666;
       font-style: italic;
     }
+    /* Estilo para enlaces internos */
+    #definition a {
+      color: #0066cc;
+      text-decoration: none;
+    }
+    #definition a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
-  <script>
-document.addEventListener('DOMContentLoaded', () => {
-  // 1) Generar dinámicamente la lista de IDs de tus <article>
-  const entries = Array.from(
-    document.querySelectorAll('article.entry')
-  ).map(el => el.id);
-
-  // 2) Crear un RegExp que busque cualquiera de esas palabras
-  const regex = new RegExp('\\b(' + entries.join('|') + ')\\b', 'gi');
-
-  // 3) Función para envolver cada coincidencia en un <a>
-  function linkifyText(html) {
-    return html.replace(regex, match => {
-      const slug = match.toLowerCase();
-      return `<a href="${slug}.html">${match}</a>`;
-    });
-  }
-
-  // 4) Aplicar linkify a cada párrafo de definición
-  document.querySelectorAll('.definition').forEach(node => {
-    // Sólo si aún no tiene enlaces
-    if (!node.querySelector('a')) {
-      node.innerHTML = linkifyText(node.innerHTML);
-    }
-  });
-});
-</script>
   <h1>Diccionario Web</h1>
   <div id="search-container">
     <input type="text" id="search-input" placeholder="Escribe una palabra..." />
     <button id="search-button">Buscar</button>
   </div>
-  <div id="definition">Introduce un término y pulsa "Buscar" para ver la definición.</div>
+  <div id="definition">
+    Introduce un término y pulsa "Buscar" para ver la definición.
+  </div>
 
   <script>
+    // Tu diccionario de términos
     const dictionary = {
       infinito: {
         definicion: "Que crece sin parar."
@@ -121,67 +105,97 @@ document.addEventListener('DOMContentLoaded', () => {
         definicion: "Hijo de Dios."
       },
       madre: {
-        definicion: "Mujer especial que ha engendrado uno o más hijos y que es símbolo de protección.",
+        definacion: "Mujer especial que ha engendrado uno o más hijos y que es símbolo de protección.",
         cita: "«Madre: la palabra más bella pronunciada por el ser humano» — Kahlil Gibran"
       },
       realidad: { 
-        definicion: "sustantivo incontable femenino que señala la cualidad de lo real y efectivo que contrasta con lo ilusorio." }, 
-       conciencia: {
-         definicion: "Saber que tiene el ser humano de sí mismo y el entorno que no es fácilmente perdible." }, 
+        definicion: "Sustantivo incontable femenino que señala la cualidad de lo real y efectivo que contrasta con lo ilusorio."
+      },
+      conciencia: {
+        definicion: "Saber que tiene el ser humano de sí mismo y el entorno que no es fácilmente perdible."
+      },
       homotecia: {
-        definicion: "Zoom geométrico a una figura que consta de un centro y una razón y fundamentalmente se amplía o reduce según que número real le coloques de razón." },
+        definicion: "Zoom geométrico a una figura que consta de un centro y una razón y fundamentalmente se amplía o reduce según que número real le coloques de razón."
+      },
       espíritu: {
-        definicion: "Parte inmaterial del binomio cuerpo y mente que sobrevive a la muerte y sirve para pensar, sentir y querer." },
-       alma: { 
-        definicion: "Soplo que adonai puso a Adán como añadido a su ser más bruto y que se traspasó al género humano." },
+        definicion: "Parte inmaterial del binomio cuerpo y mente que sobrevive a la muerte y sirve para pensar, sentir y querer."
+      },
+      alma: { 
+        definicion: "Soplo que Adonai puso a Adán como añadido a su ser más bruto y que se traspasó al género humano."
+      },
       messi: {
-        definicion: "Genio del gol en fútbol." },
+        definicion: "Genio del gol en fútbol."
+      },
       genio: { 
-        definicion: "Poder mental extraordinario que produce obras de excepcional precio." }, 
+        definicion: "Poder mental extraordinario que produce obras de excepcional precio."
+      },
       inteligencia: { 
-        definicion: "Capacidad de aprender y resolver problemas adaptándose plasticamente al entorno." },
+        definicion: "Capacidad de aprender y resolver problemas adaptándose plásticamente al entorno."
+      },
       triángulo: {
-        definicion: "Forma geométrica plana determinada por tres ángulos y tres lados." }, 
+        definicion: "Forma geométrica plana determinada por tres ángulos y tres lados."
+      },
       galaxia: {
-        definicion: "Sistema enorme de estrellas que por gravedad tiene forma y que es autónomo dentro del universo." },
+        definicion: "Sistema enorme de estrellas que por gravedad tiene forma y que es autónomo dentro del universo."
+      },
       humano: {
-        definicion: "Individuo de la especie Homo sapiens que habita la Tierra, de postura erguida y gran capacidad simbólica." }, 
+        definicion: "Individuo de la especie Homo sapiens que habita la Tierra, de postura erguida y gran capacidad simbólica."
+      },
       caos: {
-        definicion: "Estado amorfo e indefinido, desordenado y confuso que había al inicio antes del cosmos cuyo inicio marcó buenamente el transcurso posterior." },
+        definicion: "Estado amorfo e indefinido, desordenado y confuso que había al inicio antes del cosmos cuyo inicio marcó buenamente el transcurso posterior."
+      },
       infierno: {
-        definicion: "Lugar de castigo eterno hecho para los reprobos y dónde no hay esperanza de existencia de bien." },
+        definicion: "Lugar de castigo eterno hecho para los reprobos y dónde no hay esperanza de existencia de bien."
+      },
       yo: {
-        definicion: "Primera persona del singular que en nominativo habla del propio sujeto." }, 
+        definicion: "Primera persona del singular que en nominativo habla del propio sujeto."
+      },
       unidefinido: {
-        definicion: "Definido con solo una frase." }
-        
-    }; 
+        definicion: "Definido con solo una frase."
+      }
+    };
 
-    const input = document.getElementById('search-input');
-    const button = document.getElementById('search-button');
-    const output = document.getElementById('definition');
+    // Crea el regex dinámico a partir de las claves del diccionario
+    const keys = Object.keys(dictionary)
+      .sort((a, b) => b.length - a.length); // para empatar primero los más largos
+    const linkRegex = new RegExp('\\b(' + keys.join('|') + ')\\b', 'gi');
 
+    // Función para envolver en <a> cada término reconocido
+    function linkify(text) {
+      return text.replace(linkRegex, match => {
+        const key = match.toLowerCase();
+        return `<a href="${key}.html">${match}</a>`;
+      });
+    }
+
+    // Función de búsqueda y renderizado
     function buscar() {
-      const term = input.value.trim();
-      const key = term.toLowerCase();
-      const entry = dictionary[key];
+      const input = document.getElementById('search-input');
+      const output = document.getElementById('definition');
+      const term = input.value.trim().toLowerCase();
 
       if (!term) {
         output.textContent = 'Por favor, escribe una palabra.';
         return;
       }
 
+      const entry = dictionary[term];
       if (entry && entry.definicion) {
-        output.innerHTML = `<span class="term">${term}</span>: ${entry.definicion}<br><em>${entry.cita || ''}</em>`;
+        // Aplica linkify a la definición
+        const htmlDef = linkify(entry.definicion);
+        const cita = entry.cita ? `<br><em>${entry.cita}</em>` : '';
+        output.innerHTML = `<span class="term">${term}</span>: ${htmlDef}${cita}`;
       } else {
         output.textContent = `La palabra "${term}" no está en el diccionario.`;
       }
     }
 
-    button.addEventListener('click', buscar);
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') buscar();
-    });
+    document.getElementById('search-button')
+      .addEventListener('click', buscar);
+    document.getElementById('search-input')
+      .addEventListener('keydown', e => {
+        if (e.key === 'Enter') buscar();
+      });
   </script>
 </body>
 </html>
