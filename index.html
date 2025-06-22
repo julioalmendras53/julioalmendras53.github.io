@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -73,8 +72,11 @@
   <div id="definition">
     Introduce un término y pulsa "Buscar" para ver la definición.
   </div>
+  <button id="reset-button" style="display:none; margin-top:0.5rem;">Mostrar original</button>  <script>
+    // Variables para restaurar el HTML original
+    let originalHTML = '';
+    let currentTerm = '';
 
-  <script>
     // 1) Diccionario de términos
     const dictionary = {
       infinito:   { definicion: "Que crece sin parar." },
@@ -95,7 +97,7 @@
       messi:      { definicion: "Genio del gol en fútbol." },
       genio:      { definicion: "Poder mental extraordinario que produce obras de excepcional precio." },
       inteligencia:{ definicion: "Capacidad de aprender y resolver problemas adaptándose plásticamente al entorno." },
-      triángulo: { definicion: "Forma geométrica plana determinada por tres ángulos y tres lados." },
+      "triángulo": { definicion: "Forma geométrica plana determinada por tres ángulos y tres lados." },
       galaxia:    { definicion: "Sistema enorme de estrellas que por gravedad tiene forma y que es autónomo dentro del universo." },
       humano:     { definicion: "Individuo de la especie Homo sapiens que habita la Tierra, de postura erguida y gran capacidad simbólica." },
       caos:       { definicion: "Estado amorfo e indefinido, desordenado y confuso que había al inicio antes del cosmos cuyo inicio marcó buenamente el transcurso posterior." },
@@ -119,21 +121,34 @@
     // 4) Función de búsqueda y renderizado
     function buscar(term) {
       const output = document.getElementById('definition');
+      const resetButton = document.getElementById('reset-button');
+      currentTerm = term;
+
       if (!term) {
         output.textContent = 'Por favor, escribe una palabra.';
+        resetButton.style.display = 'none';
         return;
       }
       const entry = dictionary[term];
       if (entry && entry.definicion) {
+        // Guarda el HTML original (sin enlaces)
+        originalHTML = `<span class="term">${term}</span>: ${entry.definicion}` +
+          (entry.cita ? `<br><em>${entry.cita}</em>` : '');
+
+        // Renderiza con enlaces
         const htmlDef = linkify(entry.definicion);
-        const cita    = entry.cita ? `<br><em>${entry.cita}</em>` : '';
-        output.innerHTML = `<span class="term">${term}</span>: ${htmlDef}${cita}`;
+        output.innerHTML = `<span class="term">${term}</span>: ${htmlDef}` +
+                            (entry.cita ? `<br><em>${entry.cita}</em>` : '');
+
+        // Muestra el botón de restaurar
+        resetButton.style.display = 'inline-block';
       } else {
         output.textContent = `La palabra "${term}" no está en el diccionario.`;
+        resetButton.style.display = 'none';
       }
     }
 
-    // Atacha buscador a input+botón
+    // 5) Atacha buscador a input+botón
     document.getElementById('search-button')
             .addEventListener('click', () => buscar(document.getElementById('search-input').value.trim().toLowerCase()));
     document.getElementById('search-input')
@@ -142,7 +157,7 @@
                 buscar(e.target.value.trim().toLowerCase());
             });
 
-    // 5) Hash-routing: cuando cambie el hash en la URL, vuelve a buscar
+    // 6) Hash-routing: cuando cambie el hash en la URL, vuelve a buscar
     window.addEventListener('hashchange', () => {
       const term = location.hash.slice(1);
       if (term) {
@@ -156,6 +171,14 @@
       document.getElementById('search-input').value = term;
       buscar(term);
     }
-  </script>
-</body>
+
+    // 7) Listener para restaurar el HTML original
+    document.getElementById('reset-button')
+      .addEventListener('click', () => {
+        const output = document.getElementById('definition');
+        const resetButton = document.getElementById('reset-button');
+        output.innerHTML = originalHTML;
+        resetButton.style.display = 'none';
+      });
+  </script></body>
 </html>
