@@ -82,16 +82,14 @@
   </div>
   <div id="definition">Introduce un término y pulsa "Buscar" para ver la definición.</div>
   <button id="reset-button">Mostrar original</button>  <script>
-    // Función para normalizar y eliminar acentos y pasar a minúsculas
+    // Normaliza texto: elimina acentos y pasa a minúsculas
     function normalizeText(str) {
-      return str.normalize('NFD')
-                .replace(/[̀-ͯ]/g, '')
-                .toLowerCase();
+      return str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
     }
 
     let currentTerm = '';
 
-    // Diccionario de términos con tildes donde correspondan
+    // Diccionario con tildes donde correspondan
     const dictionary = {
       infinito:   { definicion: "Que crece sin parar." },
       ser:        { definicion: "Existir, tener presencia real en el mundo." },
@@ -120,55 +118,59 @@
       unidefinido:{ definicion: "Definido con solo una frase." }
     };
 
-    // Map de claves normalizadas a la clave original
+    // Mapa de claves normalizadas a originales
     const normalizedMap = {};
     Object.keys(dictionary).forEach(key => {
       normalizedMap[ normalizeText(key) ] = key;
     });
-    const normalizedKeys = Object.keys(normalizedMap)
-      .sort((a,b) => b.length - a.length);
+    const normalizedKeys = Object.keys(normalizedMap).sort((a,b) => b.length - a.length);
     const linkRegex = new RegExp('\\b(' + normalizedKeys.join('|') + ')\\b', 'gi');
 
+    // Convierte coincidencias en <a href="#clave">
     function linkify(text) {
       return text.replace(linkRegex, match => {
-        const norm = normalizeText(match);
-        const key  = normalizedMap[norm];
+        const key = normalizedMap[ normalizeText(match) ];
         return `<a href="#${normalizeText(key)}">${match}</a>`;
       });
     }
 
+    // Función principal: busca y renderiza
     function buscar(term, plain = false) {
       const output   = document.getElementById('definition');
       const resetBtn = document.getElementById('reset-button');
       const normTerm = normalizeText(term);
       const key      = normalizedMap[normTerm];
+
       if (!key) {
-        output.textContent = `La palabra "${term}" no está en el diccionario.`;
+        output.textContent = term ? `La palabra "${term}" no está en el diccionario.` : 'Por favor, escribe una palabra.';
         resetBtn.style.display = 'none';
         return;
       }
+
       const entry = dictionary[key];
       const cita  = entry.cita ? `<br><em>${entry.cita}</em>` : '';
+
       if (plain) {
+        // Versión sin enlaces
         output.innerHTML       = `<span class="term">${key}</span>: ${entry.definicion}` + cita;
         resetBtn.style.display = 'none';
       } else {
-        output.innerHTML       = `<span class="term">${key}</span>: ${linkify(entry.definicion)}` + cita;
-        resetBtn.style.display = 'inline-block';
-        currentTerm            = key;
+        // Versión con enlaces
+        const htmlDef = linkify(entry.definicion);
+        output.innerHTML = `<span class="term">${key}</span>: ${htmlDef}` + cita;
+        // Mostrar reset solo si hay enlaces
+        resetBtn.style.display = htmlDef !== entry.definicion ? 'inline-block' : 'none';
+        currentTerm = key;
       }
     }
 
-    // Listeners de búsqueda (asegura minúsculas)
+    // Eventos de búsqueda
     document.getElementById('search-button')
-      .addEventListener('click', () => buscar(document.getElementById('search-input').value.trim().toLowerCase()));
+      .addEventListener('click', () => buscar(document.getElementById('search-input').value.trim()));
     document.getElementById('search-input')
-      .addEventListener('keydown', e => {
-        if (e.key === 'Enter')
-          buscar(e.target.value.trim().toLowerCase());
-      });
+      .addEventListener('keydown', e => { if (e.key === 'Enter') buscar(e.target.value.trim()); });
 
-    // Reset al original
+    // Botón reset
     document.getElementById('reset-button')
       .addEventListener('click', () => buscar(currentTerm, true));
 
