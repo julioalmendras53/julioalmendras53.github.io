@@ -12,6 +12,7 @@
     #definition { background-color: #f9f9f9; padding: 1rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); min-height: 100px; }
     .term { font-weight: bold; }
     #definition em { display: block; margin-top: 0.5rem; color: #666; font-style: italic; }
+    #definition p { margin: 0.5rem 0; }
     #definition a { color: #0066cc; text-decoration: none; }
     #definition a:hover { text-decoration: underline; }
     #reset-button { display: none; margin-top: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.9rem; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background-color: #f5f5f5; }
@@ -23,14 +24,18 @@
     <input type="text" id="search-input" placeholder="Escribe una palabra..." />
     <button id="search-button">Buscar</button>
   </div>
-  <div id="definition">Introduce un término y pulsa &quot;Buscar&quot; para ver la definición.</div>
+  <div id="definition">Introduce un término y pulsa “Buscar” para ver la definición.</div>
   <button id="reset-button">Mostrar original</button>  <script>
-    // Normaliza texto: quita acentos y minúsculas
+    // Normaliza texto: elimina acentos y pasa a minúsculas
     function normalizeText(str) {
-      return str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+      return str.normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase();
     }
 
-    // Diccionario con definiciones y citas
+    let currentTerm = '';
+
+    // Diccionario con definiciones (array o single) y cita opcional
     const dictionary = {
       infinito:   { definicion: "Que crece sin parar." },
       ser:        { definicion: "Existir, tener presencia real en el mundo." },
@@ -41,11 +46,13 @@
       universo:   { definicion: "Todo lo que existe tanto fuera de la Tierra como dentro." },
       dios:       { definicion: "Ser supremo que puede todo lo coherente y que se le rinde culto en buena parte del mundo." },
       cristo:     { definicion: "Hijo de Dios." },
-      madre:      { definiciones: [ "Mujer especial que ha engendrado uno o más hijos y que es símbolo de protección.", "mamá." ], cita: "«Madre: la palabra más bella pronunciada por el ser humano» — Kahlil Gibran" },
-      
+      madre:      { definiciones: [
+                     "Mujer especial que ha engendrado uno o más hijos y que es símbolo de protección.",
+                     "Término coloquialmente abreviado como mamá."
+                   ], cita: "«Madre: la palabra más bella pronunciada por el ser humano» — Kahlil Gibran" },
       realidad:   { definicion: "Sustantivo incontable femenino que señala la cualidad de lo real y efectivo que contrasta con lo ilusorio." },
       conciencia: { definicion: "Saber que tiene el ser humano de sí mismo y el entorno que no es fácilmente perdible." },
-      homotecia:  { definicion: "Zoom geométrico a una figura que consta de un centro y una razón y fundamentalmente se amplía o reduce según que número real le coloques de razón." },
+      homotecia:  { definicion: "Transformación que amplía o reduce una figura geométrica manteniendo su forma y proporciones." },
       "espíritu":{ definicion: "Parte inmaterial del binomio cuerpo y mente que sobrevive a la muerte y sirve para pensar, sentir y querer." },
       alma:       { definicion: "Soplo que Adonai puso a Adán como añadido a su ser más bruto y que se traspasó al género humano." },
       messi:      { definicion: "Genio del gol en fútbol." },
@@ -54,23 +61,22 @@
       "triángulo":{ definicion: "Forma geométrica plana determinada por tres ángulos y tres lados." },
       galaxia:    { definicion: "Sistema enorme de estrellas que por gravedad tiene forma y que es autónomo dentro del universo." },
       humano:     { definicion: "Individuo de la especie Homo sapiens que habita la Tierra, de postura erguida y gran capacidad simbólica." },
-      caos:       { definicion: "Estado amorfo e indefinido, desordenado y confuso que había al inicio antes del cosmos cuyo inicio marcó buenamente el transcurso posterior." },
-      infierno:   { definicion: "Lugar de castigo eterno hecho para los reprobos y donde no hay esperanza de existencia de bien." },
+      caos:       { definicion: "Estado amorfo e indefinido, desordenado y confuso que había al inicio antes del cosmos." },
+      infierno:   { definicion: "Lugar de castigo eterno hecho para los reprobos donde no hay esperanza de bien." },
       yo:         { definicion: "Primera persona del singular que en nominativo habla del propio sujeto." },
       unidefinido:{ definicion: "Definido con solo una frase." }
     };
 
-    // Mapa de claves normalizadas a originales
+    // Construye mapa de claves normalizadas → clave original
     const normalizedMap = {};
-    Object.keys(dictionary).forEach(key => {
+    for (const key of Object.keys(dictionary)) {
       normalizedMap[ normalizeText(key) ] = key;
-    });
+    }
 
-    // Regex para detectar palabras linkeables
+    // Genera regex para linkificar
     const normalizedKeys = Object.keys(normalizedMap).sort((a,b) => b.length - a.length);
     const linkRegex = new RegExp('\\b(' + normalizedKeys.join('|') + ')\\b', 'gi');
 
-    // Convierte palabras en <a href="#clave">
     function linkify(text) {
       return text.replace(linkRegex, match => {
         const key = normalizedMap[ normalizeText(match) ];
@@ -78,68 +84,77 @@
       });
     }
 
-    let currentTerm = '';
+    // Renderiza la entrada y gestiona historial
+    function renderEntry(term, plain=false, push=true) {
+      const output   = document.getElementById('definition');
+      const resetBtn = document.getElementById('reset-button');
+      const normTerm = normalizeText(term);
+      const key      = normalizedMap[normTerm];
 
-    // Función de renderizado y manejo de historial
-    function renderEntry(term, plain = false) {
-  // … buscar la entrada y extraer entry …
-  // Asegúrate de que siempre tengas un array:
-  const defs = entry.definiciones 
-             || (entry.definicion ? [ entry.definicion ] 
-                                 : []);
-  // Para cada definición, aplicamos linkify (o la dejamos plana)
-  const htmlDefs = defs
-    .map(d => plain ? d : linkify(d))
-    .map(d => `<p>${d}</p>`)
-    .join("");
+      if (!key) {
+        output.textContent = term
+          ? `La palabra "${term}" no está en el diccionario.`
+          : 'Por favor, escribe una palabra.';
+        resetBtn.style.display = 'none';
+      } else {
+        const entry = dictionary[key];
+        const defs  = entry.definiciones
+          ? entry.definiciones
+          : [ entry.definicion || '' ];
+        const htmlDefs = defs.map(d => plain ? d : linkify(d))
+                             .map(d => `<p>${d}</p>`)
+                             .join('');
+        const cita = entry.cita ? `<br><em>${entry.cita}</em>` : '';
 
-  const cita = entry.cita ? `<br><em>${entry.cita}</em>` : "";
-  output.innerHTML = `<span class="term">${key}</span>:${ htmlDefs }${ cita }`;
-  // …
-}
-          resetBtn.style.display = htmlDef !== entry.definicion ? 'inline-block' : 'none';
-          currentTerm = key;
-        }
+        output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${cita}`;
+        // Mostrar botón si hay enlaces y no es plain
+        resetBtn.style.display = (!plain && linkRegex.test(entry.definicion || defs[0]))
+          ? 'inline-block'
+          : 'none';
+        currentTerm = key;
       }
+
       if (push) {
         const url = plain ? location.pathname : '#' + normalizeText(currentTerm);
         history.pushState({ term: currentTerm, plain }, '', url);
       }
     }
 
-    // Búsqueda desde input
-    document.getElementById('search-button').addEventListener('click', () => {
-      const term = document.getElementById('search-input').value.trim();
-      renderEntry(term, false, true);
-    });
-    document.getElementById('search-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter') renderEntry(e.target.value.trim(), false, true);
-    });
+    // Listeners de búsqueda
+    document.getElementById('search-button')
+      .addEventListener('click', () => renderEntry(
+        document.getElementById('search-input').value.trim(),
+        false,
+        true
+      ));
+    document.getElementById('search-input')
+      .addEventListener('keydown', e => {
+        if (e.key === 'Enter') renderEntry(e.target.value.trim(), false, true);
+      });
 
-    // Hashchange para links internos
+    // Enlaces hash
     window.addEventListener('hashchange', () => {
       const term = location.hash.slice(1);
       if (term) renderEntry(term, false, false);
     });
 
-    // Popstate para botón atrás/adelante
-    window.addEventListener('popstate', event => {
-      if (event.state) {
-        renderEntry(event.state.term, event.state.plain, false);
+    // Historial atrás/adelante
+    window.addEventListener('popstate', e => {
+      if (e.state) {
+        renderEntry(e.state.term, e.state.plain, false);
       } else {
-        // Navegación inicial
-        document.getElementById('definition').textContent = 'Introduce un término y pulsa "Buscar" para ver la definición.';
+        document.getElementById('definition').textContent =
+          'Introduce un término y pulsa “Buscar” para ver la definición.';
         document.getElementById('reset-button').style.display = 'none';
         document.getElementById('search-input').value = '';
       }
     });
 
     // Botón mostrar original
-    document.getElementById('reset-button').addEventListener('click', () => {
-      if (currentTerm) renderEntry(currentTerm, true, true);
-    });
+    document.getElementById('reset-button')
+      .addEventListener('click', () => renderEntry(currentTerm, true, true));
 
-    // Inicialización en carga
+    // Inicialización
     if (location.hash) {
       renderEntry(location.hash.slice(1), false, false);
       history.replaceState({ term: normalizeText(location.hash.slice(1)), plain: false }, '', location.hash);
