@@ -61,6 +61,17 @@
     #definition a:hover {
       text-decoration: underline;
     }
+    /* Botón de restaurar */
+    #reset-button {
+      display: none;
+      margin-top: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background-color: #f5f5f5;
+    }
   </style>
 </head>
 <body>
@@ -69,20 +80,21 @@
     <input type="text" id="search-input" placeholder="Escribe una palabra..." />
     <button id="search-button">Buscar</button>
   </div>
-  <div id="definition">
-    Introduce un término y pulsa "Buscar" para ver la definición.
-  </div>
-  <button id="reset-button" style="display:none; margin-top:0.5rem;">Mostrar original</button>  <script>
-    // Variables para restaurar el HTML original
-    let originalHTML = '';
+  <div id="definition">Introduce un término y pulsa "Buscar" para ver la definición.</div>
+  <button id="reset-button">Mostrar original</button>  <script>
+    // Función para normalizar y eliminar acentos
+    function normalizeText(str) {
+      return str.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    }
+
     let currentTerm = '';
 
-    // 1) Diccionario de términos
+    // Diccionario de términos con acentos donde corresponda
     const dictionary = {
       infinito:   { definicion: "Que crece sin parar." },
       ser:        { definicion: "Existir, tener presencia real en el mundo." },
       monstruo:   { definicion: "Animal fabulado, extraordinario, de figura horrible." },
-      tirabuzón:  { definicion: "Cada una de las espirales que forma un cabello enrollado naturalmente." },
+      "tirabuzón":{ definicion: "Cada una de las espirales que forma un cabello enrollado naturalmente." },
       ropa:       { definicion: "Conjunto de prendas que sirven para cubrir el cuerpo humano." },
       ilimitado:  { definicion: "Que no tiene límite." },
       universo:   { definicion: "Todo lo que existe tanto fuera de la Tierra como dentro." },
@@ -92,12 +104,12 @@
       realidad:   { definicion: "Sustantivo incontable femenino que señala la cualidad de lo real y efectivo que contrasta con lo ilusorio." },
       conciencia: { definicion: "Saber que tiene el ser humano de sí mismo y el entorno que no es fácilmente perdible." },
       homotecia:  { definicion: "Zoom geométrico a una figura que consta de un centro y una razón y fundamentalmente se amplía o reduce según que número real le coloques de razón." },
-      espíritu:   { definicion: "Parte inmaterial del binomio cuerpo y mente que sobrevive a la muerte y sirve para pensar, sentir y querer." },
+      "espíritu":{ definicion: "Parte inmaterial del binomio cuerpo y mente que sobrevive a la muerte y sirve para pensar, sentir y querer." },
       alma:       { definicion: "Soplo que Adonai puso a Adán como añadido a su ser más bruto y que se traspasó al género humano." },
       messi:      { definicion: "Genio del gol en fútbol." },
       genio:      { definicion: "Poder mental extraordinario que produce obras de excepcional precio." },
       inteligencia:{ definicion: "Capacidad de aprender y resolver problemas adaptándose plásticamente al entorno." },
-      triángulo: { definicion: "Forma geométrica plana determinada por tres ángulos y tres lados." },
+      "triángulo":{ definicion: "Forma geométrica plana determinada por tres ángulos y tres lados." },
       galaxia:    { definicion: "Sistema enorme de estrellas que por gravedad tiene forma y que es autónomo dentro del universo." },
       humano:     { definicion: "Individuo de la especie Homo sapiens que habita la Tierra, de postura erguida y gran capacidad simbólica." },
       caos:       { definicion: "Estado amorfo e indefinido, desordenado y confuso que había al inicio antes del cosmos cuyo inicio marcó buenamente el transcurso posterior." },
@@ -106,58 +118,52 @@
       unidefinido:{ definicion: "Definido con solo una frase." }
     };
 
-    // 2) Regex dinámico (las claves más largas primero para evitar empates)
-    const keys      = Object.keys(dictionary).sort((a,b) => b.length - a.length);
-    const linkRegex = new RegExp('\\b(' + keys.join('|') + ')\\b', 'gi');
+    // Map de claves normalizadas a la clave original
+    const normalizedMap = {};
+    Object.keys(dictionary).forEach(key => {
+      normalizedMap[ normalizeText(key) ] = key;
+    });
+    const normalizedKeys = Object.keys(normalizedMap).sort((a,b) => b.length - a.length);
+    const linkRegex = new RegExp('\\b(' + normalizedKeys.join('|') + ')\\b', 'gi');
 
-    // 3) Envuelve cada término en <a href="#término">
     function linkify(text) {
       return text.replace(linkRegex, match => {
-        const key = match.toLowerCase();
-        return `<a href="#${key}">${match}</a>`;
+        const norm = normalizeText(match.toLowerCase());
+        const key  = normalizedMap[norm];
+        return `<a href="#${normalizeText(key)}">${match}</a>`;
       });
     }
 
-    // 4) Función de búsqueda y renderizado
-    function buscar(term) {
-      const output = document.getElementById('definition');
-      const resetButton = document.getElementById('reset-button');
-      currentTerm = term;
-
-      if (!term) {
-        output.textContent = 'Por favor, escribe una palabra.';
-        resetButton.style.display = 'none';
+    function buscar(term, plain = false) {
+      const output   = document.getElementById('definition');
+      const resetBtn = document.getElementById('reset-button');
+      const normTerm = normalizeText(term);
+      const key      = normalizedMap[normTerm];
+      if (!key) {
+        output.textContent = `La palabra "${term}" no está en el diccionario.`;
+        resetBtn.style.display = 'none';
         return;
       }
-      const entry = dictionary[term];
-      if (entry && entry.definicion) {
-        // Guarda el HTML original (sin enlaces)
-        originalHTML = `<span class="term">${term}</span>: ${entry.definicion}` +
-          (entry.cita ? `<br><em>${entry.cita}</em>` : '');
-
-        // Renderiza con enlaces
-        const htmlDef = linkify(entry.definicion);
-        output.innerHTML = `<span class="term">${term}</span>: ${htmlDef}` +
-                            (entry.cita ? `<br><em>${entry.cita}</em>` : '');
-
-        // Muestra el botón de restaurar
-        resetButton.style.display = 'inline-block';
+      const entry = dictionary[key];
+      const cita  = entry.cita ? `<br><em>${entry.cita}</em>` : '';
+      if (plain) {
+        output.innerHTML    = `<span class="term">${key}</span>: ${entry.definicion}` + cita;
+        resetBtn.style.display = 'none';
       } else {
-        output.textContent = `La palabra "${term}" no está en el diccionario.`;
-        resetButton.style.display = 'none';
+        output.innerHTML    = `<span class="term">${key}</span>: ${linkify(entry.definicion)}` + cita;
+        resetBtn.style.display = 'inline-block';
+        currentTerm = term;
       }
     }
 
-    // 5) Atacha buscador a input+botón
     document.getElementById('search-button')
-            .addEventListener('click', () => buscar(document.getElementById('search-input').value.trim().toLowerCase()));
+      .addEventListener('click', () => buscar(document.getElementById('search-input').value.trim()));
     document.getElementById('search-input')
-            .addEventListener('keydown', e => {
-              if (e.key === 'Enter')
-                buscar(e.target.value.trim().toLowerCase());
-            });
+      .addEventListener('keydown', e => { if (e.key === 'Enter') buscar(e.target.value.trim()); });
 
-    // 6) Hash-routing: cuando cambie el hash en la URL, vuelve a buscar
+    document.getElementById('reset-button')
+      .addEventListener('click', () => buscar(currentTerm, true));
+
     window.addEventListener('hashchange', () => {
       const term = location.hash.slice(1);
       if (term) {
@@ -165,20 +171,10 @@
         buscar(term);
       }
     });
-    // Si al cargar ya viene con hash, lo procesamos
     if (location.hash) {
       const term = location.hash.slice(1);
       document.getElementById('search-input').value = term;
       buscar(term);
     }
-
-    // 7) Listener para restaurar el HTML original
-    document.getElementById('reset-button')
-      .addEventListener('click', () => {
-        const output = document.getElementById('definition');
-        const resetButton = document.getElementById('reset-button');
-        output.innerHTML = originalHTML;
-        resetButton.style.display = 'none';
-      });
   </script></body>
 </html>
