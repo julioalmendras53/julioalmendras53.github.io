@@ -57,6 +57,33 @@
   </style>
 </head>
 <body>
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  // 1) Generar dinámicamente la lista de IDs de tus <article>
+  const entries = Array.from(
+    document.querySelectorAll('article.entry')
+  ).map(el => el.id);
+
+  // 2) Crear un RegExp que busque cualquiera de esas palabras
+  const regex = new RegExp('\\b(' + entries.join('|') + ')\\b', 'gi');
+
+  // 3) Función para envolver cada coincidencia en un <a>
+  function linkifyText(html) {
+    return html.replace(regex, match => {
+      const slug = match.toLowerCase();
+      return `<a href="${slug}.html">${match}</a>`;
+    });
+  }
+
+  // 4) Aplicar linkify a cada párrafo de definición
+  document.querySelectorAll('.definition').forEach(node => {
+    // Sólo si aún no tiene enlaces
+    if (!node.querySelector('a')) {
+      node.innerHTML = linkifyText(node.innerHTML);
+    }
+  });
+});
+</script>
   <h1>Diccionario Web</h1>
   <div id="search-container">
     <input type="text" id="search-input" placeholder="Escribe una palabra..." />
