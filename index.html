@@ -54,7 +54,7 @@
       color: #666;
       font-style: italic;
     }
-    /* Estilo para enlaces internos */
+    /* Enlaces internos */
     #definition a {
       color: #0066cc;
       text-decoration: none;
@@ -75,127 +75,87 @@
   </div>
 
   <script>
-    // Tu diccionario de términos
+    // 1) Diccionario de términos
     const dictionary = {
-      infinito: {
-        definicion: "Que crece sin parar."
-      },
-      ser: {
-        definicion: "Existir, tener presencia real en el mundo."
-      },
-      monstruo: {
-        definicion: "Animal fabulado, extraordinario, de figura horrible."
-      },
-      tirabuzón: {
-        definicion: "Cada una de las espirales que forma un cabello enrollado naturalmente."
-      },
-      ropa: {
-        definicion: "Conjunto de prendas que sirven para cubrir el cuerpo humano."
-      },
-      ilimitado: {
-        definicion: "Que no tiene límite."
-      },
-      universo: {
-        definicion: "Todo lo que existe tanto fuera de la Tierra como dentro."
-      },
-      dios: {
-        definicion: "Ser supremo que puede todo lo coherente y que se le rinde culto en buena parte del mundo."
-      },
-      cristo: {
-        definicion: "Hijo de Dios."
-      },
-      madre: {
-        definacion: "Mujer especial que ha engendrado uno o más hijos y que es símbolo de protección.",
-        cita: "«Madre: la palabra más bella pronunciada por el ser humano» — Kahlil Gibran"
-      },
-      realidad: { 
-        definicion: "Sustantivo incontable femenino que señala la cualidad de lo real y efectivo que contrasta con lo ilusorio."
-      },
-      conciencia: {
-        definicion: "Saber que tiene el ser humano de sí mismo y el entorno que no es fácilmente perdible."
-      },
-      homotecia: {
-        definicion: "Zoom geométrico a una figura que consta de un centro y una razón y fundamentalmente se amplía o reduce según que número real le coloques de razón."
-      },
-      espíritu: {
-        definicion: "Parte inmaterial del binomio cuerpo y mente que sobrevive a la muerte y sirve para pensar, sentir y querer."
-      },
-      alma: { 
-        definicion: "Soplo que Adonai puso a Adán como añadido a su ser más bruto y que se traspasó al género humano."
-      },
-      messi: {
-        definicion: "Genio del gol en fútbol."
-      },
-      genio: { 
-        definicion: "Poder mental extraordinario que produce obras de excepcional precio."
-      },
-      inteligencia: { 
-        definicion: "Capacidad de aprender y resolver problemas adaptándose plásticamente al entorno."
-      },
-      triángulo: {
-        definicion: "Forma geométrica plana determinada por tres ángulos y tres lados."
-      },
-      galaxia: {
-        definicion: "Sistema enorme de estrellas que por gravedad tiene forma y que es autónomo dentro del universo."
-      },
-      humano: {
-        definicion: "Individuo de la especie Homo sapiens que habita la Tierra, de postura erguida y gran capacidad simbólica."
-      },
-      caos: {
-        definicion: "Estado amorfo e indefinido, desordenado y confuso que había al inicio antes del cosmos cuyo inicio marcó buenamente el transcurso posterior."
-      },
-      infierno: {
-        definicion: "Lugar de castigo eterno hecho para los reprobos y dónde no hay esperanza de existencia de bien."
-      },
-      yo: {
-        definicion: "Primera persona del singular que en nominativo habla del propio sujeto."
-      },
-      unidefinido: {
-        definicion: "Definido con solo una frase."
-      }
+      infinito:   { definicion: "Que crece sin parar." },
+      ser:        { definicion: "Existir, tener presencia real en el mundo." },
+      monstruo:   { definicion: "Animal fabulado, extraordinario, de figura horrible." },
+      tirabuzón:  { definicion: "Cada una de las espirales que forma un cabello enrollado naturalmente." },
+      ropa:       { definicion: "Conjunto de prendas que sirven para cubrir el cuerpo humano." },
+      ilimitado:  { definicion: "Que no tiene límite." },
+      universo:   { definicion: "Todo lo que existe tanto fuera de la Tierra como dentro." },
+      dios:       { definicion: "Ser supremo que puede todo lo coherente y que se le rinde culto en buena parte del mundo." },
+      cristo:     { definicion: "Hijo de Dios." },
+      madre:      { definicion: "Mujer especial que ha engendrado uno o más hijos y que es símbolo de protección.", cita: "«Madre: la palabra más bella pronunciada por el ser humano» — Kahlil Gibran" },
+      realidad:   { definicion: "Sustantivo incontable femenino que señala la cualidad de lo real y efectivo que contrasta con lo ilusorio." },
+      conciencia: { definicion: "Saber que tiene el ser humano de sí mismo y el entorno que no es fácilmente perdible." },
+      homotecia:  { definicion: "Zoom geométrico a una figura que consta de un centro y una razón y fundamentalmente se amplía o reduce según que número real le coloques de razón." },
+      espíritu:   { definicion: "Parte inmaterial del binomio cuerpo y mente que sobrevive a la muerte y sirve para pensar, sentir y querer." },
+      alma:       { definicion: "Soplo que Adonai puso a Adán como añadido a su ser más bruto y que se traspasó al género humano." },
+      messi:      { definicion: "Genio del gol en fútbol." },
+      genio:      { definicion: "Poder mental extraordinario que produce obras de excepcional precio." },
+      inteligencia:{ definicion: "Capacidad de aprender y resolver problemas adaptándose plásticamente al entorno." },
+      "triángulo": { definicion: "Forma geométrica plana determinada por tres ángulos y tres lados." },
+      galaxia:    { definicion: "Sistema enorme de estrellas que por gravedad tiene forma y que es autónomo dentro del universo." },
+      humano:     { definicion: "Individuo de la especie Homo sapiens que habita la Tierra, de postura erguida y gran capacidad simbólica." },
+      caos:       { definicion: "Estado amorfo e indefinido, desordenado y confuso que había al inicio antes del cosmos cuyo inicio marcó buenamente el transcurso posterior." },
+      infierno:   { definicion: "Lugar de castigo eterno hecho para los reprobos y donde no hay esperanza de existencia de bien." },
+      yo:         { definicion: "Primera persona del singular que en nominativo habla del propio sujeto." },
+      unidefinido:{ definicion: "Definido con solo una frase." }
     };
 
-    // Crea el regex dinámico a partir de las claves del diccionario
-    const keys = Object.keys(dictionary)
-      .sort((a, b) => b.length - a.length); // para empatar primero los más largos
+    // 2) Regex dinámico (las claves más largas primero para evitar empates)
+    const keys      = Object.keys(dictionary).sort((a,b) => b.length - a.length);
     const linkRegex = new RegExp('\\b(' + keys.join('|') + ')\\b', 'gi');
 
-    // Función para envolver en <a> cada término reconocido
+    // 3) Envuelve cada término en <a href="#término">
     function linkify(text) {
       return text.replace(linkRegex, match => {
         const key = match.toLowerCase();
-        return `<a href="${key}.html">${match}</a>`;
+        return `<a href="#${key}">${match}</a>`;
       });
     }
 
-    // Función de búsqueda y renderizado
-    function buscar() {
-      const input = document.getElementById('search-input');
+    // 4) Función de búsqueda y renderizado
+    function buscar(term) {
       const output = document.getElementById('definition');
-      const term = input.value.trim().toLowerCase();
-
       if (!term) {
         output.textContent = 'Por favor, escribe una palabra.';
         return;
       }
-
       const entry = dictionary[term];
       if (entry && entry.definicion) {
-        // Aplica linkify a la definición
         const htmlDef = linkify(entry.definicion);
-        const cita = entry.cita ? `<br><em>${entry.cita}</em>` : '';
+        const cita    = entry.cita ? `<br><em>${entry.cita}</em>` : '';
         output.innerHTML = `<span class="term">${term}</span>: ${htmlDef}${cita}`;
       } else {
         output.textContent = `La palabra "${term}" no está en el diccionario.`;
       }
     }
 
+    // Atacha buscador a input+botón
     document.getElementById('search-button')
-      .addEventListener('click', buscar);
+            .addEventListener('click', () => buscar(document.getElementById('search-input').value.trim().toLowerCase()));
     document.getElementById('search-input')
-      .addEventListener('keydown', e => {
-        if (e.key === 'Enter') buscar();
-      });
+            .addEventListener('keydown', e => {
+              if (e.key === 'Enter')
+                buscar(e.target.value.trim().toLowerCase());
+            });
+
+    // 5) Hash-routing: cuando cambie el hash en la URL, vuelve a buscar
+    window.addEventListener('hashchange', () => {
+      const term = location.hash.slice(1);
+      if (term) {
+        document.getElementById('search-input').value = term;
+        buscar(term);
+      }
+    });
+    // Si al cargar ya viene con hash, lo procesamos
+    if (location.hash) {
+      const term = location.hash.slice(1);
+      document.getElementById('search-input').value = term;
+      buscar(term);
+    }
   </script>
 </body>
 </html>
