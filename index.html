@@ -80,24 +80,22 @@
     let currentTerm = '';
 
     // Función de renderizado y manejo de historial
-    function renderEntry(term, plain=false, push=true) {
-      const output   = document.getElementById('definition');
-      const resetBtn = document.getElementById('reset-button');
-      const normTerm = normalizeText(term);
-      const key      = normalizedMap[normTerm];
+    function renderEntry(term, plain = false) {
+  // … buscar la entrada y extraer entry …
+  // Asegúrate de que siempre tengas un array:
+  const defs = entry.definiciones 
+             || (entry.definicion ? [ entry.definicion ] 
+                                 : []);
+  // Para cada definición, aplicamos linkify (o la dejamos plana)
+  const htmlDefs = defs
+    .map(d => plain ? d : linkify(d))
+    .map(d => `<p>${d}</p>`)
+    .join("");
 
-      if (!key) {
-        output.textContent = term ? `La palabra "${term}" no está en el diccionario.` : 'Por favor, escribe una palabra.';
-        resetBtn.style.display = 'none';
-      } else {
-        const entry = dictionary[key];
-        const cita  = entry.cita ? `<br><em>${entry.cita}</em>` : '';
-        if (plain) {
-          output.innerHTML       = `<span class="term">${key}</span>: ${entry.definicion}` + cita;
-          resetBtn.style.display = 'none';
-        } else {
-          const htmlDef = linkify(entry.definicion);
-          output.innerHTML       = `<span class="term">${key}</span>: ${htmlDef}` + cita;
+  const cita = entry.cita ? `<br><em>${entry.cita}</em>` : "";
+  output.innerHTML = `<span class="term">${key}</span>:${ htmlDefs }${ cita }`;
+  // …
+}
           resetBtn.style.display = htmlDef !== entry.definicion ? 'inline-block' : 'none';
           currentTerm = key;
         }
