@@ -148,22 +148,40 @@
                                "Levemente borracho."  ] } 
 
  };
+// Construye mapa de claves normalizadas → clave original
+const normalizedMap = {};
+for (const key of Object.keys(dictionary)) {
+  normalizedMap[ normalizeText(key) ] = key;
+}
 
-    // Construye mapa de claves normalizadas → clave original
-    const normalizedMap = {};
-    for (const key of Object.keys(dictionary)) {
-      normalizedMap[ normalizeText(key) ] = key;
-    }
+// Genera regex para linkificar (global) y regex de prueba (sin 'g')
+const normalizedKeys  = Object.keys(normalizedMap).sort((a, b) => b.length - a.length);
+const linkRegex       = new RegExp('\\b(' + normalizedKeys.join('|') + ')\\b', 'gi');
+const testLinkRegex   = new RegExp(linkRegex.source, 'i');
 
-    // Genera regex para linkificar
-    const normalizedKeys = Object.keys(normalizedMap).sort((a,b) => b.length - a.length);
-    const linkRegex = new RegExp('\\b(' + normalizedKeys.join('|') + ')\\b', 'gi');
+function linkify(text) {
+  return text.replace(linkRegex, match => {
+    const key = normalizedMap[ normalizeText(match) ];
+    return `<a href="#${normalizeText(key)}">${match}</a>`;
+  });
+}
 
-    function linkify(text) {
-      return text.replace(linkRegex, match => {
-        const key = normalizedMap[ normalizeText(match) ];
-        return `<a href="#${normalizeText(key)}">${match}</a>`;
-      });
+// Ejemplo de uso dentro de renderEntry:
+function renderEntry(term, plain = false) {
+  // … montas el HTML …
+  output.innerHTML = /* tu HTML aquí */;
+
+  // Ahora comprobamos sin lastIndex
+  const sampleText = entry.definicion || defs[0];
+  const hasLink    = testLinkRegex.test(sampleText);
+
+  resetBtn.style.display = (!plain && hasLink)
+    ? 'inline-block'
+    : 'none';
+
+  // …
+}
+    
     }
 
     // Renderiza la entrada y gestiona historial
