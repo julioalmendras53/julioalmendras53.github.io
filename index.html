@@ -148,44 +148,29 @@
                                "Levemente borracho."  ] } 
 
  };
-// Construye mapa de claves normalizadas → clave original
-const normalizedMap = {};
-for (const key of Object.keys(dictionary)) {
-  normalizedMap[ normalizeText(key) ] = key;
-}
+<!-- tras la definición de “dictionary” pega esto: -->
+  <script>
+    // Construye mapa de claves normalizadas → clave original
+    const normalizedMap = {};
+    for (const key of Object.keys(dictionary)) {
+      normalizedMap[ normalizeText(key) ] = key;
+    }
 
-// Genera regex para linkificar (global) y regex de prueba (sin 'g')
-const normalizedKeys  = Object.keys(normalizedMap).sort((a, b) => b.length - a.length);
-const linkRegex       = new RegExp('\\b(' + normalizedKeys.join('|') + ')\\b', 'gi');
-const testLinkRegex   = new RegExp(linkRegex.source, 'i');
+    // Genera regex para linkificar (global) y regex de prueba (sin 'g')
+    const normalizedKeys  = Object.keys(normalizedMap).sort((a, b) => b.length - a.length);
+    const linkRegex       = new RegExp('\\b(' + normalizedKeys.join('|') + ')\\b', 'gi');
+    const testLinkRegex   = new RegExp(linkRegex.source, 'i');
 
-function linkify(text) {
-  return text.replace(linkRegex, match => {
-    const key = normalizedMap[ normalizeText(match) ];
-    return `<a href="#${normalizeText(key)}">${match}</a>`;
-  });
-}
-
-// Ejemplo de uso dentro de renderEntry:
-function renderEntry(term, plain = false) {
-  // … montas el HTML …
-  output.innerHTML = /* tu HTML aquí */;
-
-  // Ahora comprobamos sin lastIndex
-  const sampleText = entry.definicion || defs[0];
-  const hasLink    = testLinkRegex.test(sampleText);
-
-  resetBtn.style.display = (!plain && hasLink)
-    ? 'inline-block'
-    : 'none';
-
-  // …
-}
-    
+    // Función que sustituye cada palabra del diccionario por un <a>
+    function linkify(text) {
+      return text.replace(linkRegex, match => {
+        const key = normalizedMap[ normalizeText(match) ];
+        return `<a href="#${normalizeText(key)}">${match}</a>`;
+      });
     }
 
     // Renderiza la entrada y gestiona historial
-    function renderEntry(term, plain=false, push=true) {
+    function renderEntry(term, plain = false, push = true) {
       const output   = document.getElementById('definition');
       const resetBtn = document.getElementById('reset-button');
       const normTerm = normalizeText(term);
@@ -198,19 +183,26 @@ function renderEntry(term, plain = false) {
         resetBtn.style.display = 'none';
       } else {
         const entry = dictionary[key];
-        const defs  = entry.definiciones
-          ? entry.definiciones
+        const defs  = entry.definiciones 
+          ? entry.definiciones 
           : [ entry.definicion || '' ];
-        const htmlDefs = defs.map(d => plain ? d : linkify(d))
-                             .map(d => `<p>${d}</p>`)
-                             .join('');
+        const htmlDefs = defs
+          .map(d => plain ? d : linkify(d))
+          .map(d => `<p>${d}</p>`)
+          .join('');
         const cita = entry.cita ? `<br><em>${entry.cita}</em>` : '';
 
+        // Monta el HTML de la definición
         output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${cita}`;
-        // Mostrar botón si hay enlaces y no es plain
-        resetBtn.style.display = (!plain && linkRegex.test(entry.definicion || defs[0]))
+
+        // Comprueba con el regex sin bandera 'g' si hay enlaces
+        const sampleText = entry.definicion || defs[0];
+        const hasLink    = testLinkRegex.test(sampleText);
+
+        resetBtn.style.display = (!plain && hasLink)
           ? 'inline-block'
           : 'none';
+
         currentTerm = key;
       }
 
@@ -250,16 +242,15 @@ function renderEntry(term, plain = false) {
       }
     });
 
-    // Botón mostrar original
+    // Botón “Mostrar original”
     document.getElementById('reset-button')
       .addEventListener('click', () => renderEntry(currentTerm, true, true));
 
-    // Inicialización
+    // Inicialización al cargar
     if (location.hash) {
       renderEntry(location.hash.slice(1), false, false);
       history.replaceState({ term: normalizeText(location.hash.slice(1)), plain: false }, '', location.hash);
     } else {
       history.replaceState(null, '', location.pathname);
     }
-  </script></body>
-</html>
+  </script>
