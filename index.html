@@ -257,7 +257,9 @@
     document.getElementById('search-input')
       .addEventListener('keydown', e => {
         if (e.key === 'Enter') renderEntry(e.target.value.trim(), false, true);
-      });
+      });const imagenHtml = entry.imagen
+  ? `<br><img src="${entry.imagen}" alt="${key}" style="max-width:100%;margin-top:0.5rem;">`
+  : '';
 
     // Enlaces hash
     window.addEventListener('hashchange', () => {
