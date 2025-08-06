@@ -289,3 +289,18 @@
       history.replaceState(null, '', location.pathname);
     }
   </script>
+<script>
+function renderEntry(term, plain = false, push = true) {
+  // … código existente …
+  if (key) {
+    const entry = dictionary[key];
+    const defs  = entry.definiciones ? entry.definiciones : [entry.definicion || ""];
+    const htmlDefs = defs.map(d => plain ? d : linkify(d)).map(d => `<p>${d}</p>`).join("");
+    const cita = entry.cita ? `<br><em>${entry.cita}</em>` : "";
+    const imagenHtml = entry.imagen ? `<br><img src="${entry.imagen}" alt="${key}" style="max-width:100%;margin-top:0.5rem;">` : "";
+    // ahora añadimos imagenHtml antes de la cita
+    output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${cita}`;
+    // … resto del código …
+  }
+}
+</script>
