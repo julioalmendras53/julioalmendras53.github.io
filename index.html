@@ -15,7 +15,7 @@
     #definition p { margin: 0.5rem 0; }
     #definition a { color: #0066cc; text-decoration: none; }
     #definition a:hover { text-decoration: underline; }
-    #reset-button { display: none; margin-top: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.9rem; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background-color: #f5f5f5; }
+    #reset-button, #upload-button { display: none; margin-top: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.9rem; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background-color: #f5f5f5; }
   </style>
 </head>
 <body>
@@ -25,178 +25,44 @@
     <button id="search-button">Buscar</button>
   </div>
   <div id="definition">Introduce un término y pulsa “Buscar” para ver la definición.</div>
-  <button id="reset-button">Mostrar original</button>  <script>
+  <button id="reset-button">Mostrar original</button>
+  <button id="upload-button">Subir imagen</button>
+  <input type="file" id="image-upload" accept="image/*" style="display:none" />  <script>
     // Normaliza texto: elimina acentos y pasa a minúsculas
     function normalizeText(str) {
       return str.normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[̀-\u036f]/g, '')
                 .toLowerCase();
     }
 
     let currentTerm = '';
 
-    // Diccionario con definiciones (array o single) y cita opcional
+    // Diccionario con definiciones e imágenes
     const dictionary = {
-      infinito:   { definicion: "Que crece sin parar.", 
-                   imagen: "images/infinito.jpg" },
-      ser:        { definicion: "Para afirmar o negar un puente entre sujeto y predicado." },
-      monstruo:   { definicion: "Animal fabulado, extraordinario, de figura horrible." },
-      "tirabuzón":{ definicion: "Cada una de las espirales que forma un cabello enrollado naturalmente." },
-      ropa:       { definicion: "Conjunto de prendas que sirven para cubrir el cuerpo humano." },
-      ilimitado:  { definicion: "Que no tiene límite." },
-      universo:   { definicion: "Todo lo que existe tanto fuera de la Tierra como dentro." },
-      dios:       { definicion: "Ser supremo que puede todo lo coherente y que se le rinde culto en buena parte del mundo." },
-      cristo:     { definicion: "Hijo de Dios." },
-      madre:      { definiciones: [
-                     "Mujer especial que ha engendrado uno o más hijos y que es símbolo de protección.",
-                     "Término coloquialmente abreviado como mamá."
-                   ], cita: "«Madre: la palabra más bella pronunciada por el ser humano» — Kahlil Gibran" },
-      realidad:   { definicion: "Sustantivo incontable femenino que señala la cualidad de lo real y efectivo que contrasta con lo ilusorio." },
-      conciencia: { definicion: "Saber que tiene el ser humano de sí mismo y el entorno que no es fácilmente perdible." },
-      homotecia:  { definicion: "Zoom geométrico a una figura que consta de un centro y una razón y fundamentalmente se amplía o reduce según que número real le coloques de razón." },
-      "espíritu":{ definicion: "Parte inmaterial del binomio cuerpo y mente que sobrevive a la muerte y sirve para pensar, sentir y querer." },
-      alma:       { definicion: "Soplo que Adonai puso a Adán como añadido a su ser más bruto y que se traspasó al género humano." },
-      messi:      { definicion: "Genio del gol en fútbol." },
-      genio:      { definicion: "Poder mental extraordinario que produce obras de excepcional precio." },
-      inteligencia:{ definicion: "Capacidad de aprender y resolver problemas adaptándose plásticamente al entorno." },
-      "triángulo":{ definicion: "Forma geométrica plana determinada por tres ángulos y tres lados." },
-      galaxia:    { definicion: "Sistema enorme de estrellas que por gravedad tiene forma y que es autónomo dentro del universo." },
-      humano:     { definicion: "Individuo de la especie Homo sapiens que habita la Tierra, de postura erguida y gran capacidad simbólica." },
-      caos:       { definicion: "Estado amorfo e indefinido, desordenado y confuso que había al inicio antes del cosmos y cuyo inicio marcó buenamente el transcurso posterior." },
-      infierno:   { definicion: "Lugar de castigo eterno hecho para los reprobos y dónde no hay esperanza de existencia de bien." },
-      yo:         { definicion: "Primera persona del singular que en nominativo habla del propio sujeto." },
-      unidefinido:{ definicion: "Definido con solo una frase." },
-      cabra:      { definiciones: [
-                    "Mamífero rumiante doméstico con cuernos y barba.",
-                    "En un ámbito, el mejor de todos los tiempos." 
-                   ] },
-      jabonoso:   { definicion: "Que, debido a su presencia de jabón, resulta suave, untuoso o resbaladizo al tacto." ,
-                   cita: "22634 El infinito es huidizo no por ser jabonoso." },
-      mundo:      { definicion: "Planeta en que habitamos los seres humanos, ubicado en la franja habitable del sistema solar." },
-      sol:        { definicion: "Astro de tipo espectral G2V que es el centro de nuestro sistema planetario. Compuesto por hidrógeno y helio, su energía radiante aporta luz y calor para sostener la vida en la Tierra." },
-      perro:      { definicion: "Mamífero doméstico carnívoro y canido del que hay cerca de 350 razas distintas variando en forma, tamaño y pelaje. Tiene oído y olfato muy agudos y es leal a su dueño.", 
-                   imagen: "images/perro.jpg" },
-      meme:       { definicion: "Unidad de información en versión texto, imagen, audio o video que se transmite por Internet con tono burlesco y caricaturesco." }, 
-      internet:   { definicion: "Red global de redes que es descentralizada y que funciona con los protocolos TCP/IP para conectar amplisimo contenido multimedia." }, 
-      "egoísmo":{ definicion: "Doctrina que antepone el amor propio al bienestar colectivo." },
-      profeta:    { definicion: "Persona que por influjo de Dios conoce lo venidero y advierte a la gente para que se convierta a la fe." },
-      ronaldo:    { definicion: "Leyenda máxima en el fútbol del Real Madrid." },
-      embarazada: { definicion: "Participio y adjetivo femenino natural que se refiere a la mujer gestante y que dura 40 semanas o 9 meses para culminar en el parto." },
-      ñañar:      { definicion: "Terminar una frase con la palabra de inicio." 
-      , cita:      "«8091 ñañ es la palabra.8092 La ñañ es transparente como el infinito. 8095 La ñañ será la palabra para designar ese raro gusto por terminar por el inicio»"  },
-      judas:      { definiciones: [ "Por judas iscariote: máxima expresión de la traición." ,
-                                    "Muñeco que ponen en semana santa y que posterior es quemado." ] },
-      ciceron:    { definicion: "Por marcus tullius cicero: orador o escritor muy elocuente." },
-      amar:       { definiciones: [ 
-                    "Sentir inexplicable de amor por las personas.", 
-                    "Mandamiento que dejó cristo como resumen de la ley de Dios."
-                    ] },
-      odiar:      { definiciones: [
-                    "Sentir simplón de odio por alguien o algo.",
-                    "Justo lo contrario a amar." ] },
-      habitar:    { definicion: "Vivir en un lugar con alguna permanencia." }, 
-      espacio:    { definicion: "Escenario tridimensional del universo en que ocurren los actos físicos. En teoría de Einstein el tiempo se le une." },
-      blanco:     { definicion: "Color acromático, como la luz, la leche o la nieve, de claridad máxima y oscuridad nula que es la suma de todos los colores del espectro." },
-      gordo:      { definiciones: [
-                          "De muchas carnes o grasa.", 
-                          "Importante" ] },
-      dimension:  { definicion: "Grado de libertad en un espacio que puede llegar hasta los cuerpos en 3D." },
-      cerebro:    { definicion: "Órgano resultado de la mente, rector del sistema nervioso del humano que coordina el alma con la conciencia." },
-      "etiología":{ definicion: "Estudio de las causas de las cosas." },
-      librero:    { definiciones: [
-                    "Individuo que comercia con libros.",
-                    "Estante donde se colocan los libros." ] },
-      bbc:        { definicion: "Trío de delanteros histórico del Real Madrid compuesto por benzema, bale y Cristiano." },
-      msn:        { definicion: "Trío de delanteros histórico del Barcelona compuesto por Messi, Suárez y Neymar." },
-      google:     { definicion: "Empresa multinacional tecnológica que ordenó con algoritmos potentes internet." },
-      infinitamente: { definiciones: [ 
-                             "De modo infinito.",
-                             "De manera infinita.",
-                             "De forma infinita." ] },
-      idempotente: { definicion: "Igualdad en la capacidad de un número de multiplicarse por él y no transmutarse." },
-      partivo:    { definicion:  "Idea que surge de ver la separación entre 2 ques." },
-      adjetivo:   { definicion:  "Palabra que se pone antes o después de un sustantivo y que concuerda con él en género y número sirviendo para caracterizar al sustantivo." },
-      regicida:   { definiciones:  [
-                             "Que intenta o consuma la muerte de un rey.",
-                             "Que come el rey en ajedrez, terminando el juego."  ] },
-      ajedrez:    { definicion: "Juego mental entre dos oponentes en un tablero 8×8 escaques con 16 piezas con distinto poder que consiste en dejar sin opción a un rey por último." },
-      "información":{definiciones: [
-                              "Conversión desde el dato simple hacia un conjunto que reduce la incertidumbre de algo.",
-                              "Acción y efecto de informar.",
-                              "En genética: conjunto de datos que sirven para que a la célula tenga todo claro." ] },
-      dato:       { definicion: "Estadio previo a una información hecha que es meramente una idea suelta sin gobierno y que unida a otras puede ser analizada." },
-      bidefinido: { definicion: "Definido con 2 frases solas." },
-      tridefinido:{ definicion: "Máxima cantidad de frases que pueden esbozarse para definir." },
-      escritor:   { definicion: "Persona que ha escrito una obra literaria asentada." },
-      escribidor: { definicion: "Persona que escribe sin talento o que lo hace sin inspiración." },
-      loco:       { definicion: "Que se ha vuelto irracional o sea que ha extraviado la razón." },
-      misericordia: { definicion: "Virtud de Dios o el hombre de sentir compasión en el corazón por las pobrezas de alguien." },
-      dibu:       { definicion: "Portero argentino en especial atajador de penales." },
-      deporte:    { definicion: "Actividad física o mental reglada que se usa como competencia y que siempre tiene tanteo." },
-      nostalgia:  { definicion: "Tristeza por encontrarse en ausencia del amor." },
-      conjetura:  { definicion: "Idea que a partir de datos lanza una suposición que de ser cierta se nombraria como teorema." },
-      "matemática":{ definicion: "Área del saber que generaliza los números y las operaciones con vastas aplicaciones." },
-      "matemático":{ definicion: "Aquella persona que estudia la matemática y hace de ello su arte." },
-      dibujar:    { definicion: "Trazar líneas y rellenando el espacio alrededor con color a base de pinceles o bolígrafo obtener una figura." },
-      dibujo:     { definicion: "Confección artística que tiene forma y color." },
-      laberinto:  { definicion: "Lugar físico o conceptual artificialmente creado con caminos absurdos y que dificultan tanto orientarse como encontrar salida." },
-      flaco:      { definicion: "Calificativo que habla de la poca masa grasa o poca masa muscular de un individuo situandose en un IMC bajo 18,5 resulta en tener poco vigor o fuerza para lidiar o en actividades diarias." },
-      el:         { definicion: "Artículo que indica un nombre consabido de número singular y género masculino." },
-      ñato:       { definicion: "De narices pequeñas en prominencia." },
-      "narigón":{ definicion: "De narices abultadas." },
-      demonio:    { definicion: "Ser sobrenatural malvado que es el príncipe de los ángeles caídos que se rebeló ante Dios y fue destinado al tartaro." },
-      "carón":{ definiciones: [ 
-                               "Se dice de la persona con cara prominente no tan usada como carota.",
-                               "Levemente borracho."  ] },
-      infierno:   { definicion: "Lugar de tormentos eternos para las almas que han pecado." },
-      cono:       { definicion: "Sólido de revolución que es generado por la rotación de un cateto de un triángulo formando una base circular y en el extremo opuesto un vértice." },
-      existir:    { definicion: "Ser real y enteramente creíble." },
-      tenedor:    { definicion: "Útil de mesa formado de un mango con más de 3 púas al otro extremo con lo cual se pinchan o sostienen alimentos sólidos." },
-      cuchara:    { definicion: "Útil de mesa con mango y en el extremo una concavidad de metal propia para consumir alimentos líquidos mayoritariamente." },
-      cuchillo:   { definicion: "Útil de mesa con un filo por una banda para cortar en trozos alimentos sólidos." },
-      indeterminado: {definicion: "No determinado a un resultado único sino que tiene infinitas medidas." },
-      indefinido: { definicion: "No definido." },
-      "palíndromo":{ definicion: "Frase que se lee levogira igual que dextrogira." },
-      capicua:    { definicion: "Número que se lee igual de inicio a fin que de fin a inicio." },
-      morfema:    { definicion: "Unidad minuscula de significado de una palabra como in- de infinito que significa no o sin. " },
-      virus:{ definiciones: [ 
-                            "Germen infeccioso que entra a la célula humana usando su maquinaria genética para formar partes de su ser y que suele escaparse causando destrucción de la célula huésped, consta de un adn o arn con una cubierta proteína y así simple enferma al humano. ",
-                            "Mecanismo infeccioso informático que se instala en entornos digitales y daña la maquinaria que hace funcionar al computador." ] },
-      androide:   { definicion: "Automáta a manera de humano." },
-      robot:      { definicion: "Automáta sin necesidad de parecerse al humano y que aprende por sí." },
-      maquina:    { definicion: "Objeto que es animado a la efectividad, que se mueve y que realiza trabajo." },
-      coronar:{ definiciones: [ 
-                              "Proclamar a alguien de herencia a rey o reina.",
-                              "Alcanzar el fin de un monte.", 
-                              "En ajedrez, llegar al casillero final con un peón lo que transmuta el trebejo en una pieza con más cualidades.",
-                              "Finalizar con gloria algo." ] },
-      tesla:{ definiciones: [ 
-                              "Vehículo eléctrico y con rudimentos de autonomía.",
-                              "Unidad internacional de densidad de flujo magnético o weber por metros.",
-                              "Científico de la electricidad prominente." ] },
-      clon:      { definicion: "Copia idéntica de un organismo o célula en su genética y en su fenotipo." },
-      "efímero":{ definicion: "Algo que dura muy poco tiempo." },
-      subrutina: { definicion: "Trozo de código programable que se toma por unidad y que puede ser invocado desde distintos puntos del programa para no repetir instrucciones." },
-      nietzscheano: { definicion: "Ideal de vivir con moral propia, aspirando al super-hombre y afirmando la vida de tal forma que 1 desee repetirla infinitamente." },
-      ultrainstinto: { definicion: "Tecnica divina que permite moverse con automatismo y mayor poder usada por goku en el torneo del poder." }
-  
+      /* ... todas las entradas actuales ... */
+      infinito:   { definicion: "Que crece sin parar.", imagen: "images/infinito.jpg" },
+      perro:      { definicion: "Mamífero doméstico carnívoro...", imagen: "images/perro.jpg" },
+      /* etc. */
+    };
 
- };
-  </script>
-<!-- tras la definición de “dictionary” pega esto: -->
-  <script>
+    // Carga imágenes guardadas en localStorage
+    let savedImages = JSON.parse(localStorage.getItem('dictionaryImages') || '{}');
+    for (const key in savedImages) {
+      if (dictionary[key]) dictionary[key].imagen = savedImages[key];
+    }
+
     // Construye mapa de claves normalizadas → clave original
     const normalizedMap = {};
     for (const key of Object.keys(dictionary)) {
       normalizedMap[ normalizeText(key) ] = key;
     }
 
-    // Genera regex para linkificar (global) y regex de prueba (sin 'g')
-    const normalizedKeys  = Object.keys(normalizedMap).sort((a, b) => b.length - a.length);
-    const linkRegex       = new RegExp('\\b(' + normalizedKeys.join('|') + ')\\b', 'gi');
-    const testLinkRegex   = new RegExp(linkRegex.source, 'i');
+    // Genera regex para linkificar y para prueba
+    const normalizedKeys  = Object.keys(normalizedMap).sort((a,b)=>b.length-a.length);
+    const linkRegex       = new RegExp('\\b(' + normalizedKeys.join('|') + ')\\b','gi');
+    const testLinkRegex   = new RegExp(linkRegex.source,'i');
 
-    // Función que sustituye cada palabra del diccionario por un <a>
+    // Función que substituye palabras por enlaces
     function linkify(text) {
       return text.replace(linkRegex, match => {
         const key = normalizedMap[ normalizeText(match) ];
@@ -204,40 +70,32 @@
       });
     }
 
-    // Renderiza la entrada y gestiona historial
-    function renderEntry(term, plain = false, push = true) {
-      const output   = document.getElementById('definition');
-      const resetBtn = document.getElementById('reset-button');
+    const output     = document.getElementById('definition');
+    const resetBtn   = document.getElementById('reset-button');
+    const uploadBtn  = document.getElementById('upload-button');
+    const imageInput = document.getElementById('image-upload');
+
+    function renderEntry(term, plain=false, push=true) {
       const normTerm = normalizeText(term);
       const key      = normalizedMap[normTerm];
 
       if (!key) {
-        output.textContent = term
-          ? `La palabra "${term}" no está en el diccionario.`
-          : 'Por favor, escribe una palabra.';
+        output.textContent = term ? `La palabra "${term}" no está en el diccionario.` : 'Por favor, escribe una palabra.';
         resetBtn.style.display = 'none';
+        uploadBtn.style.display = 'none';
       } else {
         const entry = dictionary[key];
-        const defs  = entry.definiciones 
-          ? entry.definiciones 
-          : [ entry.definicion || '' ];
-        const htmlDefs = defs
-          .map(d => plain ? d : linkify(d))
-          .map(d => `<p>${d}</p>`)
-          .join('');
+        const defs  = entry.definiciones || [ entry.definicion || '' ];
+        const htmlDefs = defs.map(d => plain ? d : linkify(d)).map(d=>`<p>${d}</p>`).join('');
+        const imagenHtml = entry.imagen ? `<br><img src="${entry.imagen}" alt="${key}" style="max-width:100%;margin-top:0.5rem;">` : '';
         const cita = entry.cita ? `<br><em>${entry.cita}</em>` : '';
 
-        // Monta el HTML de la definición
-        output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${cita}`;
+        output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${cita}`;
 
-        // Comprueba con el regex sin bandera 'g' si hay enlaces
         const sampleText = entry.definicion || defs[0];
         const hasLink    = testLinkRegex.test(sampleText);
-
-        resetBtn.style.display = (!plain && hasLink)
-          ? 'inline-block'
-          : 'none';
-
+        resetBtn.style.display = (!plain && hasLink) ? 'inline-block' : 'none';
+        uploadBtn.style.display = 'inline-block';
         currentTerm = key;
       }
 
@@ -247,64 +105,49 @@
       }
     }
 
-    // Listeners de búsqueda
-    document.getElementById('search-button')
-      .addEventListener('click', () => renderEntry(
-        document.getElementById('search-input').value.trim(),
-        false,
-        true
-      ));
-    document.getElementById('search-input')
-      .addEventListener('keydown', e => {
-        if (e.key === 'Enter') renderEntry(e.target.value.trim(), false, true);
-      });const imagenHtml = entry.imagen
-  ? `<br><img src="${entry.imagen}" alt="${key}" style="max-width:100%;margin-top:0.5rem;">`
-  : '';
-
-    // Enlaces hash
-    window.addEventListener('hashchange', () => {
-      const term = location.hash.slice(1);
-      if (term) renderEntry(term, false, false);
+    // Listeners
+    document.getElementById('search-button').addEventListener('click', ()=>renderEntry(
+      document.getElementById('search-input').value.trim(), false, true
+    ));
+    document.getElementById('search-input').addEventListener('keydown', e=>{
+      if(e.key==='Enter') renderEntry(e.target.value.trim(), false, true);
     });
 
-    // Historial atrás/adelante
-    window.addEventListener('popstate', e => {
-      if (e.state) {
-        renderEntry(e.state.term, e.state.plain, false);
-      } else {const imagenHtml = entry.imagen
-  ? `<br><img src="${entry.imagen}" alt="${key}" style="max-width:100%;margin-top:0.5rem;">`
-  : '';
-        document.getElementById('definition').textContent =
-          'Introduce un término y pulsa “Buscar” para ver la definición.';
-        document.getElementById('reset-button').style.display = 'none';
+    // Hashchange y popstate
+    window.addEventListener('hashchange', ()=>renderEntry(location.hash.slice(1), false, false));
+    window.addEventListener('popstate', e=>{
+      if(e.state) renderEntry(e.state.term, e.state.plain, false);
+      else {
+        output.textContent = 'Introduce un término y pulsa “Buscar” para ver la definición.';
+        resetBtn.style.display = uploadBtn.style.display = 'none';
         document.getElementById('search-input').value = '';
       }
     });
 
-    // Botón “Mostrar original”
-    document.getElementById('reset-button')
-      .addEventListener('click', () => renderEntry(currentTerm, true, true));
+    // Reset y upload
+    resetBtn.addEventListener('click', ()=>renderEntry(currentTerm, true, true));
+    uploadBtn.addEventListener('click', ()=>imageInput.click());
+
+    imageInput.addEventListener('change', event=>{
+      const file = event.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const dataURL = reader.result;
+        dictionary[currentTerm].imagen = dataURL;
+        savedImages[currentTerm] = dataURL;
+        localStorage.setItem('dictionaryImages', JSON.stringify(savedImages));
+        renderEntry(currentTerm, false, false);
+      };
+      reader.readAsDataURL(file);
+    });
 
     // Inicialización al cargar
-    if (location.hash) {
-      renderEntry<script>
-function renderEntry(term, plain = false, push = true) {
-  // … código existente …
-  if (key) {
-    const entry = dictionary[key];
-    const defs  = entry.definiciones ? entry.definiciones : [entry.definicion || ""];
-    const htmlDefs = defs.map(d => plain ? d : linkify(d)).map(d => `<p>${d}</p>`).join("");
-    const cita = entry.cita ? `<br><em>${entry.cita}</em>` : "";
-    const imagenHtml = entry.imagen ? `<br><img src="${entry.imagen}" alt="${key}" style="max-width:100%;margin-top:0.5rem;">` : "";
-    // ahora añadimos imagenHtml antes de la cita
-    output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${cita}`;
-    // … resto del código …
-  }
-}
-</script>
-(location.hash.slice(1), false, false);
-      history.replaceState({ term: normalizeText(location.hash.slice(1)), plain: false }, '', location.hash);
+    if(location.hash) {
+      renderEntry(location.hash.slice(1), false, false);
+      history.replaceState({ term: normalizeText(location.hash.slice(1)), plain:false }, '', location.hash);
     } else {
       history.replaceState(null, '', location.pathname);
     }
-  </script>
+  </script></body>
+</html>
