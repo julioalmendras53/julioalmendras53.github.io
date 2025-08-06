@@ -287,13 +287,7 @@
 
     // Inicialización al cargar
     if (location.hash) {
-      renderEntry(location.hash.slice(1), false, false);
-      history.replaceState({ term: normalizeText(location.hash.slice(1)), plain: false }, '', location.hash);
-    } else {
-      history.replaceState(null, '', location.pathname);
-    }
-  </script>
-<script>
+      renderEntry<script>
 function renderEntry(term, plain = false, push = true) {
   // … código existente …
   if (key) {
@@ -308,3 +302,9 @@ function renderEntry(term, plain = false, push = true) {
   }
 }
 </script>
+(location.hash.slice(1), false, false);
+      history.replaceState({ term: normalizeText(location.hash.slice(1)), plain: false }, '', location.hash);
+    } else {
+      history.replaceState(null, '', location.pathname);
+    }
+  </script>
