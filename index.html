@@ -1,4 +1,17 @@
-<!DOCTYPE html><html lang="es">
+<script>
+// Captura cualquier error no atrapado y lo muestra en rojo dentro del div de definición
+window.addEventListener('error', e => {
+  const out = document.getElementById('definition');
+  out.innerHTML = `
+    <pre style="color: red; white-space: pre-wrap;">
+      Error: ${e.message}
+      at ${e.filename}:${e.lineno}:${e.colno}
+    </pre>
+  `;
+  // Evitamos que el error siga propagándose
+  e.preventDefault();
+});
+</script><!DOCTYPE html><html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
