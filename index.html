@@ -218,8 +218,12 @@ window.addEventListener('error', e => {
                                  "2.Perteneciente a napoles.",
                                  "3.Lengua de napoles.",
                                  "4.Higo de piel negra y sabor dulce.",
-                                 "5.Conjunto de las primeras tres cartas en el juego de los tres sietes."  ] , imagen: "images/napolitano.png" } 
-        }; 
+                                 "5.Conjunto de las primeras tres cartas en el juego de los tres sietes."  ] , imagen: "images/napolitano.png" },
+      ultrabasico:{ definiciones: [
+                                 "1.Rocas igneas con una composición de menos de 45% de silice.", 
+                                 "2.Algo extremadamente fundamental." ] },
+      ventes:      { definicion: "Combinación de un adverbio en -mente con un adjetivo o participio: por ejemplo, algo extremadamente fundamentado." }   
+    }; 
 
     // Carga imágenes guardadas en localStorage
     let savedImages = JSON.parse(localStorage.getItem('dictionaryImages') || '{}');
