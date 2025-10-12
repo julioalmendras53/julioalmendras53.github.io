@@ -227,8 +227,12 @@ window.addEventListener('error', e => {
       artificial:{ definiciones: [
                                  "1.Fabricado por el hombre.",
                                  "2.Lo que es contrario a natural.",
-                                 "3.Falso o simulado." ] , imagen: "images/artificial.png" }
-    }; 
+                                 "3.Falso o simulado." ] , imagen: "images/artificial.png" },
+      muerte:{ definiciones: [
+                                 "1.Termino de la vida.",
+                                 "2.Representacion de la muerte con una figura esquelética y con guadaña"., 
+                                 "3.Persona insufrible." ], imagen: "images/muerte.png" }     
+        }; 
 
     // Carga imágenes guardadas en localStorage
     let savedImages = JSON.parse(localStorage.getItem('dictionaryImages') || '{}');
