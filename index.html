@@ -296,12 +296,28 @@ window.addEventListener('error', e => {
     const testLinkRegex   = new RegExp(linkRegex.source,'i');
 
     // Función que substituye palabras por enlaces
-    function linkify(text) {
-      return text.replace(linkRegex, match => {
-        const key = normalizedMap[ normalizeText(match) ];
-        return `<a href="#${normalizeText(key)}">${match}</a>`;
-      });
+    // Convierte en enlace SOLO palabras enteras del diccionario
+function linkify(text) {
+  return text.replace(
+    /([A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)|([^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)/g,
+    (match, word, other) => {
+      // Si no es palabra (espacio, coma, punto...), lo dejamos igual
+      if (!word) return other;
+
+      // Normalizamos la palabra y miramos si está en el diccionario
+      const norm = normalizeText(word);
+      const key  = normalizedMap[norm];
+
+      if (key) {
+        // Si está en el diccionario, la envolvemos en <a>
+        return `<a href="#${normalizeText(key)}">${word}</a>`;
+      }
+
+      // Si no, la devolvemos tal cual
+      return word;
     }
+  );
+}
 
     const output     = document.getElementById('definition');
     const resetBtn   = document.getElementById('reset-button');
