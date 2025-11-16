@@ -393,7 +393,11 @@ searchInput.addEventListener('input', () => {
   : '';
 
 const videoHtml = entry.video 
-  ? `<br><video src="${entry.video}" controls autoplay loop muted style="max-width:100%;margin-top:0.5rem;"></video>`
+  ? `<br>
+     <video controls style="max-width:100%;margin-top:0.5rem;">
+       <source src="${entry.video}" type="video/mp4">
+       Tu navegador no puede reproducir este video.
+     </video>`
   : '';
 
 const cita = entry.cita 
