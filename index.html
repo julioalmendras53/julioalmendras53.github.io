@@ -383,10 +383,19 @@ searchInput.addEventListener('input', () => {
         const entry = dictionary[key];
         const defs  = entry.definiciones || [ entry.definicion || '' ];
         const htmlDefs = defs.map(d => plain ? d : linkify(d)).map(d=>`<p>${d}</p>`).join('');
-        const imagenHtml = entry.imagen ? `<br><img src="${entry.imagen}" alt="${key}" style="max-width:100%;margin-top:0.5rem;">` : '';
-        const cita = entry.cita ? `<br><em>${entry.cita}</em>` : '';
+        const imagenHtml = entry.imagen 
+  ? `<br><img src="${entry.imagen}" alt="${key}" style="max-width:100%;margin-top:0.5rem;">` 
+  : '';
 
-        output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${cita}`;
+const videoHtml = entry.video 
+  ? `<br><video src="${entry.video}" controls autoplay loop muted style="max-width:100%;margin-top:0.5rem;"></video>`
+  : '';
+
+const cita = entry.cita 
+  ? `<br><em>${entry.cita}</em>` 
+  : '';
+
+output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${videoHtml}${cita}`;
 
         const sampleText = entry.definicion || defs[0];
         const hasLink    = testLinkRegex.test(sampleText);
