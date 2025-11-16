@@ -333,6 +333,43 @@ function linkify(text) {
     const resetBtn   = document.getElementById('reset-button');
     const uploadBtn  = document.getElementById('upload-button');
     const imageInput = document.getElementById('image-upload');
+    // --- Autocompletado de búsqueda (sugerencias) ---
+const searchInput = document.getElementById('search-input');
+
+// Creamos un <datalist> para las opciones
+const suggestionsList = document.createElement('datalist');
+suggestionsList.id = 'suggestions-list';
+
+// Lo colocamos justo después del input
+searchInput.insertAdjacentElement('afterend', suggestionsList);
+
+// Vinculamos el input con el datalist
+searchInput.setAttribute('list', 'suggestions-list');
+
+// Cada vez que el usuario escribe, generamos sugerencias
+searchInput.addEventListener('input', () => {
+  const query = normalizeText(searchInput.value.trim());
+  suggestionsList.innerHTML = '';
+
+  // Si ha escrito muy poco, no sugerimos nada
+  if (query.length < 2) return;
+
+  const yaAñadidos = new Set();
+
+  // Recorremos las claves normalizadas del diccionario
+  for (const normKey of normalizedKeys) {
+    // Buscamos las que empiezan por lo escrito: "infini" → infinito, infinitamente, infinitotriz...
+    if (normKey.startsWith(query)) {
+      const originalKey = normalizedMap[normKey];
+      if (!yaAñadidos.has(originalKey)) {
+        yaAñadidos.add(originalKey);
+        const option = document.createElement('option');
+        option.value = originalKey;
+        suggestionsList.appendChild(option);
+      }
+    }
+  }
+});
 
     function renderEntry(term, plain=false, push=true) {
       const normTerm = normalizeText(term);
