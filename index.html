@@ -357,7 +357,27 @@ window.addEventListener('error', e => {
                                
         }
 
-    // Carga imágenes guardadas en localStorage
+  // Ordena automáticamente las entradas del diccionario por alfabeto español
+const collatorEs = new Intl.Collator('es', {
+  sensitivity: 'base',
+  numeric: true
+});
+
+function sortDictionaryAlphabetically(obj) {
+  const sortedEntries = Object.entries(obj).sort(([a], [b]) =>
+    collatorEs.compare(a, b)
+  );
+
+  for (const key of Object.keys(obj)) {
+    delete obj[key];
+  }
+
+  for (const [key, value] of sortedEntries) {
+    obj[key] = value;
+  }
+}
+
+sortDictionaryAlphabetically(dictionary);
     let savedImages = JSON.parse(localStorage.getItem('dictionaryImages') || '{}');
     for (const key in savedImages) {
       if (dictionary[key]) dictionary[key].imagen = savedImages[key];
