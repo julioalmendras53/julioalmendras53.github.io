@@ -390,7 +390,11 @@ sortDictionaryAlphabetically(dictionary);
     }
 
     // Genera regex para linkificar y para prueba
-    const normalizedKeys  = Object.keys(normalizedMap).sort((a,b)=>b.length-a.length);
+    const normalizedKeys = Object.keys(normalizedMap).sort((a,b)=>b.length-a.length);
+
+const alphabeticalKeys = Object.keys(normalizedMap).sort((a, b) =>
+  collatorEs.compare(normalizedMap[a], normalizedMap[b])
+);
     const linkRegex       = new RegExp('\\b(' + normalizedKeys.join('|') + ')\\b','gi');
     const testLinkRegex   = new RegExp(linkRegex.source,'i');
 
