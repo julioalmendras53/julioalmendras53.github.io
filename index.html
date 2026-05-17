@@ -450,7 +450,7 @@ searchInput.addEventListener('input', () => {
   const yaAñadidos = new Set();
 
   // Recorremos las claves normalizadas del diccionario
-  for (const normKey of normalizedKeys) {
+  for (const normKey of alphabeticalKeys) {
     // Buscamos las que empiezan por lo escrito: "infini" → infinito, infinitamente, infinitotriz...
     if (normKey.startsWith(query)) {
       const originalKey = normalizedMap[normKey];
