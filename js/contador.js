@@ -19,28 +19,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function actualizarContador() {
-        // Selector más preciso: buscamos los contenedores de definiciones
-        const definiciones = document.querySelectorAll('div[style*="background"], .definicion, article, section, div > p, div > img');
+        // Accedemos directamente al objeto dictionary que está en el scope global del index.html
+        if (typeof dictionary === 'undefined') {
+            console.warn("No se encontró el objeto 'dictionary'");
+            return;
+        }
 
-        let total = 0;
+        let total = Object.keys(dictionary).length;
         let conImagen = 0;
         let conVideo = 0;
 
-        definiciones.forEach(el => {
-            const texto = el.textContent.trim();
-            
-            // Solo contar bloques que parezcan definiciones reales
-            if (texto.length < 50) return;
-
-            total++;
-
-            if (el.querySelector('img') || el.tagName === 'IMG') conImagen++;
-            if (el.querySelector('video, iframe')) conVideo++;
+        Object.values(dictionary).forEach(entry => {
+            if (entry.imagen) conImagen++;
+            if (entry.video) conVideo++;
         });
 
         const soloTexto = total - conImagen - conVideo;
 
-        // Actualizar números
         document.getElementById('c-total').textContent = total;
         document.getElementById('c-imagen').textContent = conImagen;
         document.getElementById('c-video').textContent = conVideo;
@@ -51,6 +46,6 @@ document.addEventListener('DOMContentLoaded', function() {
     crearContador();
     actualizarContador();
 
-    // Actualizar cuando cambie el contenido (ideal para búsqueda)
-    setInterval(actualizarContador, 2000);
+    // Actualizar periódicamente (por si se añaden entradas dinámicamente)
+    setInterval(actualizarContador, 3000);
 });
