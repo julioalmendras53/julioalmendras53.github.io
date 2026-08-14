@@ -485,10 +485,7 @@ searchInput.addEventListener('input', () => {
   }
 });
 
-    renderEntry(currentTerm, false, false);
-    refreshCounts();          // ← añadir
-  
-  reader.readAsDataURL(file);{
+    function renderEntry(term, plain=false, push=true) {
       const normTerm = normalizeText(term);
       const key      = normalizedMap[normTerm];
 
