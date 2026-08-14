@@ -591,6 +591,103 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
       history.replaceState({ term: normalizeText(location.hash.slice(1)), plain:false }, '', location.hash);
     } else {
       history.replaceState(null, '', location.pathname);
+    } // --- Índice clicable: palabras, imágenes y vídeos ---
+const indexBar = document.createElement('div');
+indexBar.id = 'index-bar';
+indexBar.innerHTML =
+  '<button id="btn-words"  class="index-toggle" aria-expanded="false"></button>' +
+  '<button id="btn-images" class="index-toggle" aria-expanded="false"></button>' +
+  '<button id="btn-videos" class="index-toggle" aria-expanded="false"></button>';
+document.getElementById('search-container').insertAdjacentElement('afterend', indexBar);
+
+const indexPanel = document.createElement('div');
+indexPanel.id = 'index-panel';
+indexPanel.hidden = true;
+indexBar.insertAdjacentElement('afterend', indexPanel);
+
+const btnWords  = document.getElementById('btn-words');
+const btnImages = document.getElementById('btn-images');
+const btnVideos = document.getElementById('btn-videos');
+const botones   = [btnWords, btnImages, btnVideos];
+
+function keysWith(campo) {
+  return Object.keys(dictionary).filter(k => dictionary[k][campo]);
+}
+
+// Llama a esto siempre que cambie el diccionario
+function refreshCounts() {
+  btnWords.textContent  = Object.keys(dictionary).length + ' palabras';
+  btnImages.textContent = keysWith('imagen').length + ' imágenes';
+  btnVideos.textContent = keysWith('video').length  + ' vídeos';
+}
+refreshCounts();
+
+let openPanel = null;
+
+function closePanel() {
+  openPanel = null;
+  indexPanel.hidden = true;
+  for (const b of botones) {
+    b.setAttribute('aria-expanded', 'false');
+    b.classList.remove('is-open');
+  }
+}
+
+function goTo(key) {
+  closePanel();
+  renderEntry(key, false, true);
+  const suave = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+  output.scrollIntoView({ behavior: suave, block: 'start' });
+}
+
+function openIndex(tipo, boton) {
+  if (openPanel === tipo) { closePanel(); return; }   // segundo clic: cerrar
+  closePanel();
+  openPanel = tipo;
+  boton.setAttribute('aria-expanded', 'true');
+  boton.classList.add('is-open');
+
+  indexPanel.innerHTML = '';
+  indexPanel.className = (tipo === 'palabras') ? 'as-list' : 'as-grid';
+
+  if (tipo === 'palabras') {
+    for (const key of Object.keys(dictionary)) {
+      const chip = document.createElement('button');
+      chip.className = 'index-word';
+      chip.textContent = key;
+      chip.addEventListener('click', () => goTo(key));
+      indexPanel.appendChild(chip);
     }
+  } else {
+    const campo = (tipo === 'imagenes') ? 'imagen' : 'video';
+    for (const key of keysWith(campo)) {
+      const card = document.createElement('figure');
+      card.className = 'index-card';
+
+      const media = document.createElement(campo === 'imagen' ? 'img' : 'video');
+      media.src = dictionary[key][campo];
+      if (campo === 'imagen') {
+        media.alt = key;
+        media.loading = 'lazy';
+      } else {
+        media.muted = true;
+        media.playsInline = true;
+        media.preload = 'metadata';   // carga solo el primer fotograma
+      }
+
+      const cap = document.createElement('figcaption');
+      cap.textContent = key;
+
+      card.append(media, cap);
+      card.addEventListener('click', () => goTo(key));
+      indexPanel.appendChild(card);
+    }
+  }
+  indexPanel.hidden = false;
+}
+
+btnWords .addEventListener('click', () => openIndex('palabras', btnWords));
+btnImages.addEventListener('click', () => openIndex('imagenes', btnImages));
+btnVideos.addEventListener('click', () => openIndex('videos',   btnVideos));
   </script></body>
 </html>
