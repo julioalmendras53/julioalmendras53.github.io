@@ -505,7 +505,10 @@ searchInput.addEventListener('input', () => {
   }
 });
 
-    function renderEntry(term, plain=false, push=true) {
+    renderEntry(currentTerm, false, false);
+    refreshCounts();          // ← añadir
+  };
+  reader.readAsDataURL(file);{
       const normTerm = normalizeText(term);
       const key      = normalizedMap[normTerm];
 
