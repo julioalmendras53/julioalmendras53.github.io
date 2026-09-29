@@ -4,14 +4,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (document.getElementById('contador-diccionario')) return;
 
         const html = `
-        <div id="contador-diccionario" style="background: linear-gradient(135deg, #1e40af, #3b82f6); color: white; padding: 20px; margin: 15px auto; max-width: 900px; border-radius: 16px; text-align: center; box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);">
-            <h3 style="margin: 0 0 15px 0; font-size: 1.3em;">📊 Estadísticas del Diccionario</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px;">
-                <div><strong>Total:</strong><br><span id="c-total" style="font-size: 2.3em; color:#bae6fd;">0</span></div>
-                <div><strong>Con Imagen:</strong><br><span id="c-imagen" style="font-size: 2em; color:#bae6fd;">0</span></div>
-                <div><strong>Con Video:</strong><br><span id="c-video" style="font-size: 2em; color:#bae6fd;">0</span></div>
-                <div><strong>Solo Texto:</strong><br><span id="c-texto" style="font-size: 2em; color:#bae6fd;">0</span></div>
-            </div>
+        <div id="stats-bar">
+  <span><b>Total:</b> <span id="total-count">0</span></span>
+  <span><b>Con imagen:</b> <span id="image-count">0</span></span>
+  <span><b>Con video:</b> <span id="video-count">0</span></span>
+  <span><b>Solo texto:</b> <span id="text-count">0</span></span>
+</div>
             <small style="margin-top: 10px; opacity: 0.9;">Actualización automática</small>
         </div>`;
 
