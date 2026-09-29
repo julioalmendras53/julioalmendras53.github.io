@@ -65,6 +65,7 @@ window.addEventListener('error', e => {
   
 </head> 
   <script src="js/contador.js"></script>
+  <script src="js/agente.js" defer></script>
 <body>
   
 
@@ -80,10 +81,11 @@ window.addEventListener('error', e => {
   <!-- resto de tu página -->
   <h1>Diccionario Web</h1>
   <div id="search-container">
-    <input type="text" id="search-input" placeholder="Escribe una palabra..." />
+    <input type="text" id="search-input" placeholder="Palabra o pregunta con ?" aria-label="Busca una palabra o escribe una pregunta con signo de interrogación" aria-describedby="search-help" />
     <button id="search-button">Buscar</button>
   </div>
-  <div id="definition">Introduce un término y pulsa “Buscar” para ver la definición.</div>
+  <p id="search-help">Con «?» preguntas al agente: ¿Cuántos verbos tienen video?</p>
+  <div id="definition" aria-live="polite">Introduce un término o una pregunta y pulsa “Buscar”.</div>
   <button id="reset-button">Mostrar original</button>
   <button id="upload-button">Subir imagen</button>
   <input type="file" id="image-upload" accept="image/*" style="display:none" />  <script>
@@ -532,6 +534,13 @@ searchInput.addEventListener('input', () => {
 });
 
     function renderEntry(term, plain=false, push=true) {
+      if (/[¿?]/.test(term) && window.responderPreguntaDiccionario) {
+        searchInput.value = term;
+        window.responderPreguntaDiccionario(term);
+        resetBtn.style.display = uploadBtn.style.display = 'none';
+        if (push) history.pushState({ term, plain: false }, '', location.pathname);
+        return;
+      }
       const normTerm = normalizeText(term);
       const key      = normalizedMap[normTerm];
 
