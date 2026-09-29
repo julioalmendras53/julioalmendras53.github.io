@@ -29,7 +29,39 @@ window.addEventListener('error', e => {
     #definition a { color: #0066cc; text-decoration: none; }
     #definition a:hover { text-decoration: underline; }
     #reset-button, #upload-button { display: none; margin-top: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.9rem; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background-color: #f5f5f5; } 
-    </style>
+   #stats-bar {
+  width: 100%;
+  box-sizing: border-box;
+  border-top: 5px solid #2878e8;
+  background: white;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+
+  padding: 8px 4px;
+  margin-bottom: 20px;
+
+  color: #333;
+  font-size: 13px;
+}
+
+#stats-bar span {
+  white-space: nowrap;
+}
+
+#stats-bar b {
+  color: #2878e8;
+}
+
+@media (max-width: 600px) {
+  #stats-bar {
+    gap: 8px;
+    font-size: 10px;
+  }
+}
+  </style>
   
 </head> 
   <script src="js/contador.js"></script>
