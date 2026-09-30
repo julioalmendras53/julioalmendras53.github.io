@@ -31,7 +31,9 @@ for (const [categoria, palabras] of Object.entries(categoriasDiccionario)) {
 const famososIniciales = {
   messi: { archivo: 'images/messi.jpg', nombres: ['Messi'] },
   bbc: { archivo: 'images/bbc.jpeg', nombres: ['Cristiano Ronaldo', 'Karim Benzema', 'Gareth Bale'] },
-  msn: { archivo: 'images/msn.jpeg', nombres: ['Messi', 'Luis Suárez', 'Neymar'] }
+  msn: { archivo: 'images/msn.jpeg', nombres: ['Messi', 'Luis Suárez', 'Neymar'] },
+  inteligencia: { archivo: 'images/inteligencia.jpg', nombres: ['Terence Tao'] },
+  ajedrez: { archivo: 'videos/ajedrez.webm', medio: 'video', nombres: ['Magnus Carlsen'] }
 };
 
 const ejemplosAgente = [
@@ -157,7 +159,7 @@ function nombresDelArchivo(palabra, entrada, medio) {
       ? etiquetas[medio].filter(n => typeof n === 'string' && n.trim()).map(n => n.trim()) : [];
   }
   const inicial = famososIniciales[palabra];
-  return medio === 'imagen' && inicial && entrada.imagen === inicial.archivo ? inicial.nombres : [];
+  return inicial && medio === (inicial.medio || 'imagen') && entrada[medio] === inicial.archivo ? inicial.nombres : [];
 }
 
 function clavePersona(nombre) {
