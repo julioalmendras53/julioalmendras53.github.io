@@ -88,7 +88,9 @@ export function crearServidor(config, llamar = fetch) {
       req.setTimeout(0);
       const salida = await responder(pregunta, diccionario, config, llamar);
       if (!res.destroyed) contestar(200, salida);
-    } catch {
+    } catch (error) {
+      // Registra solo datos de diagnóstico no secretos en Render.
+      console.error('Consulta fallida:', error?.name || 'Error', error?.message || 'sin mensaje', error?.status || error?.cause?.status || '');
       // No se devuelven errores del proveedor, cabeceras ni datos secretos al navegador.
       if (!res.destroyed && !res.headersSent) contestar(502, { error: 'No se pudo completar la consulta. Puedes usar el agente anterior.' });
     } finally { activos--; }
