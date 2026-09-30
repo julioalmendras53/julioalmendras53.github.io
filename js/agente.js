@@ -41,7 +41,7 @@ categoriasDiccionario.adjetivo.push('tarado');
 // Las familias comparten una base; los temas relacionan significados.
 // Para nuevas entradas pueden indicarse temas: ["Fútbol"] y familias: ["infinito"].
 const familiasIniciales = [
-  { nombre: 'infinito', descripcion: 'Comparten la base infinito; se incluye «infinitotriz», voz de este diccionario.', palabras: ['infinito', 'infinitamente', 'infinitotriz'] },
+  { nombre: 'infinito', descripcion: 'Comparten la base infinit-; se incluye «infinitotriz», voz de este diccionario.', palabras: ['infinito', 'infinitamente', 'infinitotriz', 'infinidad', 'infinitesimal'] },
   { nombre: 'límite', descripcion: 'Palabras vinculadas por la base de límite y limitar.', palabras: ['limite', 'limitado', 'ilimitado'] },
   { nombre: 'eterno', descripcion: 'Adjetivo y adverbio formado sobre su base.', palabras: ['eterno', 'eternamente'] },
   { nombre: 'definir', descripcion: 'Formaciones sobre definido con distintos prefijos.', palabras: ['unidefinido', 'bidefinido', 'tridefinido', 'indefinido'] },
@@ -738,3 +738,22 @@ window.responderPreguntaDiccionario = function(pregunta) {
     contenedor.appendChild(listado);
   }
 };
+
+// Extensiones independientes: un fallo de carga no sustituye el agente existente.
+(function cargarExtensiones() {
+  if (typeof document === 'undefined' || !document.head || !document.createElement) return;
+  const base = document.currentScript?.src || new URL('js/agente.js', document.baseURI).href;
+  function cargar(nombre) {
+    return new Promise(resolve => {
+      const script = document.createElement('script');
+      script.src = new URL(nombre + '?v=20260930-1', base).href;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.head.appendChild(script);
+    });
+  }
+  (async () => {
+    if (await cargar('familias-datos.js')) await cargar('familias.js');
+    if (await cargar('agente-config.js')) await cargar('agente-abierto.js');
+  })();
+})();
