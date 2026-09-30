@@ -20,7 +20,7 @@ export async function responder(pregunta, diccionario, config, llamar = fetch) {
       headers: { Authorization: 'Bearer ' + config.apiKey, 'Content-Type': 'application/json' },
       body: JSON.stringify({ model: config.model, instructions: instrucciones, input, tools: [herramienta], parallel_tool_calls: false, text: { format: formato }, max_output_tokens: 3000, store: false, include: ['reasoning.encrypted_content'] })
     });
-    if (!r.ok) throw new Error('Proveedor no disponible.');
+    if (!r.ok) throw new Error(`Proveedor no disponible (HTTP ${r.status}).`);
     const datos = await r.json();
     if (datos.status !== 'completed' || !Array.isArray(datos.output)) throw new Error('Respuesta incompleta.');
     const llamadas = datos.output.filter(o => o.type === 'function_call');
