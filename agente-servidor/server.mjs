@@ -96,5 +96,5 @@ export function crearServidor(config, llamar = fetch) {
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const servidor = crearServidor({ apiKey: process.env.OPENAI_API_KEY, model: process.env.OPENAI_MODEL, token: process.env.AGENT_ACCESS_TOKEN, origin: process.env.ALLOWED_ORIGIN });
-  servidor.listen(Number(process.env.PORT || 8787), process.env.HOST || '127.0.0.1', () => console.log('Servicio del diccionario iniciado.'));
+  servidor.listen(Number(process.env.PORT || 8787), '0.0.0.0', () => console.log('Servicio del diccionario iniciado.'));
 }
