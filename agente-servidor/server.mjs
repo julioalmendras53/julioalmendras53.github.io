@@ -20,7 +20,16 @@ export async function responder(pregunta, diccionario, config, llamar = fetch) {
       headers: { Authorization: 'Bearer ' + config.apiKey, 'Content-Type': 'application/json' },
       body: JSON.stringify({ model: config.model, instructions: instrucciones, input, tools: [herramienta], parallel_tool_calls: false, text: { format: formato }, max_output_tokens: 3000, store: false, include: ['reasoning.encrypted_content'] })
     });
-    if (!r.ok) throw new Error(`Proveedor no disponible (HTTP ${r.status}).`);
+    if (!r.ok) {
+      // Lee únicamente el código/tipo de error para diagnóstico; nunca registra claves ni cabeceras.
+      let codigo = '';
+      try {
+        const fallo = await r.json();
+        codigo = fallo?.error?.code || fallo?.error?.type || '';
+      } catch {}
+      const detalle = codigo ? ` — ${String(codigo).replace(/[^a-zA-Z0-9_.-]/g, '').slice(0, 80)}` : '';
+      throw new Error(`Proveedor no disponible (HTTP ${r.status})${detalle}.`);
+    }
     const datos = await r.json();
     if (datos.status !== 'completed' || !Array.isArray(datos.output)) throw new Error('Respuesta incompleta.');
     const llamadas = datos.output.filter(o => o.type === 'function_call');
