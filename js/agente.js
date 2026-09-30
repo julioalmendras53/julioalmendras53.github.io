@@ -14,6 +14,78 @@ const categoriasDiccionario = {
   adverbio: ['infinitamente', 'no', 'eternamente']
 };
 
+// Categorías según las acepciones de este diccionario, incluidos nombres propios.
+const sustantivosIniciales = [
+  'perro', 'monstruo', 'tirabuzón', 'ropa', 'universo', 'dios', 'cristo',
+  'madre', 'realidad', 'conciencia', 'homotecia', 'espíritu', 'alma', 'messi',
+  'genio', 'inteligencia', 'triángulo', 'galaxia', 'humano', 'caos', 'infierno',
+  'cabra', 'mundo', 'sol', 'meme', 'internet', 'egoísmo', 'profeta', 'ronaldo',
+  'judas', 'ciceron', 'espacio', 'blanco', 'dimension', 'cerebro', 'etiología',
+  'librero', 'bbc', 'msn', 'google', 'partivo', 'adjetivo', 'ajedrez',
+  'información', 'dato', 'escritor', 'escribidor', 'misericordia', 'dibu',
+  'deporte', 'nostalgia', 'conjetura', 'matemática', 'matemático', 'dibujo',
+  'laberinto', 'demonio', 'cono', 'tenedor', 'cuchara', 'cuchillo', 'palíndromo',
+  'capicua', 'morfema', 'virus', 'androide', 'robot', 'maquina', 'ultrainstinto',
+  'jiren', 'nada', 'gato', 'jirafa', 'elefante', 'negación', 'hype', 'persona',
+  'ventes', 'muerte', 'hollejo', 'sensación', 'epica', 'intencion', 'epoder',
+  'clitico', 'enclitico', 'proclitico', 'gugol', 'escobeta', 'ciclo', 'agujero',
+  'criba', 'limite', 'tarado', 'ventura', 'eco', 'infinito', 'napolitano', 'negro'
+];
+const nombresPropiosIniciales = ['cristo', 'messi', 'ronaldo', 'dibu', 'google', 'jiren', 'bbc', 'msn'];
+categoriasDiccionario.sustantivo = sustantivosIniciales;
+categoriasDiccionario.pronombre = ['yo', 'nadie'];
+categoriasDiccionario.articulo = ['el'];
+categoriasDiccionario.adjetivo.push('tarado');
+
+// Relaciones propuestas según los significados escritos por el autor.
+// Las familias comparten una base; los temas relacionan significados.
+// Para nuevas entradas pueden indicarse temas: ["Fútbol"] y familias: ["infinito"].
+const familiasIniciales = [
+  { nombre: 'infinito', descripcion: 'Comparten la base infinito; se incluye «infinitotriz», voz de este diccionario.', palabras: ['infinito', 'infinitamente', 'infinitotriz'] },
+  { nombre: 'límite', descripcion: 'Palabras vinculadas por la base de límite y limitar.', palabras: ['limite', 'limitado', 'ilimitado'] },
+  { nombre: 'eterno', descripcion: 'Adjetivo y adverbio formado sobre su base.', palabras: ['eterno', 'eternamente'] },
+  { nombre: 'definir', descripcion: 'Formaciones sobre definido con distintos prefijos.', palabras: ['unidefinido', 'bidefinido', 'tridefinido', 'indefinido'] },
+  { nombre: 'dibujar', descripcion: 'La acción y su resultado comparten base.', palabras: ['dibujar', 'dibujo'] },
+  { nombre: 'escribir', descripcion: 'Nombres de personas formados a partir de escribir.', palabras: ['escritor', 'escribidor'] },
+  { nombre: 'matemática', descripcion: 'La disciplina y la persona que la estudia.', palabras: ['matemática', 'matemático'] },
+  { nombre: 'negar', descripcion: 'Verbo y nombre de la acción.', palabras: ['negar', 'negación'] },
+  { nombre: 'Google', descripcion: 'Formaciones basadas en el nombre Google.', palabras: ['google', 'googlear', 'googleable', 'ingoogleable'] },
+  { nombre: 'poder', descripcion: 'Base poder y formaciones relacionadas; «epoder» es una voz de este diccionario.', palabras: ['poder', 'todopoderoso', 'epoder'] },
+  { nombre: 'épica', descripcion: 'Palabras de base épic- con usos nominal y adjetivo.', palabras: ['epica', 'epico'] },
+  { nombre: 'clítico', descripcion: 'Comparten la base clítico con distintos prefijos.', palabras: ['clitico', 'enclitico', 'proclitico'] }
+];
+const formasIniciales = [
+  { nombre: 'poder', descripcion: '«Puede» y «pueda» son formas conjugadas de poder.', palabras: ['poder', 'puede', 'pueda'] }
+];
+const temasIniciales = [
+  { nombre: 'Infinito, límites y eternidad', alias: ['infinito', 'limites', 'eternidad'], descripcion: 'Ausencia de límites, duración y determinación.', palabras: ['infinito', 'ilimitado', 'infinitamente', 'infinitotriz', 'limitado', 'limite', 'eterno', 'eternamente', 'indeterminado'] },
+  { nombre: 'Matemática y geometría', alias: ['matematica', 'matematicas', 'geometria'], descripcion: 'Números, figuras, funciones y razonamiento matemático.', palabras: ['homotecia', 'triángulo', 'dimension', 'idempotente', 'partivo', 'conjetura', 'matemática', 'matemático', 'cono', 'capicua', 'gugol', 'holomorfa', 'meromorfa', 'criba', 'limite', 'infinito'] },
+  { nombre: 'Universo y espacio', alias: ['universo', 'astronomia', 'espacio'], descripcion: 'Astros, espacio y mundo físico.', palabras: ['universo', 'mundo', 'sol', 'galaxia', 'espacio', 'dimension', 'caos'] },
+  { nombre: 'Existencia y realidad', alias: ['existencia', 'realidad', 'filosofia'], descripcion: 'Lo real, su existencia, su ausencia o su representación.', palabras: ['ser', 'existir', 'realidad', 'nada', 'mundo', 'universo', 'artificial', 'simular'] },
+  { nombre: 'Religión y seres sobrenaturales', alias: ['religion', 'sobrenatural'], descripcion: 'Personas, creencias y seres de las definiciones religiosas.', palabras: ['dios', 'cristo', 'espíritu', 'alma', 'profeta', 'judas', 'infierno', 'demonio', 'misericordia', 'omnipotente', 'todopoderoso', 'muerte', 'monstruo'] },
+  { nombre: 'Dragon Ball', alias: ['dragon ball'], descripcion: 'Un personaje y una técnica del universo de Dragon Ball.', palabras: ['jiren', 'ultrainstinto'] },
+  { nombre: 'Fútbol', alias: ['futbol'], descripcion: 'Futbolistas, equipos de delanteros y términos futbolísticos.', palabras: ['messi', 'ronaldo', 'bbc', 'msn', 'dibu', 'deporte', 'eliminatoria', 'maradoniano', 'cabra', 'vencer'] },
+  { nombre: 'Tríos del fútbol', alias: ['trios del futbol', 'trios de delanteros'], descripcion: 'BBC y MSN designan dos tríos de delanteros.', palabras: ['bbc', 'msn'] },
+  { nombre: 'Juegos y competición', alias: ['juegos', 'competicion', 'deportes'], descripcion: 'Jugar, competir, clasificarse y vencer.', palabras: ['ajedrez', 'regicida', 'deporte', 'eliminatoria', 'vencer', 'ciclo'] },
+  { nombre: 'Animales', alias: ['animales', 'mamiferos'], descripcion: 'Nombres de animales presentes en el diccionario.', palabras: ['perro', 'cabra', 'gato', 'jirafa', 'elefante', 'humano'] },
+  { nombre: 'Cuerpo, vida y salud', alias: ['cuerpo', 'biologia', 'vida', 'salud'], descripcion: 'Cuerpo humano, procesos vitales y salud.', palabras: ['humano', 'cerebro', 'virus', 'embarazada', 'hollejo', 'madre', 'persona', 'muerte', 'etiología', 'sensación'] },
+  { nombre: 'Aspecto y rasgos físicos', alias: ['aspecto', 'rasgos fisicos'], descripcion: 'Apariencia y características del cuerpo.', palabras: ['gordo', 'flaco', 'ñato', 'narigón', 'carón', 'patiestevado', 'tirabuzón', 'hollejo'] },
+  { nombre: 'Ropa y cuidado personal', alias: ['ropa', 'vestimenta', 'cuidado personal'], descripcion: 'Vestirse, sujetar la ropa y cuidar el aspecto.', palabras: ['ropa', 'vestir', 'atar', 'escobeta', 'jabonoso', 'tirabuzón'] },
+  { nombre: 'Objetos y utensilios', alias: ['objetos', 'utensilios'], descripcion: 'Objetos de uso cotidiano.', palabras: ['tenedor', 'cuchara', 'cuchillo', 'escobeta', 'criba', 'librero', 'maquina'] },
+  { nombre: 'Mente y conocimiento', alias: ['mente', 'conocimiento', 'aprendizaje'], descripcion: 'Pensar, aprender, percibir y trabajar con información.', palabras: ['conciencia', 'genio', 'inteligencia', 'aprender', 'información', 'dato', 'cerebro', 'sensación', 'intencion', 'conjetura'] },
+  { nombre: 'Sentimientos y valoración', alias: ['sentimientos', 'emociones'], descripcion: 'Sentimientos, expectativas y formas de valorar.', palabras: ['amar', 'odiar', 'egoísmo', 'misericordia', 'nostalgia', 'llorar', 'ventura', 'hype', 'inefable'] },
+  { nombre: 'Personas, vínculos y estados', alias: ['personas', 'vinculos', 'estados personales'], descripcion: 'Personas, vínculos y estados descritos en sus acepciones.', palabras: ['persona', 'humano', 'madre', 'embarazada', 'soltero', 'loco', 'tarado', 'genio', 'escritor', 'escribidor', 'librero', 'matemático', 'profeta', 'judas', 'ciceron'] },
+  { nombre: 'Tecnología y entorno digital', alias: ['tecnologia', 'informatica', 'internet'], descripcion: 'Máquinas, datos y comunicación digital.', palabras: ['internet', 'google', 'googlear', 'googleable', 'ingoogleable', 'meme', 'información', 'dato', 'precomputada', 'artificial', 'robot', 'androide', 'maquina', 'simular', 'virus', 'mapear', 'hype'] },
+  { nombre: 'Gramática y palabras', alias: ['gramatica', 'lenguaje'], descripcion: 'Clases de palabras, formas verbales y construcciones lingüísticas.', palabras: ['adjetivo', 'morfema', 'clitico', 'enclitico', 'proclitico', 'yo', 'el', 'nadie', 'no', 'negar', 'negación', 'puede', 'pueda', 'persona', 'ser', 'unidefinido', 'bidefinido', 'tridefinido', 'indefinido', 'ventes', 'ñañar', 'palíndromo'] },
+  { nombre: 'Definición y expresión', alias: ['definicion', 'expresion'], descripcion: 'Definir algo o expresar su sentido mediante palabras.', palabras: ['unidefinido', 'bidefinido', 'tridefinido', 'indefinido', 'inefable', 'ciceron'] },
+  { nombre: 'Literatura y creación', alias: ['literatura', 'creacion', 'arte'], descripcion: 'Escritura, relatos y creación de imágenes o juegos de palabras.', palabras: ['escritor', 'escribidor', 'librero', 'ciceron', 'epica', 'epico', 'dibujar', 'dibujo', 'ñañar', 'palíndromo'] },
+  { nombre: 'Negación y ausencia', alias: ['negacion', 'ausencia'], descripcion: 'Negar, excluir o expresar ausencia.', palabras: ['no', 'negar', 'negación', 'nadie', 'nada', 'indefinido', 'ingoogleable'] },
+  { nombre: 'Poder, voluntad y acción', alias: ['poder', 'voluntad', 'accion'], descripcion: 'Capacidad, intención y dominio según las definiciones.', palabras: ['poder', 'puede', 'pueda', 'epoder', 'todopoderoso', 'omnipotente', 'intencion', 'todar', 'limitado', 'vencer'] },
+  { nombre: 'Lugares, orientación y movimiento', alias: ['lugares', 'orientacion', 'movimiento'], descripcion: 'Ubicarse, desplazarse o describir lugares.', palabras: ['habitar', 'subir', 'mapear', 'laberinto', 'mundo', 'espacio', 'agujero', 'napolitano'] },
+  { nombre: 'Percepción y colores', alias: ['percepcion', 'colores', 'sonidos'], descripcion: 'Percibir estímulos visuales o sonoros.', palabras: ['sensación', 'eco', 'blanco', 'negro'] },
+  { nombre: 'Cualidades y estados', alias: ['cualidades', 'propiedades'], descripcion: 'Palabras que describen cualidades o estados en el diccionario.', palabras: ['infinito', 'ilimitado', 'unidefinido', 'jabonoso', 'embarazada', 'gordo', 'idempotente', 'regicida', 'bidefinido', 'tridefinido', 'loco', 'flaco', 'ñato', 'narigón', 'carón', 'indeterminado', 'indefinido', 'precomputada', 'holomorfa', 'meromorfa', 'maradoniano', 'limitado', 'eterno', 'todopoderoso', 'omnipotente', 'napolitano', 'ultrabasico', 'artificial', 'patiestevado', 'epico', 'eliminatoria', 'googleable', 'ingoogleable', 'infinitotriz', 'soltero', 'negro', 'tarado', 'inefable'] }
+];
+
 for (const [categoria, palabras] of Object.entries(categoriasDiccionario)) {
   for (const palabra of palabras) {
     if (dictionary[palabra]) {
@@ -37,6 +109,12 @@ const famososIniciales = {
 };
 
 const ejemplosAgente = [
+  '¿Qué palabras no verbales tienen video?',
+  '¿Existe la terminación verbal -or o -ur?',
+  '¿Cuántos y cuáles sustantivos hay?',
+  '¿Qué palabras forman la familia de infinito?',
+  '¿Con qué palabras se relaciona msn?',
+  '¿Agrupa todas las palabras por temas?',
   '¿Cuántos verbos son de la primera conjugación?',
   '¿Cuáles verbos terminan en -er?',
   '¿Cuántos famosos aparecen en imagen o video?',
@@ -197,18 +275,162 @@ function buscarFamosos(medios) {
   })).sort((a, b) => collatorEs.compare(a.nombre, b.nombre));
 }
 
+
+function responderSobreTerminaciones(texto) {
+  const preguntaNoVerbal = /\bno[ -]+verbal(?:es)?\b|\bno (?:son|sean) verbos?\b/.test(texto);
+  if (preguntaNoVerbal) return null;
+  const mencionaOrUr = /\b(?:or|ur)\b/.test(texto);
+  const asuntoVerbal = /\b(?:verbos?|verbal(?:es)?|infinitivos?|conjugaciones?)\b/.test(texto);
+  const general = /\b(?:cuantas|cuales|que)\b.*\b(?:conjugaciones|terminaciones del infinitivo)\b/.test(texto) &&
+    !/\b(?:primera|segunda|tercera|[123])\b/.test(texto);
+  const grandor = /\bgrandor\b/.test(texto) && /\b(?:adjetivo|sustantivo|terminacion)\b/.test(texto);
+  if (!(mencionaOrUr && (asuntoVerbal || /\b(?:existe|existen|adjetivos?|sustantivos?)\b/.test(texto))) && !general && !grandor) return null;
+  return {
+    respuesta: 'Los infinitivos españoles tienen tres terminaciones: -ar, -er e -ir. No hay una conjugación en -or ni en -ur. Esto se refiere al infinitivo; las formas conjugadas pueden terminar de otras maneras, como «amo» o «comió».',
+    nota: 'Acabar en -or no convierte automáticamente una palabra en adjetivo: «grandor» y «dolor» son sustantivos; «mayor» y «menor» pueden funcionar como adjetivos. «Grandor» significa tamaño.',
+    palabras: [], cantidad: general ? 3 : 0,
+    fuentes: [
+      { nombre: 'RAE: infinitivo', url: 'https://www.rae.es/gtg/infinitivo' },
+      { nombre: 'RAE: grandor', url: 'https://dle.rae.es/grandor' }
+    ]
+  };
+}
+
+function listaDeCategorias(entrada) {
+  return Array.isArray(entrada.categorias) ? entrada.categorias : [];
+}
+
+function esNombrePropio(palabra, entrada) {
+  if (typeof entrada.nombrePropio === 'boolean') return entrada.nombrePropio;
+  return nombresPropiosIniciales.includes(palabra);
+}
+
+function catalogoDeRelaciones() {
+  const grupos = new Map();
+  const agregar = (tipo, grupo) => {
+    const id = tipo + ':' + normalizeText(grupo.nombre);
+    if (!grupos.has(id)) grupos.set(id, { ...grupo, id, tipo, palabras: [] });
+    const guardado = grupos.get(id);
+    for (const palabra of grupo.palabras) {
+      if (Object.prototype.hasOwnProperty.call(dictionary, palabra) && !guardado.palabras.includes(palabra)) guardado.palabras.push(palabra);
+    }
+  };
+  for (const grupo of familiasIniciales) agregar('familia', grupo);
+  for (const grupo of formasIniciales) agregar('forma', grupo);
+  for (const grupo of temasIniciales) agregar('tema', grupo);
+  for (const [palabra, entrada] of Object.entries(dictionary)) {
+    for (const [campo, tipo] of [['familias', 'familia'], ['temas', 'tema']]) {
+      for (const nombre of Array.isArray(entrada[campo]) ? entrada[campo] : []) {
+        if (typeof nombre !== 'string' || !nombre.trim()) continue;
+        agregar(tipo, { nombre: nombre.trim(), descripcion: 'Relación indicada en las etiquetas de la entrada.', palabras: [palabra] });
+      }
+    }
+  }
+  const sinTema = Object.keys(dictionary).filter(palabra =>
+    !Array.from(grupos.values()).some(g => g.tipo === 'tema' && g.palabras.includes(palabra)));
+  if (sinTema.length) agregar('pendiente', {
+    nombre: 'Sin tema asignado',
+    descripcion: 'Estas entradas nuevas aún necesitan una etiqueta de tema.',
+    palabras: sinTema
+  });
+  return Array.from(grupos.values()).filter(g => g.palabras.length).map(g => ({
+    ...g, palabras: g.palabras.sort((a, b) => collatorEs.compare(a, b))
+  }));
+}
+
+function contieneExpresion(texto, expresion) {
+  const limpiar = s => normalizeText(s).replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  return (' ' + limpiar(texto) + ' ').includes(' ' + limpiar(expresion) + ' ');
+}
+
+function consultarRelaciones(texto) {
+  const catalogo = catalogoDeRelaciones();
+  const pideFamilia = /\bfamilias?\b/.test(texto);
+  const explicita = /\b(?:familias?|relacion\w*|asoci\w*|agrup\w*|grupos?|temas?|tematic\w*|une|unen|unir|unirse)\b|\btienen que ver\b/.test(texto);
+  const temasNombrados = catalogo.filter(g => g.tipo === 'tema' &&
+    [g.nombre, ...(g.alias || [])].some(nombre => contieneExpresion(texto, nombre)));
+  const pideTema = /\b(?:sobre|tema|grupo|categoria|tematicas?)\b/.test(texto) && temasNombrados.length;
+  if (!explicita && !pideTema) return null;
+
+  let objetivo = null;
+  const comillas = texto.match(/["«“']([^"»”']+)["»”']/);
+  const destinos = [
+    /\bfamilia(?:s)?(?: lexica(?:s)?)? (?:de|del) (.+)$/,
+    /\b(?:relacionad[oa]s?|relacion\w*|asociad[oa]s?|asoci\w*) (?:con|a|entre) (.+)$/,
+    /\b(?:se une|se unen|unirse|tienen que ver) (?:con|a) (.+)$/,
+    /\b(?:une|unen) (?:a|entre) (.+)$/,
+    /\b(?:tema|grupo|categoria) (?:de|del) (.+)$/
+  ];
+  if (comillas) objetivo = comillas[1];
+  else {
+    for (const patron of destinos) {
+      const coincidencia = texto.match(patron);
+      if (coincidencia) { objetivo = coincidencia[1]; break; }
+    }
+  }
+  const generica = objetivo && /^(?:las |los |todas las |todos los )?(?:palabras|entradas|terminos|diccionario)$/.test(objetivo);
+  if (generica) objetivo = null;
+  const auxiliares = new Set(['el', 'no', 'yo', 'ser', 'puede', 'pueda', 'persona']);
+  const palabras = Object.keys(dictionary).filter(palabra =>
+    (objetivo !== null || !auxiliares.has(palabra)) && contieneExpresion(objetivo || texto, palabra));
+  const familiasNombradas = catalogo.filter(g => g.tipo === 'familia' && contieneExpresion(objetivo || texto, g.nombre));
+  const comunes = palabras.length > 1 && /\b(?:une|unen|entre|comparten|comun)\b/.test(texto);
+  const dePalabras = tipo => catalogo.filter(g =>
+    (!tipo || g.tipo === tipo) && g.tipo !== 'pendiente' &&
+    (comunes ? palabras.every(p => g.palabras.includes(p)) : palabras.some(p => g.palabras.includes(p))));
+  let grupos, respuesta;
+  const nota = 'Las familias comparten una base léxica; los temas reúnen significados relacionados. Una palabra puede figurar en varios grupos.';
+  if (palabras.length) {
+    grupos = pideFamilia ? dePalabras('familia').filter(g => g.palabras.length > 1) : dePalabras();
+    if (pideFamilia && !grupos.length) {
+      grupos = dePalabras('tema');
+      respuesta = 'No hay otra palabra de la misma familia léxica registrada para ' + palabras.map(p => '«' + p + '»').join(', ') + '. Estas son sus asociaciones por tema.';
+    } else {
+      respuesta = (comunes ? 'Grupos compartidos por ' : 'Relaciones registradas para ') +
+        palabras.map(p => '«' + p + '»').join(', ') + '.';
+    }
+  } else if (pideFamilia && familiasNombradas.length) {
+    grupos = familiasNombradas;
+    respuesta = 'Estas son las familias léxicas encontradas.';
+  } else if (temasNombrados.length) {
+    grupos = temasNombrados;
+    respuesta = 'Estas son las entradas agrupadas por el tema consultado.';
+  } else if (objetivo !== null) {
+    return { respuesta: 'No encontré «' + objetivo + '» entre las entradas o los grupos registrados.', palabras: [], ejemplos: ejemplosAgente };
+  } else {
+    grupos = pideFamilia ? catalogo.filter(g => g.tipo === 'familia' && g.palabras.length > 1)
+      : catalogo.filter(g => g.tipo === 'tema' || g.tipo === 'pendiente');
+    const cubiertas = new Set(grupos.flatMap(g => g.palabras)).size;
+    respuesta = pideFamilia
+      ? 'Hay ' + grupos.length + ' familias léxicas con al menos dos entradas; reúnen ' + cubiertas + ' palabras del diccionario.'
+      : 'Las ' + Object.keys(dictionary).length + ' entradas aparecen en ' + grupos.length + ' grupos. Puedes desplegarlos para ver sus palabras.';
+  }
+  if (!grupos.length) respuesta = 'No he registrado un grupo compartido para esas palabras.';
+  const orden = { familia: 0, forma: 1, tema: 2, pendiente: 3 };
+  grupos.sort((a, b) => orden[a.tipo] - orden[b.tipo] ||
+    (palabras.length ? a.palabras.length - b.palabras.length : 0) || collatorEs.compare(a.nombre, b.nombre));
+  return { tipo: 'grupos', cantidad: grupos.length, grupos, palabras: [], respuesta, nota,
+    mostrarLista: palabras.length > 0 || !!objetivo || !!pideTema };
+}
+
 function analizarPreguntaDiccionario(pregunta) {
   const texto = limpiarConsulta(pregunta);
   const ayuda = respuesta => ({ respuesta, palabras: [], ejemplos: ejemplosAgente });
-  const categorias = ['verbo', 'adjetivo', 'adverbio'].filter(c =>
+  const explicacionTerminaciones = responderSobreTerminaciones(texto);
+  if (explicacionTerminaciones) return explicacionTerminaciones;
+  const relaciones = consultarRelaciones(texto);
+  if (relaciones) return relaciones;
+  const noVerbales = /\bno[ -]+verbales?\b|\bno[ -]+verbal\b|\bno (?:son|sean) verbos?\b|\b(?:excepto|excluyendo|sin incluir) (?:los )?verbos?\b|\bno verbos?\b/.test(texto);
+  const categorias = ['verbo', 'adjetivo', 'adverbio', 'sustantivo', 'pronombre', 'articulo'].filter(c =>
+    !(noVerbales && c === 'verbo') &&
     new RegExp('\\b' + c + 's?\\b').test(texto));
   const famosos = /\b(famos[oa]s?|celebridad(?:es)?|personas conocidas|personajes publicos)\b/.test(texto) ||
     (/\bquienes\b/.test(texto) && /\b(imagen(?:es)?|fotos?|videos?)\b/.test(texto));
   const cuenta = /\b(cuantos|cuantas|cantidad|numero|total)\b/.test(texto);
   const lista = /\b(cuales|quienes|que|lista|listar|muestra|muestrame|mostrar|dime|dame)\b/.test(texto);
   if (!cuenta && !lista) return ayuda('Puedo contar y listar entradas, conjugaciones, famosos y palabras según su número de definiciones.');
-  if (categorias.length > 1 || /\b(sustantivos?|pronombres?|articulos?)\b/.test(texto)) {
-    return ayuda('Pregunta por una categoría cada vez. Tengo clasificados verbos, adjetivos y adverbios.');
+  if (categorias.length > 1) {
+    return ayuda('Pregunta por una categoría cada vez: verbos, adjetivos, adverbios, sustantivos, pronombres o artículos.');
   }
   const conjugacion = leerConjugacion(texto);
   const definiciones = leerCantidadDefiniciones(texto);
@@ -230,17 +452,25 @@ function analizarPreguntaDiccionario(pregunta) {
       mostrarLista: lista || personas.length <= 20
     };
   }
-  if (!categoria && !definiciones && !/\b(palabras?|entradas?|terminos?|diccionario|imagen(?:es)?|fotos?|videos?|texto)\b/.test(texto)) {
+  if (!categoria && !noVerbales && !definiciones && !/\b(palabras?|entradas?|terminos?|diccionario|imagen(?:es)?|fotos?|videos?|texto)\b/.test(texto)) {
     return ayuda('Prueba una pregunta sobre las palabras de tu diccionario.');
   }
   const palabras = Object.keys(dictionary).filter(palabra => {
     const entrada = dictionary[palabra];
-    if (categoria && !(Array.isArray(entrada.categorias) && entrada.categorias.includes(categoria))) return false;
+    const clases = listaDeCategorias(entrada);
+    if (categoria && !clases.includes(categoria)) return false;
+    if (noVerbales && (!clases.length || clases.includes('verbo'))) return false;
+    if (categoria === 'sustantivo' && /\bpropios?\b/.test(texto) && !esNombrePropio(palabra, entrada)) return false;
+    if (categoria === 'sustantivo' && /\bcomunes?\b/.test(texto) && esNombrePropio(palabra, entrada)) return false;
     if (conjugacion && !normalizeText(palabra).endsWith(conjugacion.terminacion)) return false;
     return cumpleCantidad(numeroDeDefiniciones(entrada), definiciones) &&
       cumpleMedios(!!entrada.imagen, !!entrada.video, medios);
   }).sort((a, b) => collatorEs.compare(a, b));
   let grupo = categoria ? categoria + (palabras.length === 1 ? '' : 's') : palabras.length === 1 ? 'entrada' : 'entradas';
+  if (categoria === 'articulo') grupo = palabras.length === 1 ? 'artículo' : 'artículos';
+  if (categoria === 'sustantivo' && /\bpropios?\b/.test(texto)) grupo += ' propios';
+  if (categoria === 'sustantivo' && /\bcomunes?\b/.test(texto)) grupo += ' comunes';
+  if (noVerbales) grupo += palabras.length === 1 ? ' no verbal' : ' no verbales';
   if (conjugacion) grupo += ' en infinitivo de la ' + conjugacion.nombre + ' conjugación (-' + conjugacion.terminacion + ')';
   if (definiciones) grupo += ' con ' + definiciones.descripcion;
   grupo += describirMedios(medios);
@@ -251,6 +481,14 @@ function analizarPreguntaDiccionario(pregunta) {
   };
   if (categoria === 'verbo' && !conjugacion && palabras.some(p => p === 'puede' || p === 'pueda')) {
     resultado.nota = 'Cuento entradas: las formas «puede» y «pueda» se cuentan por separado cuando aparecen en la lista.';
+  }
+  if (categoria === 'sustantivo') {
+    resultado.nota = 'Cuento las entradas clasificadas como sustantivos según sus acepciones. Una entrada puede tener también uso adjetivo.';
+    if (!/\b(?:propios?|comunes?)\b/.test(texto)) resultado.nota += ' Se incluyen los nombres propios.';
+  }
+  if (noVerbales) {
+    const sinCategoria = Object.values(dictionary).filter(e => !listaDeCategorias(e).length).length;
+    if (sinCategoria) resultado.nota = 'Hay ' + sinCategoria + ' entradas sin categoría que no se incluyen en este filtro.';
   }
   return resultado;
 }
@@ -272,6 +510,38 @@ window.responderPreguntaDiccionario = function(pregunta) {
   }
   parrafo(resultado.respuesta);
   if (resultado.nota) parrafo(resultado.nota);
+  if (resultado.fuentes) {
+    const fuentes = document.createElement('p');
+    fuentes.appendChild(document.createTextNode('Consulta: '));
+    resultado.fuentes.forEach((fuente, i) => {
+      if (i) fuentes.appendChild(document.createTextNode(' · '));
+      const a = document.createElement('a');
+      a.href = fuente.url;
+      a.textContent = fuente.nombre;
+      fuentes.appendChild(a);
+    });
+    contenedor.appendChild(fuentes);
+  }
+  if (resultado.tipo === 'grupos') {
+    const etiquetas = { familia: 'Familia léxica', forma: 'Formas del verbo', tema: 'Tema', pendiente: 'Pendiente' };
+    resultado.grupos.forEach(grupo => {
+      const detalle = document.createElement('details');
+      detalle.open = !!resultado.mostrarLista;
+      const titulo = document.createElement('summary');
+      titulo.textContent = etiquetas[grupo.tipo] + ': ' + grupo.nombre + ' (' + grupo.palabras.length + ')';
+      detalle.appendChild(titulo);
+      const motivo = document.createElement('p');
+      motivo.textContent = grupo.descripcion;
+      detalle.appendChild(motivo);
+      const lista = document.createElement('p');
+      grupo.palabras.forEach((palabra, i) => {
+        if (i) lista.appendChild(document.createTextNode(', '));
+        lista.appendChild(enlace(palabra));
+      });
+      detalle.appendChild(lista);
+      contenedor.appendChild(detalle);
+    });
+  }
   const cantidad = resultado.tipo === 'personas' ? resultado.personas.length : resultado.palabras.length;
   if (cantidad) {
     const detalle = document.createElement('details');
