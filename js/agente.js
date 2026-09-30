@@ -109,6 +109,10 @@ const famososIniciales = {
 };
 
 const ejemplosAgente = [
+  '¿Cuántos y cuáles adjetivos tienen alguna definición que empieza por «que»?',
+  '¿Se cumple que los verbos se definen con otros verbos?',
+  '¿Qué verbos no tienen ninguna definición que empiece con otro infinitivo?',
+  '¿Cuántos y cuáles adverbios terminan en -mente?',
   '¿Qué palabras no verbales tienen video?',
   '¿Existe la terminación verbal -or o -ur?',
   '¿Cuántos y cuáles sustantivos hay?',
@@ -132,6 +136,125 @@ function numeroDeDefiniciones(entrada) {
   const acepciones = Array.isArray(entrada.definiciones)
     ? entrada.definiciones : [entrada.definicion];
   return acepciones.filter(d => typeof d === 'string' && d.trim()).length;
+}
+
+function acepcionesDeEntrada(entrada) {
+  const definiciones = Array.isArray(entrada.definiciones) ? entrada.definiciones : [entrada.definicion];
+  return definiciones.map((texto, indice) => ({ texto, numero: indice + 1 }))
+    .filter(d => typeof d.texto === 'string' && d.texto.trim());
+}
+
+function comienzoDeDefinicion(definicion) {
+  let texto = definicion.replace(/<[^>]*>/g, ' ').replace(/&nbsp;|&#160;/gi, ' ').trim();
+  let anterior;
+  do {
+    anterior = texto;
+    texto = texto.replace(/^[\s«»“”"'‘’*•–—-]+/, '')
+      .replace(/^\(?\d+\s*[.)º°ª:]\s*/, '')
+      .replace(/^\[\s*(?:adjetivo|adverbio|verbo|sustantivo|pronombre|artículo|articulo|adj\.?|adv\.?|v\.?)\s*\]\s*/i, '')
+      .replace(/^(?:adj|adv|tr|intr|prnl|v)\.\s*/i, '').trim();
+  } while (texto !== anterior);
+  return texto;
+}
+
+// Infinitivos reconocidos en las definiciones y otros de uso frecuente.
+// Se amplían con los verbos etiquetados en el propio diccionario.
+// Una mera terminación -ar/-er/-ir no basta: «lugar» y «taller» no son verbos.
+const infinitivosDefinidores = new Set([
+  'adquirir', 'afirmar', 'alzar', 'amar', 'aparentar', 'aprender', 'arrojar',
+  'atraer', 'aumentar', 'batir', 'beber', 'buscar', 'caer', 'caminar', 'cantar',
+  'comer', 'comprar', 'conocer', 'construir', 'correr', 'costear', 'crear',
+  'crecer', 'cubrir', 'cumplir', 'dar', 'decir', 'dejar', 'derramar', 'describir',
+  'destilar', 'dormir', 'echar', 'emplear', 'encontrar', 'enlazar', 'enseñar',
+  'entrar', 'escribir', 'estar', 'estudiar', 'existir', 'explicar', 'expresar',
+  'formar', 'guarnecer', 'habitar', 'hablar', 'hacer', 'imitar', 'indicar',
+  'introducir', 'investigar', 'ir', 'jugar', 'lavar', 'leer', 'llamar', 'llevar',
+  'lograr', 'manar', 'mirar', 'montar', 'morir', 'mover', 'nacer', 'negar',
+  'ocurrir', 'oír', 'parar', 'pasar', 'pensar', 'poder', 'poner', 'producir',
+  'querer', 'realizar', 'recibir', 'representar', 'romper', 'saber', 'sacar',
+  'salir', 'sentir', 'ser', 'significar', 'sufrir', 'sujetar', 'superar',
+  'tapizar', 'tener', 'terminar', 'tomar', 'trabajar', 'tratar', 'trazar',
+  'triunfar', 'usar', 'utilizar', 'venir', 'ver', 'viajar', 'vivir', 'volver'
+].map(normalizeText));
+
+function baseDeInfinitivo(palabra) {
+  const normal = normalizeText(palabra);
+  return normal.replace(/(?:se|me|te|nos|os|lo|la|los|las|le|les){1,2}$/, '');
+}
+
+function otroInfinitivoInicial(palabra, definicion) {
+  const inicial = comienzoDeDefinicion(definicion).match(/^[\p{L}]+/u);
+  if (!inicial) return null;
+  const base = baseDeInfinitivo(inicial[0]);
+  const lema = ['puede', 'pueda'].includes(normalizeText(palabra)) ? 'poder' : baseDeInfinitivo(palabra);
+  if (!/(?:ar|er|ir)$/.test(base) || base === lema) return null;
+  const reconocido = infinitivosDefinidores.has(base) || Object.entries(dictionary).some(([p, entrada]) =>
+    baseDeInfinitivo(p) === base && listaDeCategorias(entrada).includes('verbo'));
+  return reconocido ? inicial[0] : null;
+}
+
+function consultarPatronesDefiniciones(texto) {
+  const inicio = /\b(?:empiez\w*|empiec\w*|comienz\w*|comienc\w*|inici\w*)\b/.test(texto);
+  const definicion = /\b(?:defin\w*|acepcion\w*)\b/.test(texto);
+  const mencionaQue = /[«“"']que[»”"']|\b(?:con|por|en)\s+(?:(?:la|el)\s+)?(?:(?:palabra|conjuncion|pronombre(?: relativo)?|relativo)\s+)?[«“"']?que\b/.test(texto);
+  const adjetivosQue = /\badjetivos?\b/.test(texto) && mencionaQue && (inicio || definicion);
+  const descripcion = texto.match(/\b(?:defin\w*|acepcion\w*|empiez\w*|empiec\w*|comienz\w*|comienc\w*|inici\w*)\b[\s\S]*/)?.[0] || '';
+  const otroVerbo = /\b(?:con|mediante|por|en|usando|utilizando|a traves de)\s+(?:(?:un|otro|otros|algun|algunos)\s+)?(?:verbos?|infinitivos?)\b/.test(descripcion);
+  const verbosDefinidos = /\bverbos?\b/.test(texto) && (inicio || definicion) && otroVerbo;
+  const adverbiosMente = /\badverbios?\b/.test(texto) && /\bmente\b/.test(texto) &&
+    /\b(?:termin\w*|acab\w*|finaliz\w*|sufijos?)\b/.test(texto);
+  if (!adjetivosQue && !verbosDefinidos && !adverbiosMente) return null;
+
+  const categoria = adjetivosQue ? 'adjetivo' : verbosDefinidos ? 'verbo' : 'adverbio';
+  const negativas = /\bno\s+(?:se\s+)?(?:termin\w*|acab\w*|finaliz\w*|empiez\w*|empiec\w*|comienz\w*|comienc\w*|inici\w*|defin\w*)\b|\bno\s+tienen?\s+(?:(?:ninguna|alguna|una)\s+)?(?:definicion|acepcion)|\b(?:excepciones|no cumplen)\b|\bsin (?:el |la )?(?:sufijo|terminacion)\b/.test(texto);
+  const todasAcepciones = /\btodas (?:sus |las )?(?:definiciones|acepciones)\b|\bcada (?:definicion|acepcion)\b/.test(texto);
+  const universal = /\b(?:siempre|se cumple)\b|\btodos (?:los )?(?:verbos|adjetivos|adverbios)\b/.test(texto);
+  const medios = leerMedios(texto);
+  const entradas = Object.entries(dictionary).filter(([, entrada]) =>
+    listaDeCategorias(entrada).includes(categoria) && cumpleMedios(!!entrada.imagen, !!entrada.video, medios));
+  const revisadas = entradas.map(([palabra, entrada]) => {
+    const acepciones = acepcionesDeEntrada(entrada);
+    const coincidencias = adverbiosMente ? [] : acepciones.filter(d => adjetivosQue
+      ? /^que(?:\b|$)/.test(normalizeText(comienzoDeDefinicion(d.texto)))
+      : !!otroInfinitivoInicial(palabra, d.texto));
+    const coincide = adverbiosMente ? normalizeText(palabra).endsWith('mente')
+      : todasAcepciones ? acepciones.length > 0 && coincidencias.length === acepciones.length : coincidencias.length > 0;
+    const muestra = (coincide ? coincidencias[0] : acepciones[0]) || acepciones[0];
+    return { palabra, coincide, coincidencias: coincidencias.length, total: acepciones.length,
+      definicion: muestra?.texto || 'Sin definición escrita.', numero: muestra?.numero };
+  }).sort((a, b) => collatorEs.compare(a.palabra, b.palabra));
+  const cumplen = revisadas.filter(r => r.coincide);
+  const excepciones = revisadas.filter(r => !r.coincide);
+  const seleccionadas = negativas ? excepciones : cumplen;
+  const n = seleccionadas.length;
+  const total = revisadas.length;
+  const sujeto = categoria + (n === 1 ? '' : 's');
+  const alcance = todasAcepciones ? 'todas sus definiciones' : 'al menos una definición';
+  const inicioBuscado = adjetivosQue ? '«que»' : 'otro verbo en infinitivo reconocido';
+  const mediosDescritos = describirMedios(medios);
+  let respuesta = adverbiosMente
+    ? 'Hay ' + n + ' ' + sujeto + mediosDescritos + ' que ' + (negativas ? 'no ' : '') + (n === 1 ? 'termina' : 'terminan') + ' en -mente'
+    : 'Hay ' + n + ' ' + sujeto + mediosDescritos + ' que ' + (negativas ? 'no ' : '') + (n === 1 ? 'cumple' : 'cumplen') + ' este criterio: ' + alcance + ' empieza' + (todasAcepciones ? 'n' : '') + ' por ' + inicioBuscado;
+  respuesta += ', de ' + total + ' ' + categoria + (total === 1 ? '' : 's') + ' consultad' + (total === 1 ? 'o' : 'os') + '.';
+  if (universal && !negativas && total) respuesta = (excepciones.length ? 'No se cumple en todos. ' : 'Sí, se cumple en todos los consultados. ') + respuesta;
+  let nota = 'Cuento cada entrada una sola vez.';
+  if (adverbiosMente) nota += ' Compruebo la terminación de la palabra, no la de su definición.';
+  else {
+    nota += ' Reviso el comienzo de cada acepción e ignoro la numeración y las etiquetas gramaticales iniciales.';
+    if (verbosDefinidos) {
+      const todas = revisadas.filter(r => r.total > 0 && r.coincidencias === r.total).length;
+      const algunas = revisadas.filter(r => r.coincidencias > 0 && r.coincidencias < r.total).length;
+      nota += ' Es una comprobación del inicio con infinitivos reconocidos: ' + todas + ' entradas cumplen en todas sus acepciones y ' + algunas + ' solo en algunas.';
+      if (revisadas.some(r => ['puede', 'pueda'].includes(r.palabra))) nota += ' Incluyo las formas «puede» y «pueda» como entradas separadas.';
+    }
+  }
+  return {
+    respuesta, nota, cantidad: n, total, palabras: seleccionadas.map(r => r.palabra),
+    mostrarLista: true,
+    evidencias: adverbiosMente ? undefined : seleccionadas,
+    excepciones: !negativas && (verbosDefinidos || universal) ? excepciones : undefined,
+    criterio: adverbiosMente ? 'terminacion-mente' : adjetivosQue ? 'definicion-que' : 'definicion-infinitivo'
+  };
 }
 
 function leerCantidadDefiniciones(texto) {
@@ -416,6 +539,8 @@ function consultarRelaciones(texto) {
 function analizarPreguntaDiccionario(pregunta) {
   const texto = limpiarConsulta(pregunta);
   const ayuda = respuesta => ({ respuesta, palabras: [], ejemplos: ejemplosAgente });
+  const patronesDefiniciones = consultarPatronesDefiniciones(texto);
+  if (patronesDefiniciones) return patronesDefiniciones;
   const explicacionTerminaciones = responderSobreTerminaciones(texto);
   if (explicacionTerminaciones) return explicacionTerminaciones;
   const relaciones = consultarRelaciones(texto);
@@ -561,6 +686,16 @@ window.responderPreguntaDiccionario = function(pregunta) {
         listado.appendChild(item);
       });
       detalle.appendChild(listado);
+    } else if (resultado.evidencias) {
+      titulo.textContent = 'Ver palabras y ejemplos de sus definiciones (' + cantidad + ')';
+      const listado = document.createElement('ul');
+      resultado.evidencias.forEach(evidencia => {
+        const item = document.createElement('li');
+        item.appendChild(enlace(evidencia.palabra));
+        item.appendChild(document.createTextNode(': «' + evidencia.definicion + '» (' + evidencia.coincidencias + ' de ' + evidencia.total + ' acepciones cumplen).'));
+        listado.appendChild(item);
+      });
+      detalle.appendChild(listado);
     } else {
       const listado = document.createElement('p');
       resultado.palabras.forEach((palabra, indice) => {
@@ -569,6 +704,21 @@ window.responderPreguntaDiccionario = function(pregunta) {
       });
       detalle.appendChild(listado);
     }
+    contenedor.appendChild(detalle);
+  }
+  if (resultado.excepciones?.length) {
+    const detalle = document.createElement('details');
+    const titulo = document.createElement('summary');
+    titulo.textContent = 'Ver excepciones al criterio (' + resultado.excepciones.length + ')';
+    detalle.appendChild(titulo);
+    const listado = document.createElement('ul');
+    resultado.excepciones.forEach(evidencia => {
+      const item = document.createElement('li');
+      item.appendChild(enlace(evidencia.palabra));
+      item.appendChild(document.createTextNode(': «' + evidencia.definicion + '»'));
+      listado.appendChild(item);
+    });
+    detalle.appendChild(listado);
     contenedor.appendChild(detalle);
   }
   if (resultado.ejemplos) {
