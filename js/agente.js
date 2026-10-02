@@ -360,14 +360,33 @@ function describirMedios(medios, personas = false) {
 }
 
 function nombresDelArchivo(palabra, entrada, medio) {
-  if (!entrada[medio]) return [];
   const etiquetas = entrada.famosos;
   if (etiquetas && Object.prototype.hasOwnProperty.call(etiquetas, medio)) {
     return Array.isArray(etiquetas[medio])
       ? etiquetas[medio].filter(n => typeof n === 'string' && n.trim()).map(n => n.trim()) : [];
   }
-  const inicial = famososIniciales[palabra];
-  return inicial && medio === (inicial.medio || 'imagen') && entrada[medio] === inicial.archivo ? inicial.nombres : [];
+
+  // Compatibilidad con un único archivo tradicional.
+  if (entrada[medio]) {
+    const inicial = famososIniciales[palabra];
+    if (inicial && medio === (inicial.medio || 'imagen') && entrada[medio] === inicial.archivo) return inicial.nombres;
+  }
+
+  // Los videos asociados a acepciones pueden contener personas distintas.
+  if (medio === 'video' && entrada.videosAcepciones) {
+    const nombres = [];
+    for (const v of Object.values(entrada.videosAcepciones)) {
+      if (!v || !v.src) continue;
+      const clave = Object.keys(famososIniciales).find(k => {
+        const dato = famososIniciales[k];
+        return (dato.medio || 'imagen') === 'video' && dato.archivo === v.src;
+      });
+      if (clave) nombres.push(...famososIniciales[clave].nombres);
+      if (Array.isArray(v.famosos)) nombres.push(...v.famosos);
+    }
+    return [...new Set(nombres)];
+  }
+  return [];
 }
 
 function clavePersona(nombre) {
