@@ -746,14 +746,14 @@ window.responderPreguntaDiccionario = function(pregunta) {
   function cargar(nombre) {
     return new Promise(resolve => {
       const script = document.createElement('script');
-      script.src = new URL(nombre + '?v=20261002-4', base).href;
+      script.src = new URL(nombre + '?v=20261002-5', base).href;
       script.onload = () => resolve(true);
       script.onerror = () => resolve(false);
       document.head.appendChild(script);
     });
   }
   (async () => {
-    if (await cargar('familias-datos.js')) { await cargar('familias.js'); await cargar('relaciones.js'); }
+    if (await cargar('familias-datos.js')) { await cargar('familias.js'); await cargar('relaciones.js'); await cargar('origenes.js'); }
     if (await cargar('agente-config.js')) await cargar('agente-abierto.js');
   })();
 })();
