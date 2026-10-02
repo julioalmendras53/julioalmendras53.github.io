@@ -28,6 +28,15 @@ window.addEventListener('error', e => {
     #definition p { margin: 0.5rem 0; }
     #definition a { color: #0066cc; text-decoration: none; }
     #definition a:hover { text-decoration: underline; }
+    .def-con-video{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-radius:8px}
+    .def-con-video p{flex:1}
+    .video-miniatura{flex:0 0 92px;border:1px solid #bfd4e8;border-radius:9px;padding:4px;background:#fff;cursor:pointer;color:#1769c2;font-weight:700;font-size:11px}
+    .video-miniatura video{display:block;width:84px;height:64px;object-fit:cover;border-radius:6px;background:#000;margin-bottom:3px;pointer-events:none}
+    .videos-acepciones{margin-top:22px;padding-top:12px;border-top:2px solid #2878e8}
+    .videos-acepciones h3{margin:.2rem 0 .8rem}
+    .video-acepcion-completo{scroll-margin-top:20px;margin:12px 0;padding:12px;border:1px solid #d8e4ee;border-radius:10px;background:#fff}
+    .video-acepcion-completo video{display:block;width:100%;max-height:520px;margin-top:8px;border-radius:8px;background:#000}
+    @media(max-width:600px){.video-miniatura{flex-basis:82px}.video-miniatura video{width:74px;height:58px}}
     #reset-button, #upload-button { display: none; margin-top: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.9rem; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background-color: #f5f5f5; } 
    #stats-bar {
   width: 100%;
@@ -419,7 +428,7 @@ window.addEventListener('error', e => {
                                "7.Dicho del sonido de un instrumento: pasar a ser más agudos.",
                                "8.Ocurrir el mareo por el alcohol.",
                                "9.Hacer que aumente la intensidad del sonido de un aparato reproductor.",
-                               "10.Introducir información en una página de Internet." ] , video: "videos/subir.webm" },
+                               "10.Introducir información en una página de Internet." ] , video: "videos/subir.webm", videosAcepciones: { 4: { src: "videos/subir-caballo.webm", titulo: "Subir a un caballo" } } },
       llorar:{ definiciones: [ 
                                "1.Arrojar en la cara lagrimas desde los ojos.",
                                "2.Manar de los ojos líquido lagrimal.",
@@ -628,7 +637,13 @@ searchInput.addEventListener('input', () => {
       } else {
         const entry = dictionary[key];
         const defs  = entry.definiciones || [ entry.definicion || '' ];
-        const htmlDefs = defs.map(d => plain ? d : linkify(d)).map(d=>`<p>${d}</p>`).join('');
+        const videosAcepciones = entry.videosAcepciones || {};
+        const htmlDefs = defs.map((d,i) => {
+          const texto = plain ? d : linkify(d);
+          const v = videosAcepciones[i+1];
+          if (!v) return `<p>${texto}</p>`;
+          return `<div class="def-con-video"><p>${texto}</p><button class="video-miniatura" type="button" data-video-target="video-acepcion-${i+1}" aria-label="Ver video: ${v.titulo || ('Acepción '+(i+1))}"><video muted playsinline preload="metadata"><source src="${v.src}" type="video/webm"></video><span>▶ Ver ejemplo</span></button></div>`;
+        }).join('');
         const imagenHtml = entry.imagen 
   ? `<br><img src="${entry.imagen}" alt="${key}" style="max-width:100%;margin-top:0.5rem;">` 
   : '';
@@ -641,11 +656,19 @@ const videoHtml = entry.video
      </video>`
   : '';
 
+const videosAcepcionesHtml = Object.entries(videosAcepciones).length
+  ? `<section class="videos-acepciones"><h3>Videos por definición</h3>${Object.entries(videosAcepciones).map(([num,v]) => `<div id="video-acepcion-${num}" class="video-acepcion-completo"><strong>${num}. ${v.titulo || 'Ejemplo en video'}</strong><video controls playsinline preload="metadata"><source src="${v.src}" type="video/webm">Tu navegador no puede reproducir este video.</video></div>`).join('')}</section>`
+  : '';
+
 const cita = entry.cita 
   ? `<br><em>${entry.cita}</em>` 
   : '';
 
-output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${videoHtml}${cita}`;
+output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${videoHtml}${videosAcepcionesHtml}${cita}`;
+        output.querySelectorAll('.video-miniatura').forEach(btn => btn.addEventListener('click', () => {
+          const destino = document.getElementById(btn.dataset.videoTarget);
+          if (destino) { destino.scrollIntoView({behavior:'smooth',block:'center'}); const v=destino.querySelector('video'); if(v) v.focus(); }
+        }));
 
         const sampleText = entry.definicion || defs[0];
         const hasLink    = testLinkRegex.test(sampleText);
