@@ -105,7 +105,9 @@ const famososIniciales = {
   bbc: { archivo: 'images/bbc.jpeg', nombres: ['Cristiano Ronaldo', 'Karim Benzema', 'Gareth Bale'] },
   msn: { archivo: 'images/msn.jpeg', nombres: ['Messi', 'Luis Suárez', 'Neymar'] },
   inteligencia: { archivo: 'images/inteligencia.jpg', nombres: ['Terence Tao'] },
-  ajedrez: { archivo: 'videos/ajedrez.webm', medio: 'video', nombres: ['Magnus Carlsen'] }
+  ajedrez: { archivo: 'videos/ajedrez.webm', medio: 'video', nombres: ['Magnus Carlsen'] },
+  'vencer-comparacion': { archivo: 'videos/vencer-comparacion.webm', medio: 'video', nombres: ['Davo Xeneize', 'Gastón Edul'] },
+  'vencer-gero': { archivo: 'videos/vencer-gero.webm', medio: 'video', nombres: ['Gero Arias', 'Viruzz'] }
 };
 
 const ejemplosAgente = [
