@@ -37,7 +37,7 @@ window.addEventListener('error', e => {
     .video-acepcion-completo{scroll-margin-top:20px;margin:12px 0;padding:12px;border:1px solid #d8e4ee;border-radius:10px;background:#fff}
     .video-acepcion-completo video{display:block;width:100%;max-height:520px;margin-top:8px;border-radius:8px;background:#000}
     @media(max-width:600px){.video-miniatura{flex-basis:82px}.video-miniatura video{width:74px;height:58px}}
-    #reset-button, #upload-button { display: none; margin-top: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.9rem; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background-color: #f5f5f5; } 
+    #reset-button, #upload-button, #video-upload-button { display: none; margin-top: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.9rem; cursor: pointer; border: 1px solid #ccc; border-radius: 4px; background-color: #f5f5f5; } 
    #stats-bar {
   width: 100%;
   box-sizing: border-box;
@@ -97,7 +97,9 @@ window.addEventListener('error', e => {
   <div id="definition" aria-live="polite">Introduce un término o una pregunta y pulsa “Buscar”.</div>
   <button id="reset-button">Mostrar original</button>
   <button id="upload-button">Subir imagen</button>
-  <input type="file" id="image-upload" accept="image/*" style="display:none" />  <script>
+  <button id="video-upload-button">Subir video</button>
+  <input type="file" id="image-upload" accept="image/*" style="display:none" />
+  <input type="file" id="video-upload" accept=".mp4,.m4v,.webm,video/mp4,video/webm" style="display:none" />  <script>
     // Normaliza texto: elimina acentos y pasa a minúsculas
     function normalizeText(str) {
       return str.normalize('NFD')
@@ -581,6 +583,68 @@ function linkify(text) {
     const resetBtn   = document.getElementById('reset-button');
     const uploadBtn  = document.getElementById('upload-button');
     const imageInput = document.getElementById('image-upload');
+    const videoUploadBtn = document.getElementById('video-upload-button');
+    const videoInput = document.getElementById('video-upload');
+    const videoObjectUrls = {};
+    let savedVideos = {};
+    try { savedVideos = JSON.parse(localStorage.getItem('dictionaryVideos') || '{}'); } catch (e) { savedVideos = {}; }
+
+    function videoMimeDe(src, fallback) {
+      if (fallback) return fallback;
+      const s = String(src || '').toLowerCase();
+      const data = s.match(/^data:([^;,]+)/);
+      if (data) return data[1];
+      if (s.includes('.webm')) return 'video/webm';
+      return 'video/mp4';
+    }
+
+    function openVideoDb() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open('diccionario-videos', 1);
+        req.onupgradeneeded = () => {
+          if (!req.result.objectStoreNames.contains('videos')) req.result.createObjectStore('videos');
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    function idbPut(term, blob) {
+      return openVideoDb().then(db => new Promise((resolve, reject) => {
+        const tx = db.transaction('videos', 'readwrite');
+        tx.objectStore('videos').put(blob, term);
+        tx.oncomplete = () => { db.close(); resolve(); };
+        tx.onerror = () => { db.close(); reject(tx.error); };
+      }));
+    }
+
+    function idbGet(term) {
+      return openVideoDb().then(db => new Promise((resolve, reject) => {
+        const tx = db.transaction('videos', 'readonly');
+        const r = tx.objectStore('videos').get(term);
+        r.onsuccess = () => { db.close(); resolve(r.result || null); };
+        r.onerror = () => { db.close(); reject(r.error); };
+      }));
+    }
+
+    async function attachSavedVideos() {
+      for (const term of Object.keys(savedVideos)) {
+        if (!dictionary[term]) continue;
+        try {
+          const blob = await idbGet(term);
+          if (!blob) continue;
+          videoObjectUrls[term] = URL.createObjectURL(blob);
+          dictionary[term].video = videoObjectUrls[term];
+          dictionary[term].videoMime = savedVideos[term] || blob.type || 'video/mp4';
+        } catch (e) {}
+      }
+    }
+
+    function setMediaButtons(visible) {
+      const mode = visible ? 'inline-block' : 'none';
+      uploadBtn.style.display = mode;
+      videoUploadBtn.style.display = mode;
+    }
     // --- Autocompletado de búsqueda (sugerencias) ---
 const searchInput = document.getElementById('search-input');
 
@@ -623,7 +687,7 @@ searchInput.addEventListener('input', () => {
       if (/[¿?]/.test(term) && window.responderPreguntaDiccionario) {
         searchInput.value = term;
         window.responderPreguntaDiccionario(term);
-        resetBtn.style.display = uploadBtn.style.display = 'none';
+        resetBtn.style.display = 'none'; setMediaButtons(false);
         if (push) history.pushState({ term, plain: false }, '', location.pathname);
         return;
       }
@@ -633,7 +697,7 @@ searchInput.addEventListener('input', () => {
       if (!key) {
         output.textContent = term ? `La palabra "${term}" no está en el diccionario.` : 'Por favor, escribe una palabra.';
         resetBtn.style.display = 'none';
-        uploadBtn.style.display = 'none';
+        setMediaButtons(false);
       } else {
         const entry = dictionary[key];
         const defs  = entry.definiciones || [ entry.definicion || '' ];
@@ -650,8 +714,8 @@ searchInput.addEventListener('input', () => {
 
 const videoHtml = entry.video 
   ? `<br>
-     <video controls style="max-width:100%;margin-top:0.5rem;">
-       <source src="${entry.video}" type="video/mp4">
+     <video controls playsinline style="max-width:100%;margin-top:0.5rem;">
+       <source src="${entry.video}" type="${videoMimeDe(entry.video, entry.videoMime)}">
        Tu navegador no puede reproducir este video.
      </video>`
   : '';
@@ -673,7 +737,7 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
         const sampleText = entry.definicion || defs[0];
         const hasLink    = testLinkRegex.test(sampleText);
         resetBtn.style.display = (!plain && hasLink) ? 'inline-block' : 'none';
-        uploadBtn.style.display = 'inline-block';
+        setMediaButtons(true);
         currentTerm = key;
       }
 
@@ -697,7 +761,7 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
       if(e.state) renderEntry(e.state.term, e.state.plain, false);
       else {
         output.textContent = 'Introduce un término y pulsa “Buscar” para ver la definición.';
-        resetBtn.style.display = uploadBtn.style.display = 'none';
+        resetBtn.style.display = 'none'; setMediaButtons(false);
         document.getElementById('search-input').value = '';
       }
     });
@@ -705,6 +769,7 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
     // Reset y upload
     resetBtn.addEventListener('click', ()=>renderEntry(currentTerm, true, true));
     uploadBtn.addEventListener('click', ()=>imageInput.click());
+    videoUploadBtn.addEventListener('click', ()=>videoInput.click());
 
     imageInput.addEventListener('change', event=>{
       const file = event.target.files[0];
@@ -720,12 +785,47 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
       reader.readAsDataURL(file);
     });
 
+    videoInput.addEventListener('change', event => {
+      const file = event.target.files && event.target.files[0];
+      event.target.value = '';
+      if (!file || !currentTerm) return;
+      const nombre = file.name.toLowerCase();
+      let mime = file.type;
+      if (mime !== 'video/mp4' && mime !== 'video/webm') {
+        if (nombre.endsWith('.webm')) mime = 'video/webm';
+        else if (nombre.endsWith('.mp4') || nombre.endsWith('.m4v')) mime = 'video/mp4';
+      }
+      if (mime !== 'video/mp4' && mime !== 'video/webm') {
+        alert('Solo se pueden subir videos MP4 o WebM.');
+        return;
+      }
+      if (file.size > 80 * 1024 * 1024) {
+        alert('El video es demasiado grande (máximo 80 MB).');
+        return;
+      }
+      idbPut(currentTerm, file).then(() => {
+        savedVideos[currentTerm] = mime;
+        localStorage.setItem('dictionaryVideos', JSON.stringify(savedVideos));
+        if (videoObjectUrls[currentTerm]) URL.revokeObjectURL(videoObjectUrls[currentTerm]);
+        videoObjectUrls[currentTerm] = URL.createObjectURL(file);
+        dictionary[currentTerm].video = videoObjectUrls[currentTerm];
+        dictionary[currentTerm].videoMime = mime;
+        renderEntry(currentTerm, false, false);
+      }).catch(() => {
+        alert('No se pudo guardar el video en este navegador.');
+      });
+    });
+
+
     // Inicialización al cargar
-    if(location.hash) {
-      renderEntry(location.hash.slice(1), false, false);
-      history.replaceState({ term: normalizeText(location.hash.slice(1)), plain:false }, '', location.hash);
-    } else {
-      history.replaceState(null, '', location.pathname); }
+    attachSavedVideos().finally(() => {
+      if(location.hash) {
+        renderEntry(location.hash.slice(1), false, false);
+        history.replaceState({ term: normalizeText(location.hash.slice(1)), plain:false }, '', location.hash);
+      } else {
+        history.replaceState(null, '', location.pathname);
+      }
+    });
     
   </script></body>
 </html>
