@@ -753,7 +753,7 @@ window.responderPreguntaDiccionario = function(pregunta) {
     });
   }
   (async () => {
-    if (await cargar('familias-datos.js')) await cargar('familias.js');
+    if (await cargar('familias-datos.js')) { await cargar('familias.js'); await cargar('relaciones.js'); }
     if (await cargar('agente-config.js')) await cargar('agente-abierto.js');
   })();
 })();
