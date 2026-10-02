@@ -430,7 +430,7 @@ window.addEventListener('error', e => {
                                "7.Dicho del sonido de un instrumento: pasar a ser más agudos.",
                                "8.Ocurrir el mareo por el alcohol.",
                                "9.Hacer que aumente la intensidad del sonido de un aparato reproductor.",
-                               "10.Introducir información en una página de Internet." ] , video: "videos/subir.webm", videosAcepciones: { 4: { src: "videos/subir-caballo.webm", titulo: "Subir a un caballo" } } },
+                               "10.Introducir información en una página de Internet." ] , videosAcepciones: { 1: { src: "videos/subir.webm", titulo: "Subir hacia una parte superior" }, 4: { src: "videos/subir-caballo.webm", titulo: "Subir a un caballo" } } },
       llorar:{ definiciones: [ 
                                "1.Arrojar en la cara lagrimas desde los ojos.",
                                "2.Manar de los ojos líquido lagrimal.",
@@ -721,7 +721,7 @@ const videoHtml = entry.video
   : '';
 
 const videosAcepcionesHtml = Object.entries(videosAcepciones).length
-  ? `<section class="videos-acepciones"><h3>Videos por definición</h3>${Object.entries(videosAcepciones).map(([num,v]) => `<div id="video-acepcion-${num}" class="video-acepcion-completo"><strong>${num}. ${v.titulo || 'Ejemplo en video'}</strong><video controls playsinline preload="metadata"><source src="${v.src}" type="video/webm">Tu navegador no puede reproducir este video.</video></div>`).join('')}</section>`
+  ? `<section class="videos-acepciones"><h3>Video seleccionado</h3><div id="video-acepcion-destino" class="video-acepcion-completo" hidden><strong id="video-acepcion-titulo"></strong><video id="video-acepcion-player" controls playsinline preload="metadata"></video></div></section>`
   : '';
 
 const cita = entry.cita 
@@ -730,8 +730,20 @@ const cita = entry.cita
 
 output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${videoHtml}${videosAcepcionesHtml}${cita}`;
         output.querySelectorAll('.video-miniatura').forEach(btn => btn.addEventListener('click', () => {
-          const destino = document.getElementById(btn.dataset.videoTarget);
-          if (destino) { destino.scrollIntoView({behavior:'smooth',block:'center'}); const v=destino.querySelector('video'); if(v) v.focus(); }
+          const num = btn.dataset.videoTarget.replace('video-acepcion-','');
+          const info = videosAcepciones[num];
+          const destino = document.getElementById('video-acepcion-destino');
+          const player = document.getElementById('video-acepcion-player');
+          const titulo = document.getElementById('video-acepcion-titulo');
+          if (destino && player && info) {
+            player.pause();
+            player.src = info.src;
+            titulo.textContent = num + '. ' + (info.titulo || 'Ejemplo en video');
+            destino.hidden = false;
+            player.load();
+            destino.scrollIntoView({behavior:'smooth',block:'center'});
+            player.focus();
+          }
         }));
 
         const sampleText = entry.definicion || defs[0];
