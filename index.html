@@ -833,6 +833,10 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
       return forma*.55 + color*.30 + tono*.15;
     }
 
+    function bitsDesdeBase64(s,cantidad){const bytes=Uint8Array.from(atob(s),ch=>ch.charCodeAt(0));const out=new Uint8Array(cantidad);for(let i=0;i<cantidad;i++)out[i]=(bytes[i>>3]>>(7-(i&7)))&1;return out;}
+    const referenciasVisuales=[{palabra:'ababol',ahash:bitsDesdeBase64('//////8X///8A////BP///wB///+ANP/9ACB//oAgP/+AYB//gCAf/4AAH8HAAAEwwAAAMECAA9ggAAPgEAACPBgAQDweAdEMG4HPzhnB/9dAYekz3GBED500JgvRvA4OcZ1jZHuMA6Q6zImEsOiBljHsAZw+zQyMXgw0jBABoA=',1024),dhash:bitsDesdeBase64('nnD79DDZ9/jFu3+3C3jPbhKyT+kf5O/SC8reIhOO/UAPGe6AHif94j/L4eTNtsHJm9hhx5uXMM8+rKHFfVoHx94zlyd5Vw9g82cWYPJbJOHltxjnxF0iScjqVsKp9x3KWs0phrGuURVlLLLialnUlNi2mWmRqLLrI0Nmlg==',992),color:new Float32Array([0.602,0.494,0.612,0.785,0.215,0.23,0.612,0.502,0.623,0.551,0.722,0.91,0.732,0.331,0.269,0.642,0.093,0.094,0.823,0.063,0.025,0.595,0.482,0.436,0.695,0.327,0.165,0.68,0.274,0.149,0.867,0.18,0.104,0.608,0.363,0.182,0.475,0.427,0.19,0.564,0.424,0.194,0.554,0.398,0.174,0.53,0.403,0.194])}];
+    function compararReferenciaVisual(img,ref){const forma=(diferenciaBits(img.ahash,ref.ahash)+diferenciaBits(img.dhash,ref.dhash))/2;const color=distanciaMedia(img.color,ref.color);return Math.max(0,Math.min(100,(1-(forma*.70+color*.30))*100));}
+
     async function buscarImagenExacta(file) {
       const boton = document.getElementById('image-search-button');
       const textoOriginal = boton.textContent;
@@ -853,6 +857,16 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
             if (!mejor || distancia < mejor.distancia) mejor = { palabra, distancia };
           } catch (_) {
             // Una imagen que no cargue no debe detener toda la búsqueda.
+          }
+        }
+
+        // Ejemplos visuales adicionales enseñados al diccionario.
+        for(const ref of referenciasVisuales){
+          const similitudRef=compararReferenciaVisual(buscada,ref);
+          if(similitudRef>=86 && (!mejor || similitudRef>Math.max(0,(1-mejor.distancia)*100))){
+            document.getElementById('search-input').value=ref.palabra;
+            renderEntry(ref.palabra,false,true);
+            return;
           }
         }
 
