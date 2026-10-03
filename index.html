@@ -841,7 +841,24 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
           return;
         }
 
-        output.innerHTML = '<strong>Sin coincidencia exacta.</strong><p>No encontré esa imagen entre las asociadas a las palabras del diccionario.</p>';
+        // Si no es la misma imagen, ofrece la mejor coincidencia visual desde el 75 %.
+        if (mejor) {
+          const similitud = Math.max(0, Math.min(100, (1 - mejor.distancia) * 100));
+          if (similitud >= 75) {
+            const palabraSegura = mejor.palabra.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            const porcentaje = similitud.toFixed(1).replace('.', ',');
+            output.innerHTML = '<strong>Imagen parecida encontrada</strong><p><button type="button" id="similar-image-result" style="cursor:pointer;font:inherit;padding:.45rem .75rem;">' + palabraSegura + ' — ' + porcentaje + ' % de similitud</button></p><p>No es la misma imagen, pero es visualmente parecida.</p>';
+            document.getElementById('similar-image-result').addEventListener('click', () => {
+              document.getElementById('search-input').value = mejor.palabra;
+              renderEntry(mejor.palabra, false, true);
+            });
+            resetBtn.style.display = 'none';
+            setMediaButtons(false);
+            return;
+          }
+        }
+
+        output.innerHTML = '<strong>Sin coincidencias.</strong><p>No encontré ninguna imagen con al menos un 75 % de similitud visual.</p>';
         resetBtn.style.display = 'none';
         setMediaButtons(false);
       } catch (error) {
