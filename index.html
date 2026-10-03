@@ -766,81 +766,90 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
       }
     }
 
-    // Búsqueda por imagen: primero compara bytes y después la imagen visual.
-    // La segunda comparación evita fallos si el móvil vuelve a guardar/comprimir el mismo JPG.
-    async function hashBuffer(buffer) {
-      const digest = await crypto.subtle.digest('SHA-256', buffer);
-      return Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
+    // Búsqueda por imagen visual compatible con navegadores móviles.
+    function archivoADataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
     }
 
-    async function imagenDesdeBlob(blob) {
-      return await createImageBitmap(blob);
+    function cargarImagen(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('No se pudo cargar la imagen'));
+        img.src = src;
+      });
     }
 
-    async function huellaVisual(blob) {
-      const img = await imagenDesdeBlob(blob);
+    async function huellaVisualDesdeSrc(src) {
+      const img = await cargarImagen(src);
       const canvas = document.createElement('canvas');
-      canvas.width = 32; canvas.height = 32;
+      canvas.width = 48;
+      canvas.height = 48;
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
-      ctx.drawImage(img, 0, 0, 32, 32);
-      if (img.close) img.close();
-      const d = ctx.getImageData(0, 0, 32, 32).data;
-      const gris = [];
-      for (let i=0; i<d.length; i+=4) gris.push((d[i]*299 + d[i+1]*587 + d[i+2]*114)/1000);
-      return gris;
+      if (!ctx) throw new Error('Canvas no disponible');
+      ctx.drawImage(img, 0, 0, 48, 48);
+      const d = ctx.getImageData(0, 0, 48, 48).data;
+      const firma = new Float32Array(48 * 48 * 3);
+      let j = 0;
+      for (let i = 0; i < d.length; i += 4) {
+        firma[j++] = d[i] / 255;
+        firma[j++] = d[i + 1] / 255;
+        firma[j++] = d[i + 2] / 255;
+      }
+      return firma;
     }
 
-    function distanciaVisual(a,b) {
-      let suma=0;
-      for(let i=0;i<a.length;i++) suma += Math.abs(a[i]-b[i]);
-      return suma/(a.length*255);
+    function distanciaVisual(a, b) {
+      if (!a || !b || a.length !== b.length) return Infinity;
+      let suma = 0;
+      for (let i = 0; i < a.length; i++) suma += Math.abs(a[i] - b[i]);
+      return suma / a.length;
     }
 
     async function buscarImagenExacta(file) {
       const boton = document.getElementById('image-search-button');
       const textoOriginal = boton.textContent;
-      boton.disabled = true; boton.textContent = '…';
+      boton.disabled = true;
+      boton.textContent = '…';
       output.textContent = 'Buscando la imagen en el diccionario…';
+
       try {
-        const bytesBuscada = await file.arrayBuffer();
-        const hashBuscada = await hashBuffer(bytesBuscada);
-        const visualBuscada = await huellaVisual(new Blob([bytesBuscada], {type:file.type || 'image/jpeg'}));
-        const entradas = Object.entries(dictionary).filter(([, entry]) => entry && entry.imagen && !String(entry.imagen).startsWith('data:'));
+        const buscadaSrc = await archivoADataURL(file);
+        const buscada = await huellaVisualDesdeSrc(buscadaSrc);
+        const entradas = Object.entries(dictionary).filter(([, entry]) => entry && entry.imagen);
         let mejor = null;
 
         for (const [palabra, entry] of entradas) {
           try {
-            const respuesta = await fetch(entry.imagen, {cache:'no-store'});
-            if (!respuesta.ok) continue;
-            const blob = await respuesta.blob();
-            const buffer = await blob.arrayBuffer();
-
-            // Coincidencia binaria perfecta.
-            if (await hashBuffer(buffer) === hashBuscada) {
-              document.getElementById('search-input').value = palabra;
-              renderEntry(palabra, false, true);
-              return;
-            }
-
-            // Coincidencia visual del mismo archivo aunque haya sido recomprimido.
-            const distancia = distanciaVisual(visualBuscada, await huellaVisual(blob));
-            if (!mejor || distancia < mejor.distancia) mejor = {palabra, distancia};
-          } catch (_) {}
+            const firma = await huellaVisualDesdeSrc(entry.imagen);
+            const distancia = distanciaVisual(buscada, firma);
+            if (!mejor || distancia < mejor.distancia) mejor = { palabra, distancia };
+          } catch (_) {
+            // Una imagen que no cargue no debe detener toda la búsqueda.
+          }
         }
 
-        // 2 % de diferencia media admite recompresión JPEG, pero no imágenes simplemente parecidas.
-        if (mejor && mejor.distancia <= 0.02) {
+        // Tolerancia pequeña para la misma fotografía guardada o recomprimida por el móvil.
+        if (mejor && mejor.distancia <= 0.045) {
           document.getElementById('search-input').value = mejor.palabra;
           renderEntry(mejor.palabra, false, true);
           return;
         }
 
         output.innerHTML = '<strong>Sin coincidencia exacta.</strong><p>No encontré esa imagen entre las asociadas a las palabras del diccionario.</p>';
-        resetBtn.style.display = 'none'; setMediaButtons(false);
+        resetBtn.style.display = 'none';
+        setMediaButtons(false);
       } catch (error) {
+        console.error('Error en búsqueda por imagen:', error);
         output.textContent = 'No se pudo analizar la imagen seleccionada.';
       } finally {
-        boton.disabled = false; boton.textContent = textoOriginal;
+        boton.disabled = false;
+        boton.textContent = textoOriginal;
       }
     }
 
