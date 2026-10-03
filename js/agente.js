@@ -41,6 +41,7 @@ categoriasDiccionario.adjetivo.push('tarado');
 // Las familias comparten una base; los temas relacionan significados.
 // Para nuevas entradas pueden indicarse temas: ["Fútbol"] y familias: ["infinito"].
 const familiasIniciales = [
+  {"nombre":"caos","descripcion":"Familia de caos: caos (sustantivo), caótico (adjetivo) y caóticamente (adverbio formado sobre caótica con -mente).","palabras":["caos","caótico","caóticamente"]},
   { nombre: 'infinito', descripcion: 'Comparten la base infinit-; se incluye «infinitotriz», voz de este diccionario.', palabras: ['infinito', 'infinitamente', 'infinitotriz', 'infinidad', 'infinitesimal'] },
   { nombre: 'límite', descripcion: 'Palabras vinculadas por la base de límite y limitar.', palabras: ['limite', 'limitado', 'ilimitado'] },
   { nombre: 'eterno', descripcion: 'Adjetivo y adverbio formado sobre su base.', palabras: ['eterno', 'eternamente'] },
@@ -772,7 +773,7 @@ window.responderPreguntaDiccionario = function(pregunta) {
   function cargar(nombre) {
     return new Promise(resolve => {
       const script = document.createElement('script');
-      script.src = new URL(nombre + '?v=20261003-origenes', base).href;
+      script.src = new URL(nombre + '?v=20261003-familia-caos', base).href;
       script.onload = () => resolve(true);
       script.onerror = () => resolve(false);
       document.head.appendChild(script);

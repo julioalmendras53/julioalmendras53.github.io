@@ -7,6 +7,9 @@
   const minsheu = 'Minsheu, Vocabularium Hispanicum Latinum et Anglicum (1617)';
   const casas = 'Casas, Vocabulario de las dos lenguas toscana y castellana (1570)';
   const fechas = {
+    caos: registro('caos', 1611, 'Covarrubias, Tesoro de la lengua castellana o española (1611)'),
+    'caótico': registro('caótico', 1853, 'Domínguez, Diccionario Nacional (1853)'),
+    'caóticamente': { anio: 2010, tipo: 'Testimonio de uso', detalle: 'El Diccionario de americanismos (ASALE, 2010) emplea caóticamente en la acepción VI.1 de barajustar(se). Es un testimonio de uso, no una primera aparición acreditada.', fuente: 'ASALE: Diccionario de americanismos, barajustar(se)', url: 'https://www.asale.org/damer/barajustar' },
     infinito: registro('infinito', 1495, nebrija),
     infinitamente: registro('infinitamente', 1495, nebrija),
     infinidad: registro('infinidad', 1495, nebrija),
@@ -37,6 +40,7 @@
     ingoogleable: { anio: 2013, tipo: 'Testimonio en prensa', detalle: 'Voz presente en el título de un artículo de Ecuavisa del 30 de marzo de 2013. No es una primera aparición acreditada.', fuente: 'Ecuavisa (2013)', url: 'https://www.ecuavisa.com/mundo/ser-quotingoogleablequot-bendicion-o-maldicion-20130330-0008.html' }
   };
   const familias = [
+    {"nombre":"caos","palabras":["caos","caótico","caóticamente"],"descripcion":"Familia de caos: caos (sustantivo), caótico (adjetivo) y caóticamente (adverbio formado sobre caótica con -mente).","enlaces":[["caos","caótico"],["caótico","caóticamente"]]},
     { nombre: 'infinito', palabras: ['infinito', 'infinitamente', 'infinitotriz', 'infinidad', 'infinitesimal'], descripcion: 'Voces relacionadas por la base infinit-. «Infinitotriz» se incorpora según el uso que le da el autor del diccionario.' },
     { nombre: 'Google', palabras: ['google', 'googlear', 'googleable', 'ingoogleable', 'gugol'], descripcion: 'Google y sus formaciones. Gúgol se añade por el origen del nombre: Google se inspiró en la voz inglesa googol; no deriva de la forma española.', enlaces: [['google', 'googlear'], ['google', 'googleable'], ['googleable', 'ingoogleable'], ['google', 'gugol']] },
     { nombre: 'límite', palabras: ['limite', 'limitado', 'ilimitado'], descripcion: 'Familia de límite y limitar; las dos últimas voces comparten la base limitado.' },

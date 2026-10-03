@@ -10,7 +10,7 @@ test('El cuarteto solicitado, infinitesimal y las formaciones de Google están p
   for (const p of ['infinito', 'infinitamente', 'infinitotriz', 'infinidad', 'infinitesimal']) assert(f.palabras.includes(p));
   const g = h.familias.find(f => f.nombre === 'Google');
   for (const p of ['google', 'googlear', 'googleable', 'ingoogleable', 'gugol']) assert(g.palabras.includes(p));
-  assert.equal(h.familias.length, 12);
+  assert.equal(h.familias.length, 13);
 });
 test('En todas las familias lo más antiguo queda más lejos; lo desconocido queda fuera de la escala', () => {
   for (const f of h.familias) {
