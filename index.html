@@ -843,6 +843,45 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
     ];
     function compararReferenciaVisual(img,ref){const forma=(diferenciaBits(img.ahash,ref.ahash)+diferenciaBits(img.dhash,ref.dhash))/2;const color=distanciaMedia(img.color,ref.color);return Math.max(0,Math.min(100,(1-(forma*.70+color*.30))*100));}
 
+    // Detector regional multiescala para ababol: busca pétalos rojos compactos
+    // aunque la flor ocupe una parte pequeña de una fotografía grande.
+    async function detectarAbabolPorRegiones(src) {
+      const img=await cargarImagen(src);
+      const W=192, H=Math.max(96,Math.round(192*img.naturalHeight/img.naturalWidth));
+      const canvas=document.createElement('canvas'); canvas.width=W; canvas.height=H;
+      const ctx=canvas.getContext('2d',{willReadFrequently:true});
+      ctx.drawImage(img,0,0,W,H);
+      const d=ctx.getImageData(0,0,W,H).data;
+      const esRojo=(x,y)=>{
+        const i=(y*W+x)*4, r=d[i],g=d[i+1],b=d[i+2];
+        return r>135 && r>g*1.45 && r>b*1.25 && (r-Math.max(g,b))>45;
+      };
+      const esOscuro=(x,y)=>{
+        const i=(y*W+x)*4; return d[i]+d[i+1]+d[i+2]<210;
+      };
+      let mejor=0;
+      // Ventanas desde flores muy pequeñas hasta primeros planos.
+      for(const frac of [0.10,0.14,0.20,0.28,0.40,0.55]){
+        const ww=Math.max(12,Math.round(W*frac)), hh=ww;
+        const paso=Math.max(4,Math.round(ww/4));
+        for(let y=0;y+hh<=H;y+=paso) for(let x=0;x+ww<=W;x+=paso){
+          let rojos=0, oscurosCentro=0, centroN=0;
+          const x1=x+Math.floor(ww*.28),x2=x+Math.ceil(ww*.72);
+          const y1=y+Math.floor(hh*.28),y2=y+Math.ceil(hh*.72);
+          for(let yy=y;yy<y+hh;yy+=2) for(let xx=x;xx<x+ww;xx+=2){
+            if(esRojo(xx,yy)) rojos++;
+            if(xx>=x1&&xx<x2&&yy>=y1&&yy<y2){centroN++; if(esOscuro(xx,yy)) oscurosCentro++;}
+          }
+          const n=Math.ceil(ww/2)*Math.ceil(hh/2);
+          const pr=rojos/Math.max(1,n), po=oscurosCentro/Math.max(1,centroN);
+          // Una amapola suele aportar una masa roja localizada y un centro oscuro.
+          const score=Math.min(1,pr/.22)*.72 + Math.min(1,po/.18)*.28;
+          if(pr>.07 && score>mejor) mejor=score;
+        }
+      }
+      return mejor*100;
+    }
+
     async function buscarImagenExacta(file) {
       const boton = document.getElementById('image-search-button');
       const textoOriginal = boton.textContent;
@@ -853,6 +892,7 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
       try {
         const buscadaSrc = await archivoADataURL(file);
         const buscada = await huellaVisualDesdeSrc(buscadaSrc);
+        const regionAbabol = await detectarAbabolPorRegiones(buscadaSrc);
         const entradas = Object.entries(dictionary).filter(([, entry]) => entry && entry.imagen);
         let mejor = null;
 
@@ -864,6 +904,14 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
           } catch (_) {
             // Una imagen que no cargue no debe detener toda la búsqueda.
           }
+        }
+
+        // Si una amapola aparece como objeto pequeño, la búsqueda regional puede
+        // reconocerla aunque el paisaje completo sea muy distinto a las referencias.
+        if(regionAbabol>=78){
+          document.getElementById('search-input').value='ababol';
+          renderEntry('ababol',false,true);
+          return;
         }
 
         // Ejemplos visuales adicionales enseñados al diccionario.
