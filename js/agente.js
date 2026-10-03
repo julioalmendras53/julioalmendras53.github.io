@@ -772,7 +772,7 @@ window.responderPreguntaDiccionario = function(pregunta) {
   function cargar(nombre) {
     return new Promise(resolve => {
       const script = document.createElement('script');
-      script.src = new URL(nombre + '?v=20261002-6', base).href;
+      script.src = new URL(nombre + '?v=20261003-aprender1', base).href;
       script.onload = () => resolve(true);
       script.onerror = () => resolve(false);
       document.head.appendChild(script);

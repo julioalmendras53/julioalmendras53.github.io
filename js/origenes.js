@@ -2,6 +2,7 @@
 'use strict';
 if(!document.getElementById('definition'))return;
 const rutas={
+aprender:{ruta:['latín apprehendĕre','español aprender'],texto:'Del lat. apprehendĕre. Fuente: Diccionario de la lengua española (RAE y ASALE).'},
 infinito:{ruta:['latín infinitus','español infinito'],texto:'Del latín infinitus, formado con el prefijo negativo in- y finitus («limitado»).'},
 infierno:{ruta:['latín infernum','español infierno'],texto:'Del latín infernum. La evolución fonética del castellano dio la forma infierno.'},
 babilla:{ruta:['español baba','babilla'],texto:'Formación española vinculada históricamente a baba, con sufijación diminutiva.'},
