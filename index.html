@@ -766,42 +766,81 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
       }
     }
 
-    // Búsqueda por imagen exacta: compara el contenido binario de la imagen elegida
-    // con las imágenes asociadas a las entradas del diccionario.
+    // Búsqueda por imagen: primero compara bytes y después la imagen visual.
+    // La segunda comparación evita fallos si el móvil vuelve a guardar/comprimir el mismo JPG.
     async function hashBuffer(buffer) {
       const digest = await crypto.subtle.digest('SHA-256', buffer);
       return Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
     }
 
+    async function imagenDesdeBlob(blob) {
+      return await createImageBitmap(blob);
+    }
+
+    async function huellaVisual(blob) {
+      const img = await imagenDesdeBlob(blob);
+      const canvas = document.createElement('canvas');
+      canvas.width = 32; canvas.height = 32;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0, 32, 32);
+      if (img.close) img.close();
+      const d = ctx.getImageData(0, 0, 32, 32).data;
+      const gris = [];
+      for (let i=0; i<d.length; i+=4) gris.push((d[i]*299 + d[i+1]*587 + d[i+2]*114)/1000);
+      return gris;
+    }
+
+    function distanciaVisual(a,b) {
+      let suma=0;
+      for(let i=0;i<a.length;i++) suma += Math.abs(a[i]-b[i]);
+      return suma/(a.length*255);
+    }
+
     async function buscarImagenExacta(file) {
       const boton = document.getElementById('image-search-button');
       const textoOriginal = boton.textContent;
-      boton.disabled = true;
-      boton.textContent = '…';
-      output.textContent = 'Buscando una imagen idéntica en el diccionario…';
+      boton.disabled = true; boton.textContent = '…';
+      output.textContent = 'Buscando la imagen en el diccionario…';
       try {
-        const buscadaHash = await hashBuffer(await file.arrayBuffer());
-        const entradas = Object.entries(dictionary).filter(([, entry]) => entry && entry.imagen);
+        const bytesBuscada = await file.arrayBuffer();
+        const hashBuscada = await hashBuffer(bytesBuscada);
+        const visualBuscada = await huellaVisual(new Blob([bytesBuscada], {type:file.type || 'image/jpeg'}));
+        const entradas = Object.entries(dictionary).filter(([, entry]) => entry && entry.imagen && !String(entry.imagen).startsWith('data:'));
+        let mejor = null;
+
         for (const [palabra, entry] of entradas) {
           try {
-            const respuesta = await fetch(entry.imagen, { cache: 'no-store' });
+            const respuesta = await fetch(entry.imagen, {cache:'no-store'});
             if (!respuesta.ok) continue;
-            const hashDiccionario = await hashBuffer(await respuesta.arrayBuffer());
-            if (hashDiccionario === buscadaHash) {
+            const blob = await respuesta.blob();
+            const buffer = await blob.arrayBuffer();
+
+            // Coincidencia binaria perfecta.
+            if (await hashBuffer(buffer) === hashBuscada) {
               document.getElementById('search-input').value = palabra;
               renderEntry(palabra, false, true);
               return;
             }
+
+            // Coincidencia visual del mismo archivo aunque haya sido recomprimido.
+            const distancia = distanciaVisual(visualBuscada, await huellaVisual(blob));
+            if (!mejor || distancia < mejor.distancia) mejor = {palabra, distancia};
           } catch (_) {}
         }
-        output.innerHTML = '<strong>Sin coincidencia exacta.</strong><p>La imagen seleccionada no es idéntica a ninguna imagen asociada a una palabra del diccionario.</p>';
-        resetBtn.style.display = 'none';
-        setMediaButtons(false);
+
+        // 2 % de diferencia media admite recompresión JPEG, pero no imágenes simplemente parecidas.
+        if (mejor && mejor.distancia <= 0.02) {
+          document.getElementById('search-input').value = mejor.palabra;
+          renderEntry(mejor.palabra, false, true);
+          return;
+        }
+
+        output.innerHTML = '<strong>Sin coincidencia exacta.</strong><p>No encontré esa imagen entre las asociadas a las palabras del diccionario.</p>';
+        resetBtn.style.display = 'none'; setMediaButtons(false);
       } catch (error) {
         output.textContent = 'No se pudo analizar la imagen seleccionada.';
       } finally {
-        boton.disabled = false;
-        boton.textContent = textoOriginal;
+        boton.disabled = false; boton.textContent = textoOriginal;
       }
     }
 
