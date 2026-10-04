@@ -22,10 +22,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const entries = Object.values(dictionary);
         const total = entries.length;
-        const conImagen = entries.filter(entry => entry.imagen).length;
+        const tieneImagen = entry => !!(entry && (entry.imagen || (Array.isArray(entry.imagenes) && entry.imagenes.some(Boolean))));
+        const conImagen = entries.filter(tieneImagen).length;
         // La barra cuenta entradas que poseen al menos un video.
         const conVideo = entries.filter(tieneVideos).length;
-        const soloTexto = entries.filter(entry => !entry.imagen && !tieneVideos(entry)).length;
+        const soloTexto = entries.filter(entry => !tieneImagen(entry) && !tieneVideos(entry)).length;
         // Se conserva también el total real de archivos de video para futuras estadísticas.
         const totalVideos = entries.reduce((suma, entry) => suma + cantidadVideos(entry), 0);
 

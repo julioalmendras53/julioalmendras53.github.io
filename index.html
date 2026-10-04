@@ -29,7 +29,8 @@ window.addEventListener('error', e => {
     #definition em { display: block; margin-top: 0.5rem; color: #666; font-style: italic; }
     #definition p { margin: 0.5rem 0; }
     #definition a { color: #0066cc; text-decoration: none; }
-    #definition a:hover { text-decoration: underline; }
+    .galeria-entrada{display:flex;flex-wrap:wrap;gap:8px;margin-top:.6rem}
+    .galeria-entrada img{flex:1 1 220px;width:100%;max-width:100%;height:auto;max-height:420px;object-fit:contain;background:#fff;border:1px solid #e4e4e4;border-radius:8px}
     .def-con-video{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-radius:8px}
     .def-con-video p{flex:1}
     .video-miniatura{flex:0 0 92px;border:1px solid #bfd4e8;border-radius:9px;padding:4px;background:#fff;cursor:pointer;color:#1769c2;font-weight:700;font-size:11px}
@@ -75,8 +76,8 @@ window.addEventListener('error', e => {
   </style>
   
 </head> 
-  <script src="js/contador.js?v=20261002-videos2"></script>
-  <script src="js/agente.js?v=20261003-familia-caos" defer></script>
+  <script src="js/contador.js?v=20261004-imagenes"></script>
+  <script src="js/agente.js?v=20261004-imagenes" defer></script>
 <body>
   
 
@@ -125,7 +126,13 @@ window.addEventListener('error', e => {
           "1. Planta y flor papaverácea llamada amapola.",
           "2. Persona tonta."
         ],
-        categorias: ["sustantivo"]
+        categorias: ["sustantivo"],
+        imagenes: [
+          "images/ababol-1.jpg",
+          "images/ababol-2.jpg",
+          "images/ababol-3.jpg",
+          "images/ababol-4.jpg"
+        ]
       },
       "abacá": {
         "definicion": "Planta musácea del trópico de la isla de las Filipinas que tiene una fibra que se emplea en industria.",
@@ -715,9 +722,10 @@ searchInput.addEventListener('input', () => {
           if (!v) return `<p>${texto}</p>`;
           return `<div class="def-con-video"><p>${texto}</p><button class="video-miniatura" type="button" data-video-target="video-acepcion-${i+1}" aria-label="Ver video: ${v.titulo || ('Acepción '+(i+1))}"><video muted playsinline preload="metadata"><source src="${v.src}" type="video/webm"></video><span>▶ Ver ejemplo</span></button></div>`;
         }).join('');
-        const imagenHtml = entry.imagen 
-  ? `<br><img src="${entry.imagen}" alt="${key}" style="max-width:100%;margin-top:0.5rem;">` 
-  : '';
+        const imagenesVisibles = rutasImagenesDe(entry);
+        const imagenHtml = imagenesVisibles.length
+          ? `<div class="galeria-entrada">${imagenesVisibles.map((src, i) => `<img src="${src.replace(/"/g, '"')}" alt="${key} ${i + 1}">`).join('')}</div>`
+          : '';
 
 const videoHtml = entry.video 
   ? `<br>
@@ -857,32 +865,59 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
       return best;
     }
 
+    // Las imágenes que compara el buscador son las mismas que se muestran.
+    // "imagen" sigue valiendo; "imagenes" añade más fotos visibles a la entrada.
+    function rutasImagenesDe(entry) {
+      const rutas = [];
+      const vistas = new Set();
+      const añadir = (src) => {
+        if (typeof src !== 'string') return;
+        const limpia = src.trim();
+        if (!limpia) return;
+        const clave = limpia.split('?')[0];
+        if (vistas.has(clave)) return;
+        vistas.add(clave);
+        rutas.push(limpia);
+      };
+      if (entry && Array.isArray(entry.imagenes)) entry.imagenes.forEach(añadir);
+      if (entry) añadir(entry.imagen);
+      return rutas;
+    }
+
     // Motor visual general: no hay detectores privilegiados por palabra.
-    // Cada entrada que tenga "imagen" participa automáticamente, incluidas las futuras.
+    // Cada foto visible de cada entrada participa. Se guarda la mejor de esa palabra
+    // y después se comparan esas mejores entre sí.
 
     async function buscarImagenExacta(file) {
       const boton=document.getElementById('image-search-button'),textoOriginal=boton.textContent;
-      boton.disabled=true;boton.textContent='…';output.textContent='Analizando la imagen por regiones… (motor visual v5)';
+      boton.disabled=true;boton.textContent='…';output.textContent='Analizando la imagen por regiones… (motor visual v6)';
       try{
         const buscadaSrc=await archivoADataURL(file);
         const buscada=await huellaVisualDesdeSrc(buscadaSrc);
         const regionesBuscada=await huellasRegionalesDesdeSrc(buscadaSrc);
-        const entradas=Object.entries(dictionary).filter(([p,e])=>e&&e.imagen);
+        const entradas=Object.entries(dictionary).filter(([,e])=>rutasImagenesDe(e).length);
         const candidatos=[];
         for(const [palabra,entry] of entradas){
-          try{
-            const firma=await huellaVisualDesdeSrc(entry.imagen);
-            const regionesRef=await huellasRegionalesDesdeSrc(entry.imagen);
-            const global=distanciaVisual(buscada,firma);
-            const regional=mejorDistanciaRegional(regionesBuscada,regionesRef);
-            // Ninguna señal puede ocultar por sí sola una diferencia grande.
-            const peor=Math.max(global,regional);
-            const distancia=global*.52+regional*.33+peor*.15;
-            candidatos.push({palabra,distancia,global,regional});
-          }catch(_){}
+          let mejorDePalabra=null;
+          for(const src of rutasImagenesDe(entry)){
+            try{
+              const firma=await huellaVisualDesdeSrc(src);
+              const regionesRef=await huellasRegionalesDesdeSrc(src);
+              const global=distanciaVisual(buscada,firma);
+              const regional=mejorDistanciaRegional(regionesBuscada,regionesRef);
+              // Ninguna señal puede ocultar por sí sola una diferencia grande.
+              const peor=Math.max(global,regional);
+              const distancia=global*.52+regional*.33+peor*.15;
+              if(!mejorDePalabra||distancia<mejorDePalabra.distancia){
+                mejorDePalabra={palabra,distancia,global,regional};
+              }
+            }catch(_){}
+          }
+          if(mejorDePalabra) candidatos.push(mejorDePalabra);
         }
         candidatos.sort((a,b)=>a.distancia-b.distancia);
         const mejor=candidatos[0]||null, segundo=candidatos[1]||null;
+        // El texto escrito en el buscador no interviene: solo se rellena al decidir.
         if(mejor&&mejor.global<=.045){
           document.getElementById('search-input').value=mejor.palabra;renderEntry(mejor.palabra,false,true);return;
         }

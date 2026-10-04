@@ -37,7 +37,7 @@
     const entradas = Object.entries(dictionary).map(([palabra, e]) => ({
       palabra, categorias: listaDeCategorias(e),
       definiciones: acepcionesDeEntrada(e).map(d => d.texto.replace(/<[^>]*>/g, '')),
-      imagen: !!e.imagen, video: !!e.video, nombrePropio: esNombrePropio(palabra, e),
+      imagen: !!(e.imagen || (Array.isArray(e.imagenes) && e.imagenes.some(Boolean))), video: !!e.video, nombrePropio: esNombrePropio(palabra, e),
       familias: grupos.filter(g => g.tipo === 'familia' && g.palabras.includes(palabra)).map(g => g.nombre),
       temas: grupos.filter(g => g.tipo === 'tema' && g.palabras.includes(palabra)).map(g => g.nombre),
       personasImagen: nombresDelArchivo(palabra, e, 'imagen'),

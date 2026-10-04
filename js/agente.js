@@ -214,7 +214,7 @@ function consultarPatronesDefiniciones(texto) {
   const universal = /\b(?:siempre|se cumple)\b|\btodos (?:los )?(?:verbos|adjetivos|adverbios)\b/.test(texto);
   const medios = leerMedios(texto);
   const entradas = Object.entries(dictionary).filter(([, entrada]) =>
-    listaDeCategorias(entrada).includes(categoria) && cumpleMedios(!!entrada.imagen, entradaTieneVideo(entrada), medios));
+    listaDeCategorias(entrada).includes(categoria) && cumpleMedios(entradaTieneImagen(entrada), entradaTieneVideo(entrada), medios));
   const revisadas = entradas.map(([palabra, entrada]) => {
     const acepciones = acepcionesDeEntrada(entrada);
     const coincidencias = adverbiosMente ? [] : acepciones.filter(d => adjetivosQue
@@ -338,6 +338,10 @@ function leerMedios(texto) {
     video: soloTexto || sinAmbos ? false : video || ambos ? !sinVideo : null,
     cualquiera, soloTexto: soloTexto || sinAmbos
   };
+}
+
+function entradaTieneImagen(entrada) {
+  return !!(entrada && (entrada.imagen || (Array.isArray(entrada.imagenes) && entrada.imagenes.some(Boolean))));
 }
 
 function entradaTieneVideo(entrada) {
@@ -616,7 +620,7 @@ function analizarPreguntaDiccionario(pregunta) {
     if (categoria === 'sustantivo' && /\bcomunes?\b/.test(texto) && esNombrePropio(palabra, entrada)) return false;
     if (conjugacion && !normalizeText(palabra).endsWith(conjugacion.terminacion)) return false;
     return cumpleCantidad(numeroDeDefiniciones(entrada), definiciones) &&
-      cumpleMedios(!!entrada.imagen, entradaTieneVideo(entrada), medios);
+      cumpleMedios(entradaTieneImagen(entrada), entradaTieneVideo(entrada), medios);
   }).sort((a, b) => collatorEs.compare(a, b));
   let grupo = categoria ? categoria + (palabras.length === 1 ? '' : 's') : palabras.length === 1 ? 'entrada' : 'entradas';
   if (categoria === 'articulo') grupo = palabras.length === 1 ? 'artículo' : 'artículos';
