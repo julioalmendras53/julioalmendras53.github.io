@@ -934,7 +934,9 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
             const regional=mejorDistanciaRegional(regionesBuscada,regionesRef);
             // Motor general: cada imagen del diccionario sirve automáticamente como referencia
             // global y regional. Las futuras entradas con imagen quedan incluidas sin programarlas.
-            const distancia=Math.min(global,regional*.94);
+            // Una sola región parecida daba falsos positivos (gato→flaco, perro→ábaco).
+            // Ahora exigimos acuerdo entre la escena completa y las regiones.
+            const distancia=global*.62+regional*.38;
             if(!mejor||distancia<mejor.distancia)mejor={palabra,distancia,global,regional};
           }catch(_){}
         }
@@ -953,9 +955,12 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
         }
         if(mejor){
           const similitud=Math.max(0,Math.min(100,(1-mejor.distancia)*100));
-          // Regional requiere un umbral algo menor porque compara recortes y no la escena entera.
-          const umbral=mejor.regional<mejor.global?82:86;
-          if(similitud>=umbral){
+          const similitudGlobal=Math.max(0,(1-mejor.global)*100);
+          const similitudRegional=Math.max(0,(1-mejor.regional)*100);
+          // Para proponer una palabra deben coincidir dos señales independientes.
+          // Esto sacrifica algunos parecidos débiles para evitar resultados absurdos.
+          const consistente=similitud>=86 && similitudGlobal>=78 && similitudRegional>=82;
+          if(consistente){
             const p=mejor.palabra.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
             const pct=similitud.toFixed(1).replace('.',',');
             output.innerHTML='<strong>Imagen parecida encontrada</strong><p><button type="button" id="similar-image-result" style="cursor:pointer;font:inherit;padding:.45rem .75rem;">'+p+' — '+pct+' % de similitud</button></p><p>Coincidencia visual por imagen completa o por una de sus regiones.</p>';
@@ -963,7 +968,7 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
             resetBtn.style.display='none';setMediaButtons(false);return;
           }
         }
-        output.innerHTML='<strong>Sin coincidencias.</strong><p>No encontré una imagen suficientemente parecida, ni completa ni por regiones.</p>';
+        output.innerHTML='<strong>Sin coincidencias.</strong><p>No encontré una coincidencia visual suficientemente consistente. Prefiero no proponer una palabra antes que dar una coincidencia débil.</p>';
         resetBtn.style.display='none';setMediaButtons(false);
       }catch(error){console.error('Error en búsqueda por imagen:',error);output.textContent='No se pudo analizar la imagen seleccionada.';}
       finally{boton.disabled=false;boton.textContent=textoOriginal;}
