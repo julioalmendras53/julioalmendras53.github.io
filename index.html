@@ -833,6 +833,30 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
       return forma*.55 + color*.30 + tono*.15;
     }
 
+    // Huellas regionales genéricas: reutilizables por cualquier entrada con imagen.
+    async function huellasRegionalesDesdeSrc(src) {
+      const img=await cargarImagen(src), out=[];
+      const cortes=[
+        [0,0,1,1],[.1,.1,.8,.8],
+        [0,0,.6,.6],[.4,0,.6,.6],[0,.4,.6,.6],[.4,.4,.6,.6],
+        [.2,0,.6,.7],[.2,.3,.6,.7],[0,.2,.7,.6],[.3,.2,.7,.6]
+      ];
+      for(const [rx,ry,rw,rh] of cortes){
+        const cv=document.createElement('canvas');cv.width=32;cv.height=32;
+        const x=Math.round(img.naturalWidth*rx),y=Math.round(img.naturalHeight*ry);
+        const w=Math.max(1,Math.round(img.naturalWidth*rw)),h=Math.max(1,Math.round(img.naturalHeight*rh));
+        cv.getContext('2d').drawImage(img,x,y,w,h,0,0,32,32);
+        out.push(await huellaVisualDesdeSrc(cv.toDataURL('image/jpeg',.82)));
+      }
+      return out;
+    }
+
+    function mejorDistanciaRegional(a,b){
+      let best=Infinity;
+      for(const x of a)for(const y of b){const d=distanciaVisual(x,y);if(d<best)best=d;}
+      return best;
+    }
+
     function bitsDesdeBase64(s,cantidad){const bytes=Uint8Array.from(atob(s),ch=>ch.charCodeAt(0));const out=new Uint8Array(cantidad);for(let i=0;i<cantidad;i++)out[i]=(bytes[i>>3]>>(7-(i&7)))&1;return out;}
     const referenciasVisuales=[
       {palabra:'ababol',ahash:bitsDesdeBase64('/////////////////////////////P/g//j/AP/wAAD/sAOEPwAPgDwADhA/4AW4/+EH/P/hB+jv8c/5r3t/849e+/IGPtuCFowBAp8AAAD2AEAQNBAAEAQAAABEAAAIAAAADAAAAAYCAABAAAAAQAAAAACAAAAAAABAAQAAABA=',1024),dhash:bitsDesdeBase64('/47zF/+Z5Q7zOYtdb3vHm50brB84OcC7OOEjZOFRXMlCrjjQz7BZAQdhszg20xxg5ckncM9KZ6GuhapSWUNapbYMWuJqOLTF23GmpRNoxplOSSxavNow0WnEq8DpOlOb0Dszc3By5pLizaS0YatLKcNmUdsWzuGW7NTNNQ==',992),color:new Float32Array([0.7798,0.8464,0.8978,0.8393,0.7671,0.7819,0.7907,0.7837,0.7988,0.6703,0.706,0.696,0.5966,0.5914,0.3868,0.6454,0.3843,0.2451,0.7668,0.4332,0.2797,0.5316,0.5325,0.3065,0.5395,0.5339,0.26,0.4971,0.5072,0.232,0.4607,0.4713,0.2161,0.4354,0.4683,0.2023,0.3592,0.3837,0.141,0.4218,0.4331,0.1797,0.3096,0.3093,0.1218,0.3859,0.4189,0.1692])},
@@ -893,81 +917,56 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
     }
 
     async function buscarImagenExacta(file) {
-      const boton = document.getElementById('image-search-button');
-      const textoOriginal = boton.textContent;
-      boton.disabled = true;
-      boton.textContent = '…';
-      output.textContent = 'Buscando la imagen en el diccionario…';
-
-      try {
-        const buscadaSrc = await archivoADataURL(file);
-        const buscada = await huellaVisualDesdeSrc(buscadaSrc);
-        const regionAbabol = await detectarAbabolPorRegiones(buscadaSrc);
-        const entradas = Object.entries(dictionary).filter(([, entry]) => entry && entry.imagen);
-        let mejor = null;
-
-        for (const [palabra, entry] of entradas) {
-          try {
-            const firma = await huellaVisualDesdeSrc(entry.imagen);
-            const distancia = distanciaVisual(buscada, firma);
-            if (!mejor || distancia < mejor.distancia) mejor = { palabra, distancia };
-          } catch (_) {
-            // Una imagen que no cargue no debe detener toda la búsqueda.
-          }
+      const boton=document.getElementById('image-search-button'),textoOriginal=boton.textContent;
+      boton.disabled=true;boton.textContent='…';output.textContent='Analizando la imagen por regiones…';
+      try{
+        const buscadaSrc=await archivoADataURL(file);
+        const buscada=await huellaVisualDesdeSrc(buscadaSrc);
+        const regionesBuscada=await huellasRegionalesDesdeSrc(buscadaSrc);
+        const regionAbabol=await detectarAbabolPorRegiones(buscadaSrc);
+        const entradas=Object.entries(dictionary).filter(([,e])=>e&&e.imagen);
+        let mejor=null;
+        for(const [palabra,entry] of entradas){
+          try{
+            const firma=await huellaVisualDesdeSrc(entry.imagen);
+            const regionesRef=await huellasRegionalesDesdeSrc(entry.imagen);
+            const global=distanciaVisual(buscada,firma);
+            const regional=mejorDistanciaRegional(regionesBuscada,regionesRef);
+            // Motor general: cada imagen del diccionario sirve automáticamente como referencia
+            // global y regional. Las futuras entradas con imagen quedan incluidas sin programarlas.
+            const distancia=Math.min(global,regional*.94);
+            if(!mejor||distancia<mejor.distancia)mejor={palabra,distancia,global,regional};
+          }catch(_){}
         }
-
-        // Si una amapola aparece como objeto pequeño, la búsqueda regional puede
-        // reconocerla aunque el paisaje completo sea muy distinto a las referencias.
+        // Detector especializado legado de ababol: se conserva como mejora adicional.
         if(regionAbabol>=74){
-          document.getElementById('search-input').value='ababol';
-          renderEntry('ababol',false,true);
-          return;
+          document.getElementById('search-input').value='ababol';renderEntry('ababol',false,true);return;
         }
-
-        // Ejemplos visuales adicionales enseñados al diccionario.
         for(const ref of referenciasVisuales){
-          const similitudRef=compararReferenciaVisual(buscada,ref);
-          if(similitudRef>=86 && (!mejor || similitudRef>Math.max(0,(1-mejor.distancia)*100))){
-            document.getElementById('search-input').value=ref.palabra;
-            renderEntry(ref.palabra,false,true);
-            return;
+          const s=compararReferenciaVisual(buscada,ref);
+          if(s>=86&&(!mejor||s>Math.max(0,(1-mejor.distancia)*100))){
+            document.getElementById('search-input').value=ref.palabra;renderEntry(ref.palabra,false,true);return;
           }
         }
-
-        // Tolerancia pequeña para la misma fotografía guardada o recomprimida por el móvil.
-        if (mejor && mejor.distancia <= 0.045) {
-          document.getElementById('search-input').value = mejor.palabra;
-          renderEntry(mejor.palabra, false, true);
-          return;
+        if(mejor&&mejor.global<=.045){
+          document.getElementById('search-input').value=mejor.palabra;renderEntry(mejor.palabra,false,true);return;
         }
-
-        // Si no es la misma imagen, exige una coincidencia perceptual alta para evitar falsos positivos.
-        if (mejor) {
-          const similitud = Math.max(0, Math.min(100, (1 - mejor.distancia) * 100));
-          if (similitud >= 86) {
-            const palabraSegura = mejor.palabra.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-            const porcentaje = similitud.toFixed(1).replace('.', ',');
-            output.innerHTML = '<strong>Imagen parecida encontrada</strong><p><button type="button" id="similar-image-result" style="cursor:pointer;font:inherit;padding:.45rem .75rem;">' + palabraSegura + ' — ' + porcentaje + ' % de similitud</button></p><p>No es la misma imagen, pero es visualmente parecida.</p>';
-            document.getElementById('similar-image-result').addEventListener('click', () => {
-              document.getElementById('search-input').value = mejor.palabra;
-              renderEntry(mejor.palabra, false, true);
-            });
-            resetBtn.style.display = 'none';
-            setMediaButtons(false);
-            return;
+        if(mejor){
+          const similitud=Math.max(0,Math.min(100,(1-mejor.distancia)*100));
+          // Regional requiere un umbral algo menor porque compara recortes y no la escena entera.
+          const umbral=mejor.regional<mejor.global?82:86;
+          if(similitud>=umbral){
+            const p=mejor.palabra.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            const pct=similitud.toFixed(1).replace('.',',');
+            output.innerHTML='<strong>Imagen parecida encontrada</strong><p><button type="button" id="similar-image-result" style="cursor:pointer;font:inherit;padding:.45rem .75rem;">'+p+' — '+pct+' % de similitud</button></p><p>Coincidencia visual por imagen completa o por una de sus regiones.</p>';
+            document.getElementById('similar-image-result').addEventListener('click',()=>{document.getElementById('search-input').value=mejor.palabra;renderEntry(mejor.palabra,false,true);});
+            resetBtn.style.display='none';setMediaButtons(false);return;
           }
         }
-
-        output.innerHTML = '<strong>Sin coincidencias.</strong><p>No encontré ninguna imagen con suficiente similitud visual (mínimo 86 %).</p>';
-        resetBtn.style.display = 'none';
-        setMediaButtons(false);
-      } catch (error) {
-        console.error('Error en búsqueda por imagen:', error);
-        output.textContent = 'No se pudo analizar la imagen seleccionada.';
-      } finally {
-        boton.disabled = false;
-        boton.textContent = textoOriginal;
-      }
+        output.innerHTML='<strong>Sin coincidencias.</strong><p>No encontré una imagen suficientemente parecida, ni completa ni por regiones.</p>';
+        resetBtn.style.display='none';setMediaButtons(false);
+      }catch(error){console.error('Error en búsqueda por imagen:',error);output.textContent='No se pudo analizar la imagen seleccionada.';}
+      finally{boton.disabled=false;boton.textContent=textoOriginal;}
     }
 
     document.getElementById('image-search-button').addEventListener('click', () => {
