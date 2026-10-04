@@ -916,22 +916,189 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
       return rutas;
     }
 
+    // Motor visual v8.
+    // Camino A: copia cercana. Sigue exigiendo forma, color, bordes y regiones a la vez.
+    // Camino B: solo si la entrada tiene al menos dos fotos visibles. Compara el color
+    // muy saturado (el fondo neutro no vota) y exige que varias fotos apoyen. El umbral
+    // sale de las propias fotos, dejando una fuera, y tiene que quedar por encima de
+    // cualquier otra imagen del diccionario. Una zona de color plano no basta: las fotos
+    // de la entrada marcan cuánta variación interna tiene ese color.
+
+    const cacheCroma=new Map();
+
+    function cromaDesdeImagen(img) {
+      const S=72, cv=document.createElement('canvas');
+      cv.width=S; cv.height=S;
+      const ctx=cv.getContext('2d',{willReadFrequently:true});
+      ctx.drawImage(img,0,0,S,S);
+      const d=ctx.getImageData(0,0,S,S).data, n=S*S;
+      const bins=new Float32Array(24), tono=new Float32Array(n);
+      const tonoBin=new Int16Array(n);
+      tonoBin.fill(-1);
+      for(let p=0,i=0;i<d.length;i+=4,p++){
+        const r=d[i]/255, g=d[i+1]/255, b=d[i+2]/255;
+        const mx=Math.max(r,g,b), mn=Math.min(r,g,b), delta=mx-mn;
+        const sat=mx?delta/mx:0;
+        tono[p]=r*.299+g*.587+b*.114;
+        if(sat<.8||!delta) continue;
+        let h=0;
+        if(mx===r) h=((g-b)/delta)%6;
+        else if(mx===g) h=(b-r)/delta+2;
+        else h=(r-g)/delta+4;
+        h=(h*60+360)%360;
+        const bin=Math.min(23,Math.floor(((h+7.5)%360)/15));
+        tonoBin[p]=bin;
+        bins[bin]+=1;
+      }
+      for(let i=0;i<24;i++) bins[i]/=n;
+      const muestras=Array.from({length:24},()=>[]);
+      for(let y=1;y<S-1;y++) for(let x=1;x<S-1;x++){
+        const p=y*S+x, bin=tonoBin[p];
+        if(bin<0) continue;
+        let media=0; const vals=[];
+        for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++) vals.push(tono[p+dy*S+dx]);
+        for(const v of vals) media+=v;
+        media/=vals.length;
+        let varn=0;
+        for(const v of vals) varn+=(v-media)*(v-media);
+        muestras[bin].push(Math.sqrt(varn/vals.length));
+      }
+      const contraste=new Float32Array(24);
+      for(let i=0;i<24;i++){
+        const m=muestras[i];
+        if(m.length<12) continue;
+        m.sort((a,b)=>a-b);
+        contraste[i]=m[m.length>>1];
+      }
+      return {bins,contraste};
+    }
+
+    async function cromaDesdeSrc(src) {
+      const cacheable=typeof src==='string' && !src.startsWith('data:');
+      if(cacheable && cacheCroma.has(src)) return cacheCroma.get(src);
+      const c=cromaDesdeImagen(await cargarImagen(src));
+      if(cacheable) cacheCroma.set(src,c);
+      return c;
+    }
+
+    function idfCroma(cromas) {
+      const N=cromas.length, w=new Float32Array(24);
+      for(let i=0;i<24;i++){
+        let df=0;
+        for(const c of cromas) if(c.bins[i]>.012) df++;
+        w[i]=Math.log((N+1)/(df+1));
+      }
+      return w;
+    }
+
+    function interseccionCroma(a,b,w) {
+      let s=0;
+      for(let i=0;i<24;i++) s+=w[i]*Math.min(a[i],b[i]);
+      return s;
+    }
+
+    function puntuacionCroma(q, refs, w) {
+      const xs=refs.map(r=>interseccionCroma(q.bins,r.bins,w)).sort((a,b)=>b-a);
+      if(xs.length<2) return {media:0, apoyo:0};
+      const media=(xs[0]+xs[1])/2;
+      const corte=Math.max(.02, xs[0]*.45);
+      let apoyo=0;
+      for(const x of xs) if(x>=corte) apoyo++;
+      return {media, apoyo};
+    }
+
+    // El color de la firma tiene que variar dentro de la mancha tanto como en las fotos
+    // de la entrada. Así un rojo plano (un traje, un recuadro) no hereda el consenso.
+    function texturaCompatible(q, refs) {
+      for(let i=0;i<24;i++){
+        const quienes=refs.filter(r=>r.bins[i]>.012 && r.contraste[i]>0);
+        if(quienes.length<2 || q.bins[i]<.012) continue;
+        const suelo=Math.min(...quienes.map(r=>r.contraste[i]));
+        if(q.contraste[i] < suelo*.55) return false;
+      }
+      return true;
+    }
+
+    // Masa de color saturado que la consulta tiene y que las fotos de la entrada
+    // no comparten. Un rojo acompañado de mucho naranja, como una llama, no debe
+    // parecerse a un rojo que en la entrada va casi solo.
+    function repartoCompatible(q, refs, w) {
+      let propia=0, ajena=0;
+      for(let i=0;i<24;i++){
+        const vals=refs.map(r=>r.bins[i]).sort((a,b)=>b-a);
+        const firma=vals[1]||0;
+        if(firma>=.012) propia+=w[i]*Math.min(q.bins[i], firma);
+        else ajena+=w[i]*q.bins[i];
+      }
+      return ajena<=Math.max(.035, propia*.8);
+    }
+
+    function mediana(xs) {
+      const a=xs.slice().sort((p,q)=>p-q);
+      const m=Math.floor(a.length/2);
+      return a.length%2 ? a[m] : (a[m-1]+a[m])/2;
+    }
+
+    // Consenso entre las fotos visibles de una entrada. No usa referencias externas.
+    function decidirConsenso(consulta, porPalabra) {
+      const pesos=idfCroma(porPalabra.flatMap(p=>p.cromas));
+      const candidatos=[];
+      for(const grupo of porPalabra){
+        if(grupo.cromas.length<2) continue;
+        const propias=grupo.cromas;
+        const ajenas=porPalabra.filter(p=>p!==grupo).flatMap(p=>p.cromas);
+        const loo=[];
+        for(let i=0;i<propias.length;i++){
+          const resto=propias.filter((_,j)=>j!==i);
+          const sc=puntuacionCroma(propias[i], resto, pesos);
+          if(sc.apoyo>=2 && texturaCompatible(propias[i], resto) && repartoCompatible(propias[i], resto, pesos)) loo.push(sc.media);
+        }
+        if(loo.length<2) continue;
+        const suelo=mediana(loo);
+        let techo=0;
+        for(const ajena of ajenas){
+          if(!texturaCompatible(ajena, propias) || !repartoCompatible(ajena, propias, pesos)) continue;
+          const sc=puntuacionCroma(ajena, propias, pesos);
+          if(sc.media>techo) techo=sc.media;
+        }
+        if(!(suelo>techo*1.12)) continue;
+        const umbral=techo+.5*(suelo-techo);
+        const sc=puntuacionCroma(consulta, propias, pesos);
+        if(!(sc.apoyo>=2 && texturaCompatible(consulta, propias) && repartoCompatible(consulta, propias, pesos) && sc.media>umbral && sc.media>techo*1.12)) continue;
+        candidatos.push({palabra:grupo.palabra, score:sc.media});
+      }
+      candidatos.sort((a,b)=>b.score-a.score);
+      if(!candidatos.length) return null;
+      if(candidatos[1] && candidatos[0].score<candidatos[1].score*1.12) return null;
+      return candidatos[0];
+    }
+
+    function mostrarParecida(palabra, detalle, nota) {
+      const p=palabra.replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
+      output.innerHTML='<strong>Imagen parecida encontrada</strong><p><button type="button" id="similar-image-result" style="cursor:pointer;font:inherit;padding:.45rem .75rem;">'+p+' — '+detalle+'</button></p><p>'+nota+'</p>';
+      document.getElementById('similar-image-result').addEventListener('click',()=>{document.getElementById('search-input').value=palabra;renderEntry(palabra,false,true);});
+      resetBtn.style.display='none'; setMediaButtons(false);
+    }
+
     // Motor visual general: no hay detectores privilegiados por palabra.
-    // Cada foto visible de cada entrada participa. Se guarda la mejor de esa palabra
-    // y después se comparan esas mejores entre sí.
+    // Cada foto visible de cada entrada participa. Primero se busca una copia cercana.
+    // Si no la hay, una entrada con varias fotos puede ganar por consenso de color.
 
     async function buscarImagenExacta(file) {
       const boton=document.getElementById('image-search-button'),textoOriginal=boton.textContent;
-      boton.disabled=true;boton.textContent='…';output.textContent='Analizando forma, color y bordes… (motor visual v7)';
+      boton.disabled=true;boton.textContent='…';output.textContent='Analizando forma y consenso de color… (motor visual v8)';
       try{
         const buscadaSrc=await archivoADataURL(file);
         const buscada=await huellaVisualDesdeSrc(buscadaSrc);
         const regionesBuscada=await huellasRegionalesDesdeSrc(buscadaSrc);
         const descriptorBuscada=await descriptorSemanticoDesdeSrc(buscadaSrc);
+        const cromaBuscada=await cromaDesdeSrc(buscadaSrc);
         const entradas=Object.entries(dictionary).filter(([,e])=>rutasImagenesDe(e).length);
         const candidatos=[];
+        const porPalabra=[];
         for(const [palabra,entry] of entradas){
           let mejorDePalabra=null;
+          const cromas=[];
           for(const src of rutasImagenesDe(entry)){
             try{
               const firma=await huellaVisualDesdeSrc(src);
@@ -947,9 +1114,11 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
               if(!mejorDePalabra||distancia<mejorDePalabra.distancia){
                 mejorDePalabra={palabra,distancia,global,regional,descriptor};
               }
+              cromas.push(await cromaDesdeSrc(src));
             }catch(_){}
           }
           if(mejorDePalabra) candidatos.push(mejorDePalabra);
+          if(cromas.length) porPalabra.push({palabra,cromas});
         }
         candidatos.sort((a,b)=>a.distancia-b.distancia);
         const mejor=candidatos[0]||null, segundo=candidatos[1]||null;
@@ -969,12 +1138,15 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
           const margen=segundo ? segundo.distancia-mejor.distancia : 1;
           const consistente=similitud>=84 && similitudGlobal>=76 && similitudRegional>=80 && similitudDescriptor>=78 && margen>=0.015;
           if(consistente){
-            const p=mejor.palabra.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
             const pct=similitud.toFixed(1).replace('.',',');
-            output.innerHTML='<strong>Imagen parecida encontrada</strong><p><button type="button" id="similar-image-result" style="cursor:pointer;font:inherit;padding:.45rem .75rem;">'+p+' — '+pct+' % de similitud</button></p><p>Coincidencia visual contrastada por forma, color, bordes y regiones.</p>';
-            document.getElementById('similar-image-result').addEventListener('click',()=>{document.getElementById('search-input').value=mejor.palabra;renderEntry(mejor.palabra,false,true);});
-            resetBtn.style.display='none';setMediaButtons(false);return;
+            mostrarParecida(mejor.palabra, pct+' % de similitud', 'Coincidencia visual contrastada por forma, color, bordes y regiones.');
+            return;
           }
+        }
+        const consenso=decidirConsenso(cromaBuscada, porPalabra);
+        if(consenso){
+          mostrarParecida(consenso.palabra, 'consenso de color', 'Varias fotos visibles de la entrada coinciden en el color saturado. No hace falta que sea una copia de una sola de ellas.');
+          return;
         }
         output.innerHTML='<strong>Sin coincidencias.</strong><p>No encontré una coincidencia visual suficientemente consistente. Prefiero no proponer una palabra antes que dar una coincidencia débil.</p>';
         resetBtn.style.display='none';setMediaButtons(false);
