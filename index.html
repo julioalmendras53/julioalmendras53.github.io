@@ -940,17 +940,9 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
             if(!mejor||distancia<mejor.distancia)mejor={palabra,distancia,global,regional};
           }catch(_){}
         }
-        // Ababol ya no puede secuestrar la búsqueda general: su detector especializado
-        // solo refuerza a ababol cuando el motor general también lo considera candidato.
-        if(regionAbabol>=82 && mejor && mejor.palabra==='ababol'){
-          document.getElementById('search-input').value='ababol';renderEntry('ababol',false,true);return;
-        }
-        for(const ref of referenciasVisuales){
-          const s=compararReferenciaVisual(buscada,ref);
-          if(s>=86&&(!mejor||s>Math.max(0,(1-mejor.distancia)*100))){
-            document.getElementById('search-input').value=ref.palabra;renderEntry(ref.palabra,false,true);return;
-          }
-        }
+        // El detector especializado de ababol queda desactivado dentro de la búsqueda
+        // general. Sus referencias no pueden imponerse a las demás entradas.
+        // Ababol participa aquí exactamente como cualquier otra entrada con imagen.
         if(mejor&&mejor.global<=.045){
           document.getElementById('search-input').value=mejor.palabra;renderEntry(mejor.palabra,false,true);return;
         }
