@@ -940,8 +940,9 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
             if(!mejor||distancia<mejor.distancia)mejor={palabra,distancia,global,regional};
           }catch(_){}
         }
-        // Detector especializado legado de ababol: se conserva como mejora adicional.
-        if(regionAbabol>=74){
+        // Ababol ya no puede secuestrar la búsqueda general: su detector especializado
+        // solo refuerza a ababol cuando el motor general también lo considera candidato.
+        if(regionAbabol>=82 && mejor && mejor.palabra==='ababol'){
           document.getElementById('search-input').value='ababol';renderEntry('ababol',false,true);return;
         }
         for(const ref of referenciasVisuales){
