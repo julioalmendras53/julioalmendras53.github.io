@@ -862,27 +862,27 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
 
     async function buscarImagenExacta(file) {
       const boton=document.getElementById('image-search-button'),textoOriginal=boton.textContent;
-      boton.disabled=true;boton.textContent='…';output.textContent='Analizando la imagen por regiones… (motor visual v4)';
+      boton.disabled=true;boton.textContent='…';output.textContent='Analizando la imagen por regiones… (motor visual v5)';
       try{
         const buscadaSrc=await archivoADataURL(file);
         const buscada=await huellaVisualDesdeSrc(buscadaSrc);
         const regionesBuscada=await huellasRegionalesDesdeSrc(buscadaSrc);
         const entradas=Object.entries(dictionary).filter(([p,e])=>e&&e.imagen);
-        let mejor=null;
+        const candidatos=[];
         for(const [palabra,entry] of entradas){
           try{
             const firma=await huellaVisualDesdeSrc(entry.imagen);
             const regionesRef=await huellasRegionalesDesdeSrc(entry.imagen);
             const global=distanciaVisual(buscada,firma);
             const regional=mejorDistanciaRegional(regionesBuscada,regionesRef);
-            // Motor general: cada imagen del diccionario sirve automáticamente como referencia
-            // global y regional. Las futuras entradas con imagen quedan incluidas sin programarlas.
-            // Una sola región parecida daba falsos positivos (gato→flaco, perro→ábaco).
-            // Ahora exigimos acuerdo entre la escena completa y las regiones.
-            const distancia=global*.62+regional*.38;
-            if(!mejor||distancia<mejor.distancia)mejor={palabra,distancia,global,regional};
+            // Ninguna señal puede ocultar por sí sola una diferencia grande.
+            const peor=Math.max(global,regional);
+            const distancia=global*.52+regional*.33+peor*.15;
+            candidatos.push({palabra,distancia,global,regional});
           }catch(_){}
         }
+        candidatos.sort((a,b)=>a.distancia-b.distancia);
+        const mejor=candidatos[0]||null, segundo=candidatos[1]||null;
         if(mejor&&mejor.global<=.045){
           document.getElementById('search-input').value=mejor.palabra;renderEntry(mejor.palabra,false,true);return;
         }
@@ -892,7 +892,10 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
           const similitudRegional=Math.max(0,(1-mejor.regional)*100);
           // Para proponer una palabra deben coincidir dos señales independientes.
           // Esto sacrifica algunos parecidos débiles para evitar resultados absurdos.
-          const consistente=similitud>=86 && similitudGlobal>=78 && similitudRegional>=82;
+          // Además de superar umbrales, el ganador debe separarse del segundo.
+          // Si varias palabras parecen casi igual de plausibles, se rechaza la respuesta.
+          const margen=segundo ? segundo.distancia-mejor.distancia : 1;
+          const consistente=similitud>=86 && similitudGlobal>=80 && similitudRegional>=84 && margen>=0.012;
           if(consistente){
             const p=mejor.palabra.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
             const pct=similitud.toFixed(1).replace('.',',');
