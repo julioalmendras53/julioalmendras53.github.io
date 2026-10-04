@@ -918,13 +918,13 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
 
     async function buscarImagenExacta(file) {
       const boton=document.getElementById('image-search-button'),textoOriginal=boton.textContent;
-      boton.disabled=true;boton.textContent='…';output.textContent='Analizando la imagen por regiones…';
+      boton.disabled=true;boton.textContent='…';output.textContent='Analizando la imagen por regiones… (motor visual v4)';
       try{
         const buscadaSrc=await archivoADataURL(file);
         const buscada=await huellaVisualDesdeSrc(buscadaSrc);
         const regionesBuscada=await huellasRegionalesDesdeSrc(buscadaSrc);
         const regionAbabol=await detectarAbabolPorRegiones(buscadaSrc);
-        const entradas=Object.entries(dictionary).filter(([,e])=>e&&e.imagen);
+        const entradas=Object.entries(dictionary).filter(([p,e])=>e&&e.imagen&&p!=='ababol');
         let mejor=null;
         for(const [palabra,entry] of entradas){
           try{
@@ -940,9 +940,11 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
             if(!mejor||distancia<mejor.distancia)mejor={palabra,distancia,global,regional};
           }catch(_){}
         }
-        // El detector especializado de ababol queda desactivado dentro de la búsqueda
-        // general. Sus referencias no pueden imponerse a las demás entradas.
-        // Ababol participa aquí exactamente como cualquier otra entrada con imagen.
+        // Ababol se evalúa por una vía aislada: nunca participa en el ranking general.
+        // Solo entra si su detector especializado alcanza una evidencia muy alta.
+        if(regionAbabol>=90){
+          document.getElementById('search-input').value='ababol';renderEntry('ababol',false,true);return;
+        }
         if(mejor&&mejor.global<=.045){
           document.getElementById('search-input').value=mejor.palabra;renderEntry(mejor.palabra,false,true);return;
         }
