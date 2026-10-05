@@ -567,9 +567,54 @@ function consultarRelaciones(texto) {
     mostrarLista: palabras.length > 0 || !!objetivo || !!pideTema };
 }
 
+function proponerPalabraNoDefinida() {
+  // Candidatos vinculados con la interfaz, el código y los temas que ya trabaja el diccionario.
+  // Al comprobarlos contra dictionary nunca se propone una entrada que ya exista.
+  const candidatos = [
+    ['algoritmo', 'Aparece de forma natural en el funcionamiento y el código del diccionario.'],
+    ['interfaz', 'Describe los botones, el buscador y los elementos con los que interactúa el usuario.'],
+    ['hipervínculo', 'Es una pieza importante de la navegación entre contenidos del diccionario.'],
+    ['semántica', 'Es central para relacionar palabras, significados y reconocimiento.'],
+    ['etimología', 'Ampliaría el trabajo de origen e historia de las palabras.'],
+    ['lexicografía', 'Es la disciplina directamente relacionada con construir diccionarios.'],
+    ['polisemia', 'Permite explicar por qué una palabra puede tener varias acepciones.'],
+    ['metadato', 'Describe información auxiliar usada por sistemas y archivos.'],
+    ['recursividad', 'Es un concepto más complejo de programación y matemáticas.'],
+    ['ontología', 'Permite organizar conceptos y las relaciones entre ellos.'],
+    ['taxonomía', 'Serviría para explicar la clasificación de entradas y conceptos.'],
+    ['inferencia', 'Conecta razonamiento, lógica y el comportamiento de un agente.'],
+    ['vector', 'Relaciona matemáticas, geometría y técnicas modernas de reconocimiento.'],
+    ['embedding', 'Es un concepto técnico útil para representar semánticamente datos.'],
+    ['token', 'Es una unidad relevante en procesamiento de lenguaje y programación.'],
+    ['consulta', 'Es la acción que realiza el buscador al preguntar al diccionario.'],
+    ['acepción', 'Es fundamental para describir cada significado de una entrada.'],
+    ['lema', 'Es el término que encabeza una entrada de diccionario.'],
+    ['morfología', 'Complementa las familias de palabras y categorías gramaticales.'],
+    ['grafo', 'Describe bien las redes de familias y relaciones del diccionario.']
+  ];
+  const disponibles = candidatos.filter(([palabra]) =>
+    !Object.keys(dictionary).some(existente => normalizeText(existente) === normalizeText(palabra))
+  );
+  if (!disponibles.length) return { respuesta: 'No encuentro ahora una palabra candidata que no esté ya definida.', palabras: [] };
+  const anterior = window.__ultimaPalabraPropuesta || '';
+  const elegibles = disponibles.filter(([p]) => p !== anterior);
+  const bolsa = elegibles.length ? elegibles : disponibles;
+  const [palabra, motivo] = bolsa[Math.floor(Math.random() * bolsa.length)];
+  window.__ultimaPalabraPropuesta = palabra;
+  return {
+    tipo: 'propuesta',
+    respuesta: 'Propongo: «' + palabra + '».',
+    nota: motivo + ' Todavía no tiene una entrada en el diccionario.',
+    palabras: []
+  };
+}
+
 function analizarPreguntaDiccionario(pregunta) {
   const texto = limpiarConsulta(pregunta);
   const ayuda = respuesta => ({ respuesta, palabras: [], ejemplos: ejemplosAgente });
+  if (/\\bpropon\\w*\\b/.test(texto) && /\\b(?:siguiente )?palabra\\b/.test(texto) && /\\bdefinir\\b/.test(texto)) {
+    return proponerPalabraNoDefinida();
+  }
   const patronesDefiniciones = consultarPatronesDefiniciones(texto);
   if (patronesDefiniciones) return patronesDefiniciones;
   const explicacionTerminaciones = responderSobreTerminaciones(texto);
