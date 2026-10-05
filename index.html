@@ -1094,11 +1094,11 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
 
     async function buscarImagenExacta(file) {
       const boton=document.getElementById('image-search-button'),textoOriginal=boton.textContent;
-      boton.disabled=true;boton.textContent='…';output.textContent='Comparando con las fotografías del diccionario… (motor local v10)';
+      boton.disabled=true;boton.textContent='…';output.textContent='Comparando con las fotografías del diccionario… (motor local v11)';
       try{
         // v10 local: la búsqueda por fotografía no usa API ni agente externo.
         // Cada imagen visible de una entrada actúa como referencia del objeto.
-        output.textContent='Comparando con las fotografías del diccionario… (motor local v10)';
+        output.textContent='Comparando con las fotografías del diccionario… (motor local v11)';
         const buscadaSrc=await archivoADataURL(file);
         const buscada=await huellaVisualDesdeSrc(buscadaSrc);
         const regionesBuscada=await huellasRegionalesDesdeSrc(buscadaSrc);
@@ -1107,9 +1107,11 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
         const entradas=Object.entries(dictionary).filter(([,e])=>rutasImagenesDe(e).length);
         const candidatos=[];
         const porPalabra=[];
+        const gruposVisuales=[];
         for(const [palabra,entry] of entradas){
           let mejorDePalabra=null;
           const cromas=[];
+          const coincidencias=[];
           for(const src of rutasImagenesDe(entry)){
             try{
               const firma=await huellaVisualDesdeSrc(src);
@@ -1122,13 +1124,19 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
               // El término "peor" impide que una sola señal excelente tape dos malas.
               const peor=Math.max(global,regional,descriptor);
               const distancia=global*.34+regional*.24+descriptor*.30+peor*.12;
+              const dato={palabra,distancia,global,regional,descriptor};
+              coincidencias.push(dato);
               if(!mejorDePalabra||distancia<mejorDePalabra.distancia){
-                mejorDePalabra={palabra,distancia,global,regional,descriptor};
+                mejorDePalabra=dato;
               }
               cromas.push(await cromaDesdeSrc(src));
             }catch(_){}
           }
           if(mejorDePalabra) candidatos.push(mejorDePalabra);
+          if(coincidencias.length){
+            coincidencias.sort((a,b)=>a.distancia-b.distancia);
+            gruposVisuales.push({palabra,coincidencias});
+          }
           if(cromas.length) porPalabra.push({palabra,cromas});
         }
         candidatos.sort((a,b)=>a.distancia-b.distancia);
@@ -1154,6 +1162,31 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
             return;
           }
         }
+        // v11: consenso multirreferencia. Una entrada con varias fotos puede
+        // reconocerse por el patrón compartido de sus mejores referencias, aunque
+        // ninguna foto aislada sea casi idéntica a la consulta.
+        const votos=gruposVisuales.map(grupo=>{
+          const mejores=grupo.coincidencias.slice(0,Math.min(4,grupo.coincidencias.length));
+          const cercanas=mejores.filter(x=>x.distancia<=.34 && x.regional<=.38 && x.descriptor<=.40);
+          if(cercanas.length<2) return null;
+          const usadas=cercanas.slice(0,3);
+          const media=usadas.reduce((a,x)=>a+x.distancia,0)/usadas.length;
+          const regional=usadas.reduce((a,x)=>a+x.regional,0)/usadas.length;
+          const descriptor=usadas.reduce((a,x)=>a+x.descriptor,0)/usadas.length;
+          // Premia que tres referencias distintas apoyen la misma palabra.
+          const apoyo=Math.min(3,cercanas.length);
+          const score=media + regional*.10 + descriptor*.10 - apoyo*.025;
+          return {palabra:grupo.palabra,score,apoyo,media};
+        }).filter(Boolean).sort((a,b)=>a.score-b.score);
+        if(votos.length){
+          const ganador=votos[0], rival=votos[1];
+          const separado=!rival || ganador.score<=rival.score-.025;
+          if(ganador.apoyo>=2 && ganador.media<=.31 && separado){
+            mostrarParecida(ganador.palabra, ganador.apoyo+' referencias coincidentes', 'Varias fotografías de aprendizaje apoyan la misma entrada; no se exige que la foto nueva sea una copia de una referencia.');
+            return;
+          }
+        }
+
         const consenso=decidirConsenso(cromaBuscada, porPalabra);
         if(consenso){
           mostrarParecida(consenso.palabra, 'consenso de color', 'Varias fotos visibles de la entrada coinciden en el color saturado. No hace falta que sea una copia de una sola de ellas.');
