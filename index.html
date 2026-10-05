@@ -30,6 +30,12 @@ window.addEventListener('error', e => {
     #definition p { margin: 0.5rem 0; }
     #definition a { color: #0066cc; text-decoration: none; }
     #definition a.referencia-circular { color: #d00000; font-weight: 600; }
+    #definition a.referencia-circular { display: inline-block; transform-origin: center; }
+    #definition a.referencia-circular.girando { animation: giro-circular .65s ease-in-out; }
+    @keyframes giro-circular { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) {
+      #definition a.referencia-circular.girando { animation: none; }
+    }
     .galeria-entrada{display:flex;flex-wrap:wrap;gap:8px;margin-top:.6rem}
     .galeria-entrada img{flex:1 1 220px;width:100%;max-width:100%;height:auto;max-height:420px;object-fit:contain;background:#fff;border:1px solid #e4e4e4;border-radius:8px}
     .galeria-entrada.galeria-3x3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
@@ -783,6 +789,16 @@ const cita = entry.cita
   : '';
 
 output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${videoHtml}${videosAcepcionesHtml}${cita}`;
+        output.querySelectorAll('a.referencia-circular').forEach(enlace => {
+          enlace.addEventListener('click', e => {
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            e.preventDefault();
+            enlace.classList.remove('girando');
+            void enlace.offsetWidth;
+            enlace.classList.add('girando');
+            setTimeout(() => { location.hash = enlace.getAttribute('href').slice(1); }, 650);
+          });
+        });
         output.querySelectorAll('.galeria-entrada img').forEach(img => {
           img.tabIndex = 0;
           img.setAttribute('role','button');
