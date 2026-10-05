@@ -1092,13 +1092,24 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
         // Si no está conectado, no está seguro o falla, conserva íntegro el motor local v8.
         if (typeof window.reconocerImagenDiccionario === 'function') {
           try {
-            const palabraSemantica = await window.reconocerImagenDiccionario(file);
-            if (palabraSemantica && Object.hasOwn(dictionary, palabraSemantica)) {
-              document.getElementById('search-input').value=palabraSemantica;
-              renderEntry(palabraSemantica,false,true);
+            output.textContent='Analizando el objeto de la fotografía… (motor semántico v9)';
+            const resultadoSemantico = await window.reconocerImagenDiccionario(file);
+            if (resultadoSemantico?.estado === 'sin_acceso') {
+              const panel=[...document.querySelectorAll('details')].find(d=>d.querySelector('summary')?.textContent==='Conexión del agente');
+              if(panel) panel.open=true;
+              output.innerHTML='<strong>Conecta el agente para usar el reconocimiento semántico v9.</strong><p>Después de conectarlo, vuelve a seleccionar la fotografía. Sin esa conexión solo puede actuar el motor visual local v8.</p>';
+            } else if (resultadoSemantico?.estado === 'analizado' && resultadoSemantico.palabra && resultadoSemantico.confianza === 'alta' && Object.hasOwn(dictionary, resultadoSemantico.palabra)) {
+              document.getElementById('search-input').value=resultadoSemantico.palabra;
+              renderEntry(resultadoSemantico.palabra,false,true);
               return;
+            } else if (resultadoSemantico?.estado === 'analizado') {
+              output.textContent='v9 no obtuvo confianza alta; comprobando con el motor visual local v8…';
+            } else {
+              output.textContent='v9 no estuvo disponible; comprobando con el motor visual local v8…';
             }
-          } catch (_) {}
+          } catch (_) {
+            output.textContent='v9 falló; comprobando con el motor visual local v8…';
+          }
         }
         const buscadaSrc=await archivoADataURL(file);
         const buscada=await huellaVisualDesdeSrc(buscadaSrc);
