@@ -1086,33 +1086,11 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
 
     async function buscarImagenExacta(file) {
       const boton=document.getElementById('image-search-button'),textoOriginal=boton.textContent;
-      boton.disabled=true;boton.textContent='…';output.textContent='Analizando forma y consenso de color… (motor visual v8)';
+      boton.disabled=true;boton.textContent='…';output.textContent='Comparando con las fotografías del diccionario… (motor local v10)';
       try{
-        // v9: primero intenta comprender el objeto mediante el agente visual.
-        // Si no está conectado, no está seguro o falla, conserva íntegro el motor local v8.
-        if (typeof window.reconocerImagenDiccionario === 'function') {
-          try {
-            output.textContent='Analizando el objeto de la fotografía… (motor semántico v9)';
-            const resultadoSemantico = await window.reconocerImagenDiccionario(file);
-            if (resultadoSemantico?.estado === 'sin_acceso') {
-              const panel=[...document.querySelectorAll('details')].find(d=>d.querySelector('summary')?.textContent==='Conexión del agente');
-              if(panel) panel.open=true;
-              output.innerHTML='<strong>Conecta el agente para usar el reconocimiento semántico v9.</strong><p>Después de conectarlo, vuelve a seleccionar la fotografía. Así probaremos el reconocimiento del objeto y no solo el parecido visual de v8.</p>';
-              resetBtn.style.display='none'; setMediaButtons(false);
-              return;
-            } else if (resultadoSemantico?.estado === 'analizado' && resultadoSemantico.palabra && resultadoSemantico.confianza === 'alta' && Object.hasOwn(dictionary, resultadoSemantico.palabra)) {
-              document.getElementById('search-input').value=resultadoSemantico.palabra;
-              renderEntry(resultadoSemantico.palabra,false,true);
-              return;
-            } else if (resultadoSemantico?.estado === 'analizado') {
-              output.textContent='v9 no obtuvo confianza alta; comprobando con el motor visual local v8…';
-            } else {
-              output.textContent='v9 no estuvo disponible; comprobando con el motor visual local v8…';
-            }
-          } catch (_) {
-            output.textContent='v9 falló; comprobando con el motor visual local v8…';
-          }
-        }
+        // v10 local: la búsqueda por fotografía no usa API ni agente externo.
+        // Cada imagen visible de una entrada actúa como referencia del objeto.
+        output.textContent='Comparando con las fotografías del diccionario… (motor local v10)';
         const buscadaSrc=await archivoADataURL(file);
         const buscada=await huellaVisualDesdeSrc(buscadaSrc);
         const regionesBuscada=await huellasRegionalesDesdeSrc(buscadaSrc);
