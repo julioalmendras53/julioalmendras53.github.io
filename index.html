@@ -790,7 +790,9 @@ const cita = entry.cita
 
 output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${videoHtml}${videosAcepcionesHtml}${cita}`;
         output.querySelectorAll('a.referencia-circular').forEach(enlace => {
-          enlace.addEventListener('click', () => {
+          enlace.addEventListener('click', e => {
+            // La referencia ya apunta a la entrada que está abierta: no recargamos ni cambiamos el hash.
+            e.preventDefault();
             enlace.classList.remove('girando');
             void enlace.offsetWidth;
             enlace.classList.add('girando');
