@@ -612,7 +612,7 @@ function proponerPalabraNoDefinida() {
 function analizarPreguntaDiccionario(pregunta) {
   const texto = limpiarConsulta(pregunta);
   const ayuda = respuesta => ({ respuesta, palabras: [], ejemplos: ejemplosAgente });
-  if (/\bpropon\w*\b/.test(texto) && /\b(?:siguiente )?palabra\b/.test(texto) && /\bdefinir\b/.test(texto)) {
+  if (/(?:^|\s)prop[oó]n\w*(?:\s|$)/i.test(texto) && /(?:^|\s)(?:siguiente\s+)?palabra(?:\s|$)/i.test(texto) && /(?:^|\s)defin(?:ir|icion)(?:\s|$)/i.test(texto)) {
     return proponerPalabraNoDefinida();
   }
   const patronesDefiniciones = consultarPatronesDefiniciones(texto);
