@@ -55,6 +55,41 @@ export async function responder(pregunta, diccionario, config, llamar = fetch) {
   }
   throw new Error('Consulta demasiado extensa.');
 }
+async function reconocerImagen(imagen, candidatos, config, llamar = fetch) {
+  if (typeof imagen !== 'string' || !imagen.startsWith('data:image/') || imagen.length > 700000) throw new Error('Imagen inválida.');
+  if (!Array.isArray(candidatos) || !candidatos.length || candidatos.length > 500) throw new Error('Candidatos inválidos.');
+  const catalogo = candidatos.map(c => ({
+    palabra: typeof c?.palabra === 'string' ? c.palabra.slice(0,100) : '',
+    definiciones: Array.isArray(c?.definiciones) ? c.definiciones.filter(d => typeof d === 'string').slice(0,4).map(d => d.slice(0,500)) : []
+  })).filter(c => c.palabra && c.definiciones.length);
+  const permitidas = new Set(catalogo.map(c => c.palabra));
+  const formatoVisual = { type:'json_schema', name:'coincidencia_visual', strict:true, schema:{
+    type:'object', properties:{
+      palabra:{ anyOf:[{type:'string'},{type:'null'}] },
+      confianza:{ type:'string', enum:['alta','media','baja'] }
+    }, required:['palabra','confianza'], additionalProperties:false
+  }};
+  const r = await llamar('https://api.openai.com/v1/responses', {
+    method:'POST', signal:AbortSignal.timeout(30000),
+    headers:{ Authorization:'Bearer ' + config.apiKey, 'Content-Type':'application/json' },
+    body:JSON.stringify({
+      model:config.model,
+      instructions:'Identifica qué lema candidato está realmente representado en la imagen. Usa el significado de las definiciones y el objeto visible, no el color o el fondo por sí solos. Solo puedes devolver un lema de la lista. Devuelve null si ninguno está claramente representado o hay ambigüedad. Confianza alta exige identificación visual clara.',
+      input:[{role:'user',content:[
+        {type:'input_text',text:'Lemas candidatos del diccionario: '+JSON.stringify(catalogo)},
+        {type:'input_image',image_url:imagen,detail:'auto'}
+      ]}],
+      text:{format:formatoVisual}, max_output_tokens:250, store:false
+    })
+  });
+  if (!r.ok) throw new Error('Proveedor visual no disponible.');
+  const datos=await r.json();
+  const texto=datos.output?.filter(o=>o.type==='message').flatMap(o=>o.content||[]).filter(c=>c.type==='output_text').map(c=>c.text).join('')||'';
+  const salida=JSON.parse(texto);
+  if (salida.palabra!==null && !permitidas.has(salida.palabra)) return {palabra:null,confianza:'baja'};
+  return salida;
+}
+
 function autorizado(cabecera, token) {
   const a = Buffer.from(cabecera || ''), b = Buffer.from('Bearer ' + token);
   return a.length === b.length && timingSafeEqual(a, b);
@@ -70,7 +105,7 @@ export function crearServidor(config, llamar = fetch) {
     };
     if (req.headers.origin !== origin) { contestar(403, { error: 'Origen no autorizado.' }); return; }
     res.setHeader('Access-Control-Allow-Origin', origin); res.setHeader('Vary', 'Origin');
-    if (req.url !== '/ask') { contestar(404, { error: 'Ruta no disponible.' }); return; }
+    if (req.url !== '/ask' && req.url !== '/image-match') { contestar(404, { error: 'Ruta no disponible.' }); return; }
     if (req.method === 'OPTIONS') {
       res.setHeader('Access-Control-Allow-Methods', 'POST'); res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type'); res.writeHead(204); res.end(); return;
     }
@@ -85,16 +120,25 @@ export function crearServidor(config, llamar = fetch) {
     try {
       for await (const chunk of req) {
         bytes += chunk.length;
-        if (bytes > 300000) { contestar(413, { error: 'Diccionario demasiado grande.' }); return; }
+        if (bytes > (req.url === '/image-match' ? 700000 : 300000)) { contestar(413, { error: 'Solicitud demasiado grande.' }); return; }
         fragmentos.push(chunk);
+      }
+      let entrada;
+      try { entrada = JSON.parse(Buffer.concat(fragmentos).toString('utf8')); }
+      catch { contestar(400, { error: 'JSON inválido.' }); return; }
+      req.setTimeout(0);
+      if (req.url === '/image-match') {
+        try {
+          const salida = await reconocerImagen(entrada.imagen, entrada.candidatos, config, llamar);
+          if (!res.destroyed) contestar(200, salida);
+        } catch { if (!res.destroyed) contestar(502, { error: 'No se pudo analizar la imagen.' }); }
+        return;
       }
       let pregunta, diccionario;
       try {
-        const entrada = JSON.parse(Buffer.concat(fragmentos).toString('utf8'));
         if (typeof entrada.pregunta !== 'string' || !entrada.pregunta.trim() || entrada.pregunta.length > 2000) throw new Error('Pregunta inválida.');
         pregunta = entrada.pregunta; diccionario = validarDiccionario(entrada.diccionario);
       } catch { contestar(400, { error: 'Pregunta o diccionario inválidos.' }); return; }
-      req.setTimeout(0);
       const salida = await responder(pregunta, diccionario, config, llamar);
       if (!res.destroyed) contestar(200, salida);
     } catch (error) {

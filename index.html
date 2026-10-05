@@ -1088,6 +1088,18 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
       const boton=document.getElementById('image-search-button'),textoOriginal=boton.textContent;
       boton.disabled=true;boton.textContent='…';output.textContent='Analizando forma y consenso de color… (motor visual v8)';
       try{
+        // v9: primero intenta comprender el objeto mediante el agente visual.
+        // Si no está conectado, no está seguro o falla, conserva íntegro el motor local v8.
+        if (typeof window.reconocerImagenDiccionario === 'function') {
+          try {
+            const palabraSemantica = await window.reconocerImagenDiccionario(file);
+            if (palabraSemantica && Object.hasOwn(dictionary, palabraSemantica)) {
+              document.getElementById('search-input').value=palabraSemantica;
+              renderEntry(palabraSemantica,false,true);
+              return;
+            }
+          } catch (_) {}
+        }
         const buscadaSrc=await archivoADataURL(file);
         const buscada=await huellaVisualDesdeSrc(buscadaSrc);
         const regionesBuscada=await huellasRegionalesDesdeSrc(buscadaSrc);
