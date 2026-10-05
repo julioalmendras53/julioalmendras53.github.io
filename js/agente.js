@@ -822,7 +822,7 @@ window.responderPreguntaDiccionario = function(pregunta) {
   function cargar(nombre) {
     return new Promise(resolve => {
       const script = document.createElement('script');
-      script.src = new URL(nombre + '?v=20261005-relaciones-gordo-v1', base).href;
+      script.src = new URL(nombre + '?v=20261005-gugol-v2', base).href;
       script.onload = () => resolve(true);
       script.onerror = () => resolve(false);
       document.head.appendChild(script);
