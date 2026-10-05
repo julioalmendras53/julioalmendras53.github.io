@@ -29,6 +29,7 @@ window.addEventListener('error', e => {
     #definition em { display: block; margin-top: 0.5rem; color: #666; font-style: italic; }
     #definition p { margin: 0.5rem 0; }
     #definition a { color: #0066cc; text-decoration: none; }
+    #definition a.referencia-circular { color: #d00000; font-weight: 600; }
     .galeria-entrada{display:flex;flex-wrap:wrap;gap:8px;margin-top:.6rem}
     .galeria-entrada img{flex:1 1 220px;width:100%;max-width:100%;height:auto;max-height:420px;object-fit:contain;background:#fff;border:1px solid #e4e4e4;border-radius:8px}
     .galeria-entrada.galeria-3x3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
@@ -312,6 +313,12 @@ window.addEventListener('error', e => {
                    categorias: ["sustantivo"] },
       "hipervínculo": { definicion: "Enlace digital que al clicarse conduce instantáneamente a otra página.",
                         categorias: ["sustantivo"] },
+      "semántica": { definiciones: [
+                    "1. adj. Perteneciente a la semántica.",
+                    "2. Sus. Significado de palabra.",
+                    "3. Disciplina de lingüística que estudia el significado de las palabras inclusive sus combinaciones."
+                   ],
+                   categorias: ["adjetivo", "sustantivo"] },
       ajedrez:    { definicion: "Juego mental entre dos oponentes en un tablero 8×8 escaques con 16 piezas con distinto poder que consiste en dejar sin opción a un rey por último." , video: "videos/ajedrez.webm" },
       "información":{definiciones: [
                               "Conversión desde el dato simple hacia un conjunto que reduce la incertidumbre de algo.",
@@ -601,7 +608,7 @@ const alphabeticalKeys = Object.keys(normalizedMap).sort((a, b) =>
 
     // Función que substituye palabras por enlaces
     // Convierte en enlace SOLO palabras enteras del diccionario
-function linkify(text) {
+function linkify(text, currentKey = "") {
   return text.replace(
     /([A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)|([^A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)/g,
     (match, word, other) => {
@@ -613,8 +620,10 @@ function linkify(text) {
       const key  = normalizedMap[norm];
 
       if (key) {
-        // Si está en el diccionario, la envolvemos en <a>
-        return `<a href="#${normalizeText(key)}">${word}</a>`;
+        // Una referencia al propio lema es circular: se mantiene clicable y se marca en rojo.
+        const circular = currentKey && normalizeText(key) === normalizeText(currentKey);
+        const clase = circular ? ' class="referencia-circular"' : '';
+        return `<a${clase} href="#${normalizeText(key)}">${word}</a>`;
       }
 
       // Si no, la devolvemos tal cual
@@ -747,7 +756,7 @@ searchInput.addEventListener('input', () => {
         const defs  = entry.definiciones || [ entry.definicion || '' ];
         const videosAcepciones = entry.videosAcepciones || {};
         const htmlDefs = defs.map((d,i) => {
-          const texto = plain ? d : linkify(d);
+          const texto = plain ? d : linkify(d, key);
           const v = videosAcepciones[i+1];
           if (!v) return `<p>${texto}</p>`;
           return `<div class="def-con-video"><p>${texto}</p><button class="video-miniatura" type="button" data-video-target="video-acepcion-${i+1}" aria-label="Ver video: ${v.titulo || ('Acepción '+(i+1))}"><video muted playsinline preload="metadata"><source src="${v.src}" type="video/webm"></video><span>▶ Ver ejemplo</span></button></div>`;
