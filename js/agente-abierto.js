@@ -51,6 +51,27 @@
     }
     return { entradas, historia: window.historiaDiccionario ? { familias: window.historiaDiccionario.familias, fechas: window.historiaDiccionario.fechas } : null };
   }
+  window.reconocerImagenDiccionario = async function (file) {
+    if (!acceso) return null;
+    const imagen = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+    const candidatos = Object.entries(dictionary)
+      .filter(([,e]) => rutasImagenesDe(e).length)
+      .map(([palabra,e]) => ({ palabra, definiciones: acepcionesDeEntrada(e).map(d => d.texto.replace(/<[^>]*>/g,'')) }));
+    const url = new URL(destino.href); url.pathname = '/image-match'; url.search = '';
+    const respuesta = await fetch(url.href, {
+      method:'POST', headers:{'Content-Type':'application/json',Authorization:'Bearer '+acceso},
+      credentials:'omit', referrerPolicy:'no-referrer',
+      body:JSON.stringify({imagen,candidatos})
+    });
+    if (!respuesta.ok) return null;
+    const datos = await respuesta.json();
+    return datos && datos.confianza === 'alta' && typeof datos.palabra === 'string' ? datos.palabra : null;
+  };
   window.responderPreguntaDiccionario = async function (pregunta) {
     cancelar();
     if (!acceso) { anterior(pregunta); return; }
