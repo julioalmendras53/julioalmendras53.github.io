@@ -70,7 +70,7 @@ export function crearServidor(config, llamar = fetch) {
     };
     if (req.headers.origin !== origin) { contestar(403, { error: 'Origen no autorizado.' }); return; }
     res.setHeader('Access-Control-Allow-Origin', origin); res.setHeader('Vary', 'Origin');
-    if (req.url !== '/ask') { contestar(404, { error: 'Ruta no disponible.' }); return; }
+    if (req.url !== '/ask' && req.url !== '/image-match') { contestar(404, { error: 'Ruta no disponible.' }); return; }
     if (req.method === 'OPTIONS') {
       res.setHeader('Access-Control-Allow-Methods', 'POST'); res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type'); res.writeHead(204); res.end(); return;
     }
