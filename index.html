@@ -1097,7 +1097,9 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
             if (resultadoSemantico?.estado === 'sin_acceso') {
               const panel=[...document.querySelectorAll('details')].find(d=>d.querySelector('summary')?.textContent==='Conexión del agente');
               if(panel) panel.open=true;
-              output.innerHTML='<strong>Conecta el agente para usar el reconocimiento semántico v9.</strong><p>Después de conectarlo, vuelve a seleccionar la fotografía. Sin esa conexión solo puede actuar el motor visual local v8.</p>';
+              output.innerHTML='<strong>Conecta el agente para usar el reconocimiento semántico v9.</strong><p>Después de conectarlo, vuelve a seleccionar la fotografía. Así probaremos el reconocimiento del objeto y no solo el parecido visual de v8.</p>';
+              resetBtn.style.display='none'; setMediaButtons(false);
+              return;
             } else if (resultadoSemantico?.estado === 'analizado' && resultadoSemantico.palabra && resultadoSemantico.confianza === 'alta' && Object.hasOwn(dictionary, resultadoSemantico.palabra)) {
               document.getElementById('search-input').value=resultadoSemantico.palabra;
               renderEntry(resultadoSemantico.palabra,false,true);
