@@ -790,13 +790,10 @@ const cita = entry.cita
 
 output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${videoHtml}${videosAcepcionesHtml}${cita}`;
         output.querySelectorAll('a.referencia-circular').forEach(enlace => {
-          enlace.addEventListener('click', e => {
-            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-            e.preventDefault();
+          enlace.addEventListener('click', () => {
             enlace.classList.remove('girando');
             void enlace.offsetWidth;
             enlace.classList.add('girando');
-            setTimeout(() => { location.hash = enlace.getAttribute('href').slice(1); }, 650);
           });
         });
         output.querySelectorAll('.galeria-entrada img').forEach(img => {
@@ -1398,9 +1395,3 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
         renderEntry(location.hash.slice(1), false, false);
         history.replaceState({ term: normalizeText(location.hash.slice(1)), plain:false }, '', location.hash);
       } else {
-        history.replaceState(null, '', location.pathname);
-      }
-    });
-    
-  </script></body>
-</html>
