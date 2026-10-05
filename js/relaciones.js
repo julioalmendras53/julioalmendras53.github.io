@@ -4,6 +4,7 @@ if(!document.getElementById('definition'))return;
 const datos={
 madre:{sinonimos:['mamá'],derivados:['materno','maternidad'],relacionados:['persona']},
 dios:{sinonimos:['deidad'],derivados:['divino','divinidad'],relacionados:['cristo','espíritu','omnipotente','todopoderoso']},
+omnipotente:{antonimos:['impotente'],relacionados:['dios']},
 infinito:{sinonimos:['ilimitado'],antonimos:['finito','limitado'],derivados:['infinidad','infinitamente','infinitesimal','infinitotriz']},
 ilimitado:{sinonimos:['infinito'],antonimos:['limitado'],relacionados:['límite']},
 limitado:{antonimos:['ilimitado'],relacionados:['límite','infinito']},
