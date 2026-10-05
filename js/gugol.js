@@ -15,6 +15,20 @@ const datos={
     'interfaz m audio',
     'interfaz scarlett 2i2',
     'interfaz behringer umc22'
+  ],
+  taxonomia:[
+    'taxonomia',
+    'taxonomia de bloom',
+    'taxonomia de marzano',
+    'taxonomia significado',
+    'taxonomia de bloom actualizada',
+    'taxonomia de anderson',
+    'taxonomia de bloom verbos',
+    'taxonomia del humano',
+    'taxonomia de marzano y kendall',
+    'taxonomia de bloom para imprimir',
+    'taxonomia nanda',
+    'taxonomia de bloom anderson'
   ]
 };
 const n=s=>typeof normalizeText==='function'?normalizeText(s):String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
