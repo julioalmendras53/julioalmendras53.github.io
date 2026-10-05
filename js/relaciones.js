@@ -66,7 +66,15 @@ eco:{relacionados:['sonido','reflexión']},
 meme:{relacionados:['internet','imagen']},
 google:{relacionados:['buscador','internet'],derivados:['googlear','googleable','ingoogleable']},
 babilla:{derivados:['ababillarse'],relacionados:['rodilla']},
-ababillarse:{relacionados:['babilla']}
+ababillarse:{relacionados:['babilla']},
+recursivo:{relacionados:['recursividad','fibonacci','subcarpeta','fractal','factorial']},
+recursividad:{relacionados:['recursivo','fibonacci','subcarpeta','fractal','factorial']},
+metadato:{relacionados:['dato','información','metadata']},
+hipervinculo:{sinonimos:['enlace'],relacionados:['vínculo','URL','web']},
+semantica:{relacionados:['significado','lingüística','palabra']},
+interfaz:{relacionados:['usuario','computadora','teléfono','navegación']},
+taxonomia:{relacionados:['biología','clasificación','especie','género']},
+morfologia:{relacionados:['forma','estructura','biología','gramática','geografía']}
 };
 const n=s=>typeof normalizeText==='function'?normalizeText(s):String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const indice=Object.fromEntries(Object.entries(datos).map(([k,v])=>[n(k),v]));
