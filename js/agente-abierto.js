@@ -91,6 +91,13 @@
   };
   window.responderPreguntaDiccionario = async function (pregunta) {
     cancelar();
+    // Las órdenes especiales deterministas del diccionario se resuelven localmente
+    // incluso cuando el agente externo está conectado.
+    const consultaLocal = normalizeText(String(pregunta)).replace(/[¿?¡!.,;:]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (/\bpropon\w*\b/.test(consultaLocal) && /\b(?:siguiente )?palabra\b/.test(consultaLocal) && /\bdefinir\b/.test(consultaLocal)) {
+      anterior(pregunta);
+      return;
+    }
     if (!acceso) { anterior(pregunta); return; }
     const id = numero;
     const contenedor = document.getElementById('definition');
