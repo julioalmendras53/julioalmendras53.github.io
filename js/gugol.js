@@ -51,13 +51,13 @@ function abrir(p,b){
   document.body.append(modal);modal.showModal();cerrar.focus();
 }
 function adjuntar(){
-  const l=document.querySelector('#definition .term');if(!l||document.querySelector('#definition .gugol-boton'))return;
-  const p=Object.keys(dictionary).find(x=>n(x)===n(l.textContent.trim()));if(!p||!datos[n(p)])return;
-  const b=crear('button','Gugol','gugol-boton');b.type='button';b.onclick=()=>abrir(p,b);
-  const origen=document.querySelector('#definition .origen-boton');
-  const rel=document.querySelector('#definition .relacionadas-boton');
-  const fam=document.querySelector('#definition .familia-boton');
-  (origen||rel||fam||l).insertAdjacentElement('afterend',b);
+  const l=document.querySelector('#definition .term');
+  if(!l||document.querySelector('#definition .gugol-boton'))return;
+  const p=Object.keys(dictionary).find(x=>n(x)===n(l.textContent.trim()));
+  if(!p||!datos[n(p)])return;
+  const b=crear('button','Gugol','gugol-boton');
+  b.type='button';b.onclick=()=>abrir(p,b);
+  l.insertAdjacentElement('afterend',b);
 }
 new MutationObserver(adjuntar).observe(document.getElementById('definition'),{childList:true,subtree:true});adjuntar();
 })();
