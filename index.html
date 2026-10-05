@@ -131,7 +131,9 @@ window.addEventListener('error', e => {
           "images/ababol-1.jpg",
           "images/ababol-2.jpg",
           "images/ababol-3.jpg",
-          "images/ababol-4.jpg",
+          "images/ababol-4.jpg"
+        ],
+        referenciasVisuales: [
           "images/ababol-5.jpg",
           "images/ababol-6.jpg",
           "images/ababol-7.jpg",
@@ -902,8 +904,8 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
       return best;
     }
 
-    // Las imágenes que compara el buscador son las mismas que se muestran.
-    // "imagen" sigue valiendo; "imagenes" añade más fotos visibles a la entrada.
+    // El buscador compara tanto las imágenes visibles como referenciasVisuales.
+    // Las referenciasVisuales entrenan el reconocimiento local pero no se muestran en la entrada.
     function rutasImagenesDe(entry) {
       const rutas = [];
       const vistas = new Set();
@@ -918,6 +920,7 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
       };
       if (entry && Array.isArray(entry.imagenes)) entry.imagenes.forEach(añadir);
       if (entry) añadir(entry.imagen);
+      if (entry && Array.isArray(entry.referenciasVisuales)) entry.referenciasVisuales.forEach(añadir);
       return rutas;
     }
 
