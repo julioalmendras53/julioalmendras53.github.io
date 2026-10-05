@@ -908,11 +908,17 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
     // para que un fondo distinto no domine la decisión.
     async function descriptoresRegionalesDesdeSrc(src) {
       const img=await cargarImagen(src), out=[];
-      const cortes=[
-        [0,0,1,1],[.15,.15,.7,.7],
-        [0,0,.55,.55],[.45,0,.55,.55],[0,.45,.55,.55],[.45,.45,.55,.55],
-        [.2,0,.6,.65],[.2,.35,.6,.65],[0,.2,.65,.6],[.35,.2,.65,.6]
-      ];
+      const cortes=[[0,0,1,1],[.1,.1,.8,.8]];
+      // Ventanas pequeñas y solapadas: permiten encontrar un objeto que ocupa
+      // solo una fracción de una escena grande (campo, persona, cielo, etc.).
+      for(const tam of [.5,.34,.24]){
+        const paso= tam===.5 ? .25 : tam===.34 ? .22 : .19;
+        for(let y=0;y<=1-tam+.001;y+=paso){
+          for(let x=0;x<=1-tam+.001;x+=paso){
+            cortes.push([Math.min(x,1-tam),Math.min(y,1-tam),tam,tam]);
+          }
+        }
+      }
       for(const [rx,ry,rw,rh] of cortes){
         const cv=document.createElement('canvas'); cv.width=96; cv.height=96;
         const x=Math.round(img.naturalWidth*rx), y=Math.round(img.naturalHeight*ry);
@@ -1122,11 +1128,11 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
 
     async function buscarImagenExacta(file) {
       const boton=document.getElementById('image-search-button'),textoOriginal=boton.textContent;
-      boton.disabled=true;boton.textContent='…';output.textContent='Comparando con las fotografías del diccionario… (motor local v12)';
+      boton.disabled=true;boton.textContent='…';output.textContent='Comparando con las fotografías del diccionario… (motor local v13)';
       try{
         // v10 local: la búsqueda por fotografía no usa API ni agente externo.
         // Cada imagen visible de una entrada actúa como referencia del objeto.
-        output.textContent='Comparando con las fotografías del diccionario… (motor local v12)';
+        output.textContent='Comparando con las fotografías del diccionario… (motor local v13)';
         const buscadaSrc=await archivoADataURL(file);
         const buscada=await huellaVisualDesdeSrc(buscadaSrc);
         const regionesBuscada=await huellasRegionalesDesdeSrc(buscadaSrc);
@@ -1198,7 +1204,7 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
         // ninguna foto aislada sea casi idéntica a la consulta.
         const votos=gruposVisuales.map(grupo=>{
           const mejores=grupo.coincidencias.slice(0,Math.min(4,grupo.coincidencias.length));
-          const cercanas=mejores.filter(x=>x.distancia<=.34 && x.regional<=.42 && x.descriptorRegional<=.30);
+          const cercanas=mejores.filter(x=>x.descriptorRegional<=.24 && x.regional<=.48);
           if(cercanas.length<2) return null;
           const usadas=cercanas.slice(0,3);
           const media=usadas.reduce((a,x)=>a+x.distancia,0)/usadas.length;
@@ -1206,13 +1212,13 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
           const descriptor=usadas.reduce((a,x)=>a+x.descriptorRegional,0)/usadas.length;
           // Premia que varias referencias encuentren una región parecida al objeto.
           const apoyo=Math.min(3,cercanas.length);
-          const score=media + regional*.06 + descriptor*.16 - apoyo*.025;
+          const score=descriptor*.58 + media*.28 + regional*.05 - apoyo*.035;
           return {palabra:grupo.palabra,score,apoyo,media};
         }).filter(Boolean).sort((a,b)=>a.score-b.score);
         if(votos.length){
           const ganador=votos[0], rival=votos[1];
           const separado=!rival || ganador.score<=rival.score-.025;
-          if(ganador.apoyo>=2 && ganador.media<=.31 && separado){
+          if(ganador.apoyo>=2 && ganador.score<=.245 && separado){
             mostrarParecida(ganador.palabra, ganador.apoyo+' referencias coincidentes', 'Varias fotografías de aprendizaje apoyan la misma entrada; no se exige que la foto nueva sea una copia de una referencia.');
             return;
           }
