@@ -29,6 +29,16 @@ const datos={
     'taxonomia de bloom para imprimir',
     'taxonomia nanda',
     'taxonomia de bloom anderson'
+  ],
+  morfologia:[
+    'morfología biología',
+    'morfología lingüística',
+    'morfología humana',
+    'morfología medicina',
+    'morfología ejemplos',
+    'morfología sinónimo',
+    'morfología etimología',
+    'morfología español'
   ]
 };
 const n=s=>typeof normalizeText==='function'?normalizeText(s):String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
