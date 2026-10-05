@@ -51,14 +51,26 @@
     }
     return { entradas, historia: window.historiaDiccionario ? { familias: window.historiaDiccionario.familias, fechas: window.historiaDiccionario.fechas } : null };
   }
-  window.reconocerImagenDiccionario = async function (file) {
-    if (!acceso) return null;
-    const imagen = await new Promise((resolve, reject) => {
+  async function prepararImagenVisual(file) {
+    const src = await new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
       reader.onerror = () => reject(reader.error);
       reader.readAsDataURL(file);
     });
+    const img = await new Promise((resolve, reject) => {
+      const i = new Image(); i.onload = () => resolve(i); i.onerror = reject; i.src = src;
+    });
+    const max = 768, escala = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const cv = document.createElement('canvas');
+    cv.width = Math.max(1, Math.round(img.naturalWidth * escala));
+    cv.height = Math.max(1, Math.round(img.naturalHeight * escala));
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+    return cv.toDataURL('image/jpeg', .78);
+  }
+  window.reconocerImagenDiccionario = async function (file) {
+    if (!acceso) return { estado:'sin_acceso' };
+    const imagen = await prepararImagenVisual(file);
     const candidatos = Object.entries(dictionary)
       .filter(([,e]) => rutasImagenesDe(e).length)
       .map(([palabra,e]) => ({ palabra, definiciones: acepcionesDeEntrada(e).map(d => d.texto.replace(/<[^>]*>/g,'')) }));
@@ -68,9 +80,14 @@
       credentials:'omit', referrerPolicy:'no-referrer',
       body:JSON.stringify({imagen,candidatos})
     });
-    if (!respuesta.ok) return null;
+    if (respuesta.status === 401) return { estado:'sin_acceso' };
+    if (!respuesta.ok) return { estado:'error' };
     const datos = await respuesta.json();
-    return datos && datos.confianza === 'alta' && typeof datos.palabra === 'string' ? datos.palabra : null;
+    return {
+      estado:'analizado',
+      palabra: datos && typeof datos.palabra === 'string' ? datos.palabra : null,
+      confianza: datos?.confianza || 'baja'
+    };
   };
   window.responderPreguntaDiccionario = async function (pregunta) {
     cancelar();
