@@ -52,7 +52,13 @@
     { nombre: 'negar', palabras: ['negar', 'negación'], descripcion: 'El verbo negar y el nombre negación.' },
     { nombre: 'poder', palabras: ['poder', 'todopoderoso', 'epoder', 'puede', 'pueda'], descripcion: 'Poder y voces relacionadas. Puede y pueda son formas conjugadas, no palabras derivadas independientes.' },
     { nombre: 'épica', palabras: ['epica', 'epico'], descripcion: 'Voces relacionadas por la base épic-.' },
-    { nombre: 'clítico', palabras: ['clitico', 'enclitico', 'proclitico'], descripcion: 'La base clítico y las formaciones con en- y pro-.' }
+    { nombre: 'clítico', palabras: ['clitico', 'enclitico', 'proclitico'], descripcion: 'La base clítico y las formaciones con en- y pro-.' },
+    { nombre: 'recursivo', palabras: ['recursivo', 'recursividad'], descripcion: 'Recursividad es el sustantivo formado sobre recursivo con el sufijo -idad.', enlaces: [['recursivo','recursividad']] },
+    { nombre: 'dato', palabras: ['dato', 'metadato'], descripcion: 'Metadato se forma con el elemento meta- y la palabra dato.', enlaces: [['dato','metadato']] },
+    { nombre: 'vínculo', palabras: ['vínculo', 'hipervínculo'], descripcion: 'Hipervínculo se forma con hiper- y vínculo.', enlaces: [['vínculo','hipervínculo']] },
+    { nombre: 'semántica', palabras: ['semántica', 'semántico'], descripcion: 'Voces de la familia léxica de semántica.' },
+    { nombre: 'taxonomía', palabras: ['taxón', 'taxonomía', 'taxonómico'], descripcion: 'Voces relacionadas con la clasificación taxonómica.' },
+    { nombre: 'morfología', palabras: ['morfología', 'morfológico'], descripcion: 'Voces de la familia léxica de morfología.' }
   ];
   const nombres = { google: 'Google', gugol: 'gúgol', limite: 'límite', epica: 'épica', epico: 'épico', clitico: 'clítico', enclitico: 'enclítico', proclitico: 'proclítico' };
   function posiciones(palabras, historial = fechas, referencia = new Date().getFullYear()) {
