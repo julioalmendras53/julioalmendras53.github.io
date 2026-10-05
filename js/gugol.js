@@ -33,15 +33,7 @@ const datos={
   morfologia:[
     'morfología biología','morfología lingüística','morfología humana','morfología medicina',
     'morfología ejemplos','morfología sinónimo','morfología etimología','morfología español'
-  ],
-  recursivo:['recursivo programación','recursivo matemáticas','función recursiva','recursivo significado'],
-  recursividad:['recursividad programación','recursividad matemáticas','recursividad gramática','recursividad ejemplos'],
-  metadato:['metadato significado','metadato ejemplos','metadatos informática','tipos de metadatos'],
-  hipervinculo:['hipervínculo qué es','hipervínculo Word','hipervínculo HTML','hipervínculo ejemplos'],
-  semantica:['semántica lingüística','semántica ejemplos','semántica significado','semántica y sintaxis'],
-  atar:['atar significado','atar sinónimo','atar nudo','atar zapatos'],
-  caoticamente:['caóticamente significado','caóticamente sinónimo','caóticamente ejemplos'],
-  omnipotente:['omnipotente significado','omnipotente Dios','omnipotente sinónimo','omnipotente etimología']
+  ]
 };
 const n=s=>typeof normalizeText==='function'?normalizeText(s):String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const crear=(t,x,c)=>{const e=document.createElement(t);if(x)e.textContent=x;if(c)e.className=c;return e};
