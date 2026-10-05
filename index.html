@@ -114,7 +114,7 @@ window.addEventListener('error', e => {
     // Normaliza texto: elimina acentos y pasa a minúsculas
     function normalizeText(str) {
       return str.normalize('NFD')
-                .replace(/[̀-\u036f]/g, '')
+                .replace(/[\u0300-\u036f]/g, '')
                 .toLowerCase();
     }
 
