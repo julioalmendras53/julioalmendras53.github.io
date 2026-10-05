@@ -31,6 +31,8 @@ window.addEventListener('error', e => {
     #definition a { color: #0066cc; text-decoration: none; }
     .galeria-entrada{display:flex;flex-wrap:wrap;gap:8px;margin-top:.6rem}
     .galeria-entrada img{flex:1 1 220px;width:100%;max-width:100%;height:auto;max-height:420px;object-fit:contain;background:#fff;border:1px solid #e4e4e4;border-radius:8px}
+    .galeria-entrada.galeria-ababol{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .galeria-entrada.galeria-ababol img{width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;max-height:none;min-width:0}
     .def-con-video{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-radius:8px}
     .def-con-video p{flex:1}
     .video-miniatura{flex:0 0 92px;border:1px solid #bfd4e8;border-radius:9px;padding:4px;background:#fff;cursor:pointer;color:#1769c2;font-weight:700;font-size:11px}
@@ -731,7 +733,7 @@ searchInput.addEventListener('input', () => {
         }).join('');
         const imagenesVisibles = rutasImagenesDe(entry);
         const imagenHtml = imagenesVisibles.length
-          ? `<div class="galeria-entrada">${imagenesVisibles.map((src, i) => `<img src="${src.replace(/"/g, '"')}" alt="${key} ${i + 1}">`).join('')}</div>`
+          ? `<div class="galeria-entrada${normalizeText(key)==='ababol' ? ' galeria-ababol' : ''}">${imagenesVisibles.map((src, i) => `<img src="${src.replace(/"/g, '"')}" alt="${key} ${i + 1}">`).join('')}</div>`
           : '';
 
 const videoHtml = entry.video 
