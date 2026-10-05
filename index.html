@@ -89,8 +89,7 @@ window.addEventListener('error', e => {
   </style>
   
 </head> 
-  <script src="js/contador.js?v=20261004-imagenes"></script>
-  <script src="js/agente.js?v=20261005-propuesta-palabra-fix2" defer></script>
+
 <body>
   
 
@@ -1397,3 +1396,12 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
         renderEntry(location.hash.slice(1), false, false);
         history.replaceState({ term: normalizeText(location.hash.slice(1)), plain:false }, '', location.hash);
       } else {
+        history.replaceState(null, '', location.pathname);
+      }
+    });
+
+  </script>
+  <script src="js/contador.js?v=20261005-orden-fix"></script>
+  <script src="js/agente.js?v=20261005-orden-fix"></script>
+</body>
+</html>
