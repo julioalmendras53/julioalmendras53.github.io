@@ -904,6 +904,34 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
       return best;
     }
 
+    // v12: descriptor de regiones. Compara partes de la fotografía por separado
+    // para que un fondo distinto no domine la decisión.
+    async function descriptoresRegionalesDesdeSrc(src) {
+      const img=await cargarImagen(src), out=[];
+      const cortes=[
+        [0,0,1,1],[.15,.15,.7,.7],
+        [0,0,.55,.55],[.45,0,.55,.55],[0,.45,.55,.55],[.45,.45,.55,.55],
+        [.2,0,.6,.65],[.2,.35,.6,.65],[0,.2,.65,.6],[.35,.2,.65,.6]
+      ];
+      for(const [rx,ry,rw,rh] of cortes){
+        const cv=document.createElement('canvas'); cv.width=96; cv.height=96;
+        const x=Math.round(img.naturalWidth*rx), y=Math.round(img.naturalHeight*ry);
+        const w=Math.max(1,Math.round(img.naturalWidth*rw)), h=Math.max(1,Math.round(img.naturalHeight*rh));
+        cv.getContext('2d').drawImage(img,x,y,w,h,0,0,96,96);
+        out.push(await descriptorSemanticoDesdeSrc(cv.toDataURL('image/jpeg',.84)));
+      }
+      return out;
+    }
+
+    function mejorDistanciaDescriptorRegional(a,b){
+      let best=Infinity;
+      for(const x of a)for(const y of b){
+        const d=distanciaDescriptor(x,y);
+        if(d<best) best=d;
+      }
+      return best;
+    }
+
     // El buscador compara tanto las imágenes visibles como referenciasVisuales.
     // Las referenciasVisuales entrenan el reconocimiento local pero no se muestran en la entrada.
     function rutasImagenesDe(entry) {
@@ -1094,15 +1122,16 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
 
     async function buscarImagenExacta(file) {
       const boton=document.getElementById('image-search-button'),textoOriginal=boton.textContent;
-      boton.disabled=true;boton.textContent='…';output.textContent='Comparando con las fotografías del diccionario… (motor local v11)';
+      boton.disabled=true;boton.textContent='…';output.textContent='Comparando con las fotografías del diccionario… (motor local v12)';
       try{
         // v10 local: la búsqueda por fotografía no usa API ni agente externo.
         // Cada imagen visible de una entrada actúa como referencia del objeto.
-        output.textContent='Comparando con las fotografías del diccionario… (motor local v11)';
+        output.textContent='Comparando con las fotografías del diccionario… (motor local v12)';
         const buscadaSrc=await archivoADataURL(file);
         const buscada=await huellaVisualDesdeSrc(buscadaSrc);
         const regionesBuscada=await huellasRegionalesDesdeSrc(buscadaSrc);
         const descriptorBuscada=await descriptorSemanticoDesdeSrc(buscadaSrc);
+        const descriptoresRegionalesBuscada=await descriptoresRegionalesDesdeSrc(buscadaSrc);
         const cromaBuscada=await cromaDesdeSrc(buscadaSrc);
         const entradas=Object.entries(dictionary).filter(([,e])=>rutasImagenesDe(e).length);
         const candidatos=[];
@@ -1120,11 +1149,13 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
               const regional=mejorDistanciaRegional(regionesBuscada,regionesRef);
               const descriptorRef=await descriptorSemanticoDesdeSrc(src);
               const descriptor=distanciaDescriptor(descriptorBuscada,descriptorRef);
-              // Tres familias de señales: estructura, regiones y apariencia estadística.
-              // El término "peor" impide que una sola señal excelente tape dos malas.
-              const peor=Math.max(global,regional,descriptor);
-              const distancia=global*.34+regional*.24+descriptor*.30+peor*.12;
-              const dato={palabra,distancia,global,regional,descriptor};
+              const descriptoresRegionalesRef=await descriptoresRegionalesDesdeSrc(src);
+              const descriptorRegional=mejorDistanciaDescriptorRegional(descriptoresRegionalesBuscada,descriptoresRegionalesRef);
+              // v12 reduce el peso de la escena completa y premia coincidencias
+              // encontradas dentro de una región de la fotografía.
+              const peorLocal=Math.max(regional,descriptorRegional);
+              const distancia=global*.12+regional*.20+descriptor*.16+descriptorRegional*.40+peorLocal*.12;
+              const dato={palabra,distancia,global,regional,descriptor,descriptorRegional};
               coincidencias.push(dato);
               if(!mejorDePalabra||distancia<mejorDePalabra.distancia){
                 mejorDePalabra=dato;
@@ -1167,15 +1198,15 @@ output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${v
         // ninguna foto aislada sea casi idéntica a la consulta.
         const votos=gruposVisuales.map(grupo=>{
           const mejores=grupo.coincidencias.slice(0,Math.min(4,grupo.coincidencias.length));
-          const cercanas=mejores.filter(x=>x.distancia<=.34 && x.regional<=.38 && x.descriptor<=.40);
+          const cercanas=mejores.filter(x=>x.distancia<=.34 && x.regional<=.42 && x.descriptorRegional<=.30);
           if(cercanas.length<2) return null;
           const usadas=cercanas.slice(0,3);
           const media=usadas.reduce((a,x)=>a+x.distancia,0)/usadas.length;
           const regional=usadas.reduce((a,x)=>a+x.regional,0)/usadas.length;
-          const descriptor=usadas.reduce((a,x)=>a+x.descriptor,0)/usadas.length;
-          // Premia que tres referencias distintas apoyen la misma palabra.
+          const descriptor=usadas.reduce((a,x)=>a+x.descriptorRegional,0)/usadas.length;
+          // Premia que varias referencias encuentren una región parecida al objeto.
           const apoyo=Math.min(3,cercanas.length);
-          const score=media + regional*.10 + descriptor*.10 - apoyo*.025;
+          const score=media + regional*.06 + descriptor*.16 - apoyo*.025;
           return {palabra:grupo.palabra,score,apoyo,media};
         }).filter(Boolean).sort((a,b)=>a.score-b.score);
         if(votos.length){
