@@ -12,6 +12,7 @@ abacial:{ruta:["bajo latín abbacialis","español abacial"],texto:"Del b. lat. a
 abaco:{ruta:["griego ἄβαξ ábax","latín abăcus","español ábaco"],texto:"Del lat. abăcus, y este del gr. ἄβαξ ábax. Fuente: Diccionario de la lengua española (RAE y ASALE)."},
 abacora:{ruta:["árabe clásico bākūrah","árabe hispánico albakúra","albacora","español abacora"],texto:"En el DLE, «abacora» remite a albacora², el pez. De albacora² dice: «Quizá de albacora¹». Y de albacora¹: «Del ár. hisp. albakúra, y este del ár. clás. bākūrah 'fruta temprana'». Fuente: Diccionario de la lengua española (RAE y ASALE)."},
 babilla:{ruta:["español baba¹","español babilla"],texto:"Del dim. de baba¹, por la semejanza del humor sinovial con la baba. Fuente: Diccionario de la lengua española (RAE y ASALE)."},
+token:{ruta:["inglés antiguo tācen «signo, señal»","inglés token"],texto:"«Token» viene del inglés antiguo tācen, que significaba «signo» o «señal». Es una palabra germánica: el alemán Zeichen («signo»), el neerlandés teken y el gótico taikns comparten origen con ella. Fuente: Claude, aportada por el autor del diccionario."},
 infinito:{ruta:["latín infinītus","español infinito"],texto:"Del lat. infinītus. Fuente: Diccionario de la lengua española (RAE y ASALE)."},
 perro:{ruta:["origen incierto","español perro"],texto:"De or. inc. Fuente: Diccionario de la lengua española (RAE y ASALE)."},
 ser:{ruta:["latín sedēre / esse","español antiguo seer","español ser"],texto:"De seer. Fuente: Diccionario de la lengua española (RAE y ASALE)."},
