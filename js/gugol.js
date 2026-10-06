@@ -76,6 +76,20 @@ const datos={
     'lema de chile',
     'lemaco',
     'leman russ'
+  ],
+  ontologia:[
+    'ontologia',
+    'ontologia definicion',
+    'Ontología del Lenguaje — Libro de Rafael Echeverría',
+    'ontologia significado',
+    'ontologia y epistemologia',
+    'ontologia que es',
+    'ontologia significato',
+    'Diccionario de la lengua española — ontología',
+    'ontologia moral',
+    'ontologia relacional',
+    'ontologia del lenguaje definicion',
+    'ontologia epistemologia y metodologia'
   ]
 };
 const n=s=>typeof normalizeText==='function'?normalizeText(s):String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
