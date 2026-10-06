@@ -822,14 +822,14 @@ window.responderPreguntaDiccionario = function(pregunta) {
   function cargar(nombre) {
     return new Promise(resolve => {
       const script = document.createElement('script');
-      script.src = new URL(nombre + '?v=20261005-gugol-v2', base).href;
+      script.src = new URL(nombre + '?v=20261006-botones-lema', base).href;
       script.onload = () => resolve(true);
       script.onerror = () => resolve(false);
       document.head.appendChild(script);
     });
   }
   (async () => {
-    if (await cargar('familias-datos.js')) { await cargar('familias.js'); await cargar('relaciones.js'); await cargar('origenes.js?v=20261006-token-origen'); await cargar('gugol.js'); }
+    if (await cargar('familias-datos.js')) { await cargar('familias.js'); await cargar('relaciones.js'); await cargar('origenes.js'); await cargar('gugol.js'); }
     if (await cargar('agente-config.js')) await cargar('agente-abierto.js');
   })();
 })();

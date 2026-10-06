@@ -139,7 +139,10 @@
   function adjuntar() {
     const lema = document.querySelector('#definition .term');
     if (!lema || document.querySelector('#definition .familia-boton')) return;
-    const palabra = Object.keys(dictionary).find(p => normalizeText(p) === normalizeText(lema.textContent.trim()));
+    const marca = lema.getAttribute('data-clave');
+    const palabra = (marca && Object.prototype.hasOwnProperty.call(dictionary, marca))
+      ? marca
+      : Object.keys(dictionary).find(p => normalizeText(p) === normalizeText(lema.textContent.trim()));
     if (!palabra) return;
     const b = crear('button', 'Familia e historia', 'familia-boton'); b.type = 'button';
     b.setAttribute('aria-label', 'Ver familia e historia de ' + palabra);

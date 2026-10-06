@@ -812,7 +812,9 @@ const cita = entry.cita
   ? `<br><em>${entry.cita}</em>` 
   : '';
 
-output.innerHTML = `<span class="term">${entry.lema || key}</span>${entry.bandera ? ` <span class="bandera-lema" aria-label="Bandera de Chile" title="Chile">${entry.bandera}</span>` : ""}:${htmlDefs}${imagenHtml}${videoHtml}${videosAcepcionesHtml}${cita}`;
+const banderaHtml = entry.bandera ? ` <span class="bandera-lema" aria-label="Bandera de Chile" title="Chile">${entry.bandera}</span>` : '';
+        const claveAttr = String(key).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+        output.innerHTML = `<span class="term" data-clave="${claveAttr}">${entry.lema || key}${banderaHtml}</span>:${htmlDefs}${imagenHtml}${videoHtml}${videosAcepcionesHtml}${cita}`;
         output.querySelectorAll('a.referencia-circular').forEach(enlace => {
           enlace.addEventListener('click', e => {
             // La referencia ya apunta a la entrada que está abierta: no recargamos ni cambiamos el hash.
@@ -1427,6 +1429,6 @@ output.innerHTML = `<span class="term">${entry.lema || key}</span>${entry.bander
 
   </script>
   <script src="js/contador.js?v=20261005-orden-fix"></script>
-  <script src="js/agente.js?v=20261005-gugol-v3"></script>
+  <script src="js/agente.js?v=20261006-botones-lema"></script>
 </body>
 </html>

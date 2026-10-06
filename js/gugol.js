@@ -100,7 +100,7 @@ function abrir(p,b){
 function adjuntar(){
   const l=document.querySelector('#definition .term');
   if(!l||document.querySelector('#definition .gugol-boton'))return;
-  const p=Object.keys(dictionary).find(x=>n(x)===n(l.textContent.trim()));
+  const marca=l.getAttribute('data-clave');const p=(marca&&Object.prototype.hasOwnProperty.call(dictionary,marca))?marca:Object.keys(dictionary).find(x=>n(x)===n(l.textContent.trim()));
   if(!p||!datos[n(p)])return;
   const b=crear('button','Gugol','gugol-boton');
   b.type='button';b.onclick=()=>abrir(p,b);
