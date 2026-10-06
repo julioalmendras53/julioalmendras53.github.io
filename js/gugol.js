@@ -34,6 +34,9 @@ const datos={
     'morfología biología','morfología lingüística','morfología humana','morfología medicina',
     'morfología ejemplos','morfología sinónimo','morfología etimología','morfología español'
   ],
+  etimologia:[
+    'etimologia','etimología significado','etimologia chile','etimologia de trabajo','etimologia que es','etimologia de amor','etimología de ojalá','etimologia de familia','etimologia de matrimonio','etimologia politica','etimologia alumno','etimología de esperanza'
+  ],
   grafo:[
     'grafo','grafo conexo','grafo bipartito','grafo no dirigido','grafo kick','grafo | Definición | Diccionario de la lengua española','grafo- | Definición | Diccionario de la lengua española','-grafo, -grafa | Definición | Diccionario de la lengua española','grafo social','grafo del deseo lacan','grafo que es','grado 3'
   ],
