@@ -77,6 +77,21 @@ const datos={
     'lemaco',
     'leman russ'
   ],
+  inferencia:[
+    'inferencia significado',
+    'inferencia estadistica',
+    'inferencia sinonimo',
+    'inferencia bayesiana',
+    'inferencia deductiva',
+    'inferencia arbitraria',
+    'inferencia | Definición | Diccionario de la lengua española',
+    'inferencia que es',
+    'inferencia abductiva',
+    'inferencia o injerencia',
+    'inferencia crucigrama',
+    'inferencia causal',
+    'inferencia local y global'
+  ],
   ontologia:[
     'ontologia',
     'ontologia definicion',
