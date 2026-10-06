@@ -812,7 +812,7 @@ const cita = entry.cita
   ? `<br><em>${entry.cita}</em>` 
   : '';
 
-output.innerHTML = `<span class="term">${key}</span>:${htmlDefs}${imagenHtml}${videoHtml}${videosAcepcionesHtml}${cita}`;
+output.innerHTML = `<span class="term">${entry.lema || key}</span>${entry.bandera ? ` <span class="bandera-lema" aria-label="Bandera de Chile" title="Chile">${entry.bandera}</span>` : ""}:${htmlDefs}${imagenHtml}${videoHtml}${videosAcepcionesHtml}${cita}`;
         output.querySelectorAll('a.referencia-circular').forEach(enlace => {
           enlace.addEventListener('click', e => {
             // La referencia ya apunta a la entrada que está abierta: no recargamos ni cambiamos el hash.
