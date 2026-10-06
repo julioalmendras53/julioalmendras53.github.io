@@ -33,6 +33,20 @@ const datos={
   morfologia:[
     'morfología biología','morfología lingüística','morfología humana','morfología medicina',
     'morfología ejemplos','morfología sinónimo','morfología etimología','morfología español'
+  ],
+  lema:[
+    'lema',
+    'Cristian Lema — Exfutbolista argentino',
+    'lema significado',
+    'lemans',
+    'lemans conductores — Escuela de Conductores Profesionales L...',
+    'Thomas Lemar — Futbolista francés',
+    'lema | Definición | Diccionario de l...',
+    'lema | Definición | Diccionario de l...',
+    'lema de los linterna verde',
+    'lema de chile',
+    'lemaco',
+    'leman russ'
   ]
 };
 const n=s=>typeof normalizeText==='function'?normalizeText(s):String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
