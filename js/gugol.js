@@ -34,6 +34,9 @@ const datos={
     'morfología biología','morfología lingüística','morfología humana','morfología medicina',
     'morfología ejemplos','morfología sinónimo','morfología etimología','morfología español'
   ],
+  consulta:[
+    'consulta','consulta saldo efe','consulta patente','consulta de causas','consulta precio ripley','consulta causas poder judicial','consulta afiliacion afp','consulta | Definición | Diccionario de la lengua española','consulta saldo bipay','consulta multas por patente','consulta saldo tne','consulta imei'
+  ],
   lema:[
     'lema',
     'Cristian Lema — Exfutbolista argentino',
