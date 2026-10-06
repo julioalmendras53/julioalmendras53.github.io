@@ -53,6 +53,16 @@ const datos={
   consulta:[
     'consulta','consulta saldo efe','consulta patente','consulta de causas','consulta precio ripley','consulta causas poder judicial','consulta afiliacion afp','consulta | Definición | Diccionario de la lengua española','consulta saldo bipay','consulta multas por patente','consulta saldo tne','consulta imei'
   ],
+  chileno:[
+    'chileno ufc',
+    'chileno dueño de la luna — Jenaro Gajardo Vera',
+    'chileno a dolar',
+    'chileno promedio',
+    'chileno f1',
+    'chileno norteamericano',
+    'Chileno de corazón — Canción de Mala Junta',
+    'chileno a peso colombiano'
+  ],
   lema:[
     'lema',
     'Cristian Lema — Exfutbolista argentino',
