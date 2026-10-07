@@ -115,6 +115,20 @@ const datos={
     'vector significado',
     'vector magic',
     'Vector the Crocodile'
+  ],
+  algoritmo:[
+    'algoritmo definicion',
+    'algoritmo de instagram',
+    'algoritmo paro cardiaco',
+    'algoritmo rcp',
+    'algoritmo cubo rubik',
+    'Algoritmo - Wikipedia, la enciclopedia libre',
+    'algoritmo | Definición | Diccionario de la lengua española',
+    'algoritmo de la multiplicacion',
+    'algoritmo de la division',
+    'algoritmo que es',
+    'algoritmo de paro',
+    'algoritmo cubo rubik 3x3'
   ]
 };
 const n=s=>typeof normalizeText==='function'?normalizeText(s):String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
