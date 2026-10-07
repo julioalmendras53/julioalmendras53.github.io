@@ -129,8 +129,7 @@ const datos={
     'algoritmo que es',
     'algoritmo de paro',
     'algoritmo cubo rubik 3x3'
-  ]
-};
+  ],
   polisemia:[
     'polisemia',
     'polisemia significado',
