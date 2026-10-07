@@ -105,6 +105,16 @@ const datos={
     'ontologia relacional',
     'ontologia del lenguaje definicion',
     'ontologia epistemologia y metodologia'
+  ],
+  vector:[
+    'vector mi villano favorito',
+    'VECTOR CAPITAL CORREDORES DE BOLSA S.A.',
+    'vector minions',
+    'vector unitario',
+    'vector despicable me',
+    'vector significado',
+    'vector magic',
+    'Vector the Crocodile'
   ]
 };
 const n=s=>typeof normalizeText==='function'?normalizeText(s):String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
