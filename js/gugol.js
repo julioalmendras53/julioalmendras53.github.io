@@ -131,6 +131,20 @@ const datos={
     'algoritmo cubo rubik 3x3'
   ]
 };
+  polisemia:[
+    'polisemia',
+    'polisemia significado',
+    'polisemia enfermedad',
+    'polisemia ejemplos',
+    'polisemia y homonimia',
+    'polisemia de portero',
+    'polisemia sinonimo',
+    'polisemia | Definición | Diccionario de la lengua española',
+    'polisemia rae',
+    'polisemia y homonimia diferencia',
+    'polisemia de la historia',
+    'polisemia de palabras'
+  ],
 const n=s=>typeof normalizeText==='function'?normalizeText(s):String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const crear=(t,x,c)=>{const e=document.createElement(t);if(x)e.textContent=x;if(c)e.className=c;return e};
 const st=crear('style');st.textContent=`
