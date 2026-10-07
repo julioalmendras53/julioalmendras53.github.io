@@ -144,7 +144,8 @@ const datos={
     'polisemia y homonimia diferencia',
     'polisemia de la historia',
     'polisemia de palabras'
-  ],
+  ]
+};
 const n=s=>typeof normalizeText==='function'?normalizeText(s):String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const crear=(t,x,c)=>{const e=document.createElement(t);if(x)e.textContent=x;if(c)e.className=c;return e};
 const st=crear('style');st.textContent=`
