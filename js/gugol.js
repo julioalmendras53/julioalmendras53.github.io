@@ -130,6 +130,20 @@ const datos={
     'algoritmo de paro',
     'algoritmo cubo rubik 3x3'
   ],
+  lexicografia:[
+    'lexicografia concepto',
+    'Lexicografía — Libro de Marco Aurelio Denegri',
+    'lexicografia y lexicologia',
+    'lexicografia marco aurelio pdf',
+    'lexicografia ejemplo',
+    'lexicografia python',
+    'lexicografia rae',
+    'lexicografia juridica',
+    'lexicografia ugr',
+    'lexicografia en una oración',
+    'lexicografia etimologia',
+    'lexicografia libro'
+  ],
   polisemia:[
     'polisemia',
     'polisemia significado',
