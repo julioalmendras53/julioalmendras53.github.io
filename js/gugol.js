@@ -154,6 +154,20 @@ const datos={
     'lexicografia etimologia',
     'lexicografia libro'
   ],
+  embedding:[
+    'embedding',
+    'embedding que es',
+    'embedding openai',
+    'embedding ai',
+    'embedding models',
+    'embedding en español',
+    'embedding meaning',
+    'embedding projector',
+    'embedding gemma',
+    'embedding translate',
+    'embedding piercing',
+    'embedding vectors'
+  ],
   polisemia:[
     'polisemia',
     'polisemia significado',
