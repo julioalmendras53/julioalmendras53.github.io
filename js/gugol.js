@@ -164,6 +164,16 @@ const datos={
     'embebimiento sinonimo',
     'embelicos'
   ],
+  desambiguacion:[
+    'desambiguacion significado español',
+    'desambiguacion en ingles',
+    'desambiguacion lexica',
+    'desambiguacion meaning',
+    'desambiguacion rae',
+    'desambiguacion sinonimo',
+    'desambiguacion wikipedia',
+    'desambiguacion in english'
+  ],
   embedding:[
     'embedding',
     'embedding que es',
