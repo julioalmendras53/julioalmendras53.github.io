@@ -154,6 +154,16 @@ const datos={
     'lexicografia etimologia',
     'lexicografia libro'
   ],
+  embebimiento:[
+    'embebimineto',
+    'embebimiento topológico',
+    'embebimiento definicion',
+    'embebimiento matemáticas',
+    'embebimiento que es',
+    'embebecer definicion',
+    'embebimiento sinonimo',
+    'embelicos'
+  ],
   embedding:[
     'embedding',
     'embedding que es',
