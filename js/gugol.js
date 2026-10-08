@@ -130,6 +130,16 @@ const datos={
     'algoritmo de paro',
     'algoritmo cubo rubik 3x3'
   ],
+  acepcion:[
+    'acepción rae',
+    'acepcion de personas en la biblia',
+    'acepcion definicion',
+    'acepcion sinonimo',
+    'acepcion o excepción',
+    'acepción de personas',
+    'acepcion ejemplo',
+    'acepcion o ascension'
+  ],
   lexicografia:[
     'lexicografia concepto',
     'Lexicografía — Libro de Marco Aurelio Denegri',
