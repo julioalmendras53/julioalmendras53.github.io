@@ -592,6 +592,30 @@ function proponerPalabraNoDefinida() {
     ['morfología', 'Complementa las familias de palabras y categorías gramaticales.'],
     ['grafo', 'Describe bien las redes de familias y relaciones del diccionario.']
   ];
+  // Ampliar propuestas a partir de relaciones existentes y de conceptos nuevos.
+  const nuevasIdeas = [
+    'ontogenia','epistemología','pragmática','lexicología','semasiología',
+    'onomasiología','hiperonimia','hiponimia','meronimia','holonimia',
+    'isomorfismo','homeomorfismo','topología','incrustación','vectorización',
+    'coseno','similitud','distancia euclidiana','espacio vectorial',
+    'dimensionalidad','tokenización','lematización','desambiguación',
+    'corpus','concordancia','colocación','neologismo','calco lingüístico',
+    'derivación','composición','flexión','alomorfo','morfema',
+    'lexema','campo semántico','red semántica','polisemántico',
+    'homonimia','homografía','homofonía','sinonimia','antonimia',
+    'metonimia','sinécdoque','anáfora','catáfora','deixis',
+    'recursión','grafo dirigido','arista','nodo','heurística'
+  ];
+  nuevasIdeas.forEach(palabra => candidatos.push([palabra, 'Es un concepto que puede ampliar las relaciones lingüísticas, matemáticas o informáticas del diccionario.']));
+  const propuestasRelacionadas = new Set();
+  Object.values(dictionary).forEach(entrada => {
+    if (!entrada || typeof entrada !== 'object') return;
+    const relacionadas = entrada.relacionadas;
+    if (Array.isArray(relacionadas)) relacionadas.forEach(p => {
+      if (typeof p === 'string' && /^[\\p{L}\\s-]{2,45}$/u.test(p.trim())) propuestasRelacionadas.add(p.trim());
+    });
+  });
+  propuestasRelacionadas.forEach(palabra => candidatos.push([palabra, 'Aparece como palabra relacionada de otra entrada y todavía falta definirla.']));
   const disponibles = candidatos.filter(([palabra]) =>
     !Object.keys(dictionary).some(existente => normalizeText(existente) === normalizeText(palabra))
   );
