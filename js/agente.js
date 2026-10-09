@@ -638,9 +638,9 @@ function proponerPalabraNoDefinida() {
 
 // Consulta de autorreferencias directas: mismo lema como palabra completa.
 function consultarCircularidad(texto) {
-  const preguntaLista = /\\b(circularidad|circulares?|misma palabra|se definen con|autorreferenc|se define a si misma)\\b/.test(texto);
-  const preguntaRojo = /\\b(rojo|roja|gira|girar|360|grados)\\b/.test(texto) &&
-    /\\b(palabra|definicion|significa|gira|360|rojo)\\b/.test(texto);
+  const preguntaLista = /\b(circularidad|circulares?|misma palabra|se definen con|autorreferenc|se define a si misma)\b/.test(texto);
+  const preguntaRojo = /\b(rojo|roja|gira|girar|360|grados)\b/.test(texto) &&
+    /\b(palabra|definicion|significa|gira|360|rojo)\b/.test(texto);
   if (!preguntaLista && !preguntaRojo) return null;
   const coincidencias = [];
   for (const [lema, entrada] of Object.entries(dictionary)) {
@@ -652,7 +652,7 @@ function consultarCircularidad(texto) {
       const palabras = normalizeText(definicion).match(/[a-z0-9ñü]+/g) || [];
       const partes = clave.match(/[a-z0-9ñü]+/g) || [];
       const coincide = partes.length && palabras.some((_, i) => partes.every((p, j) => palabras[i+j] === p));
-      if (coincide) coincidencias.push({lema, numero: indice+1, texto: definicion.replace(/^\\s*\\d+\\s*[.]\\s*/, '').replace(/^\\s*(?:adj|sus|sust)\\s*[.]\\s*/i, '')});
+      if (coincide) coincidencias.push({lema, numero: indice+1, texto: definicion.replace(/^\s*\d+\s*[.]\s*/, '').replace(/^\s*(?:adj|sus|sust)\s*[.]\s*/i, '')});
     });
   }
   if (preguntaRojo && !preguntaLista) return {
