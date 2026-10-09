@@ -633,6 +633,38 @@ function proponerPalabraNoDefinida() {
   };
 }
 
+// Consulta de autorreferencias directas: mismo lema como palabra completa.
+function consultarCircularidad(texto) {
+  const preguntaLista = /\\b(circularidad|circulares?|misma palabra|se definen con|autorreferenc|se define a si misma)\\b/.test(texto);
+  const preguntaRojo = /\\b(rojo|roja|gira|girar|360|grados)\\b/.test(texto) &&
+    /\\b(palabra|definicion|significa|gira|360|rojo)\\b/.test(texto);
+  if (!preguntaLista && !preguntaRojo) return null;
+  const coincidencias = [];
+  for (const [lema, entrada] of Object.entries(dictionary)) {
+    const definiciones = Array.isArray(entrada.definiciones) ? entrada.definiciones : [entrada.definicion];
+    const clave = normalizeText(lema).trim();
+    if (!clave) continue;
+    definiciones.forEach((definicion, indice) => {
+      if (typeof definicion !== 'string') return;
+      const palabras = normalizeText(definicion).match(/[a-z0-9ñü]+/g) || [];
+      const partes = clave.match(/[a-z0-9ñü]+/g) || [];
+      const coincide = partes.length && palabras.some((_, i) => partes.every((p, j) => palabras[i+j] === p));
+      if (coincide) coincidencias.push({lema, numero: indice+1, texto: definicion.replace(/^\\s*\\d+\\s*[.]\\s*/, '').replace(/^\\s*(?:adj|sus|sust)\\s*[.]\\s*/i, '')});
+    });
+  }
+  if (preguntaRojo && !preguntaLista) return {
+    respuesta: 'Una palabra roja que gira 360° al pulsarla señala que la definición contiene una referencia directa a su propio lema. Es una advertencia de posible definición circular: se usa la palabra que se intenta explicar. El giro es un efecto visual, no un significado gramatical.',
+    palabras: coincidencias.map(x => x.lema)
+  };
+  const detalle = coincidencias.map(x => '«'+x.lema+'» (acepción '+x.numero+'): '+x.texto).join(' | ');
+  return {
+    respuesta: coincidencias.length
+      ? 'Encontré '+coincidencias.length+' acepción(es) que contienen literalmente su propio lema: '+detalle+'. La coincidencia directa puede indicar circularidad; no detecta ciclos indirectos entre distintas entradas.'
+      : 'No encontré acepciones que repitan literalmente su propio lema. Esto no descarta circularidades indirectas.',
+    palabras: [...new Set(coincidencias.map(x=>x.lema))]
+  };
+}
+
 function analizarPreguntaDiccionario(pregunta) {
   const texto = limpiarConsulta(pregunta);
   const ayuda = respuesta => ({ respuesta, palabras: [], ejemplos: ejemplosAgente });
