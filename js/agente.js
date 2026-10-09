@@ -890,7 +890,7 @@ window.responderPreguntaDiccionario = function(pregunta) {
     });
   }
   (async () => {
-    if (await cargar('familias-datos.js')) { await cargar('familias.js'); await cargar('relaciones.js?v=20261009-pintar'); await cargar('origenes.js'); await cargar('gugol.js?v=20261009-heuristica'); }
+    if (await cargar('familias-datos.js')) { await cargar('familias.js'); await cargar('relaciones.js?v=20261009-heuristica'); await cargar('origenes.js'); await cargar('gugol.js?v=20261009-heuristica'); }
     if (await cargar('agente-config.js')) await cargar('agente-abierto.js');
   })();
 })();
