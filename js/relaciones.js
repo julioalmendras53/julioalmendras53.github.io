@@ -2,6 +2,7 @@
 'use strict';
 if(!document.getElementById('definition'))return;
 const datos={
+heuristica:{relacionados:['metaheurística','hermenéutica']},
 madre:{sinonimos:['mamá'],derivados:['materno','maternidad'],relacionados:['persona']},
 dios:{sinonimos:['deidad'],derivados:['divino','divinidad'],relacionados:['cristo','espíritu','omnipotente','todopoderoso']},
 infinito:{sinonimos:['ilimitado'],antonimos:['finito','limitado'],derivados:['infinidad','infinitamente','infinitesimal','infinitotriz']},
