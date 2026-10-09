@@ -156,17 +156,18 @@ window.addEventListener('error', e => {
           "images/ababol-3.jpg",
           "images/ababol-4.jpg"
         ],
-        pies: [
-          "Ababol, la amapola roja, abierta en el campo.",
-          "Tres ababoles puestos en un jarrón de vidrio.",
-          "Ramo de ababoles entregado de una persona a otra.",
-          "Un ababol a la orilla del río, con montañas detrás.",
-          "Tres ababoles en un jarrón de porcelana sobre la mesa.",
-          "Dos ababoles rojos en un prado de flores silvestres.",
-          "Un ababol creciendo sobre una piedra en medio del río.",
-          "Un ababol rojo saliendo de la tierra seca y agrietada.",
-          "Ababoles rojos entre las rocas, con el valle al fondo."
-        ],
+        piesArchivo: {
+          "ababol-1.jpg": "Ababol, la amapola roja, abierta en el campo.",
+          "ababol-2.jpg": "Tres ababoles puestos en un jarrón de vidrio.",
+          "ababol-3.jpg": "Ramo de ababoles entregado de una persona a otra.",
+          "ababol-4.jpg": "Un ababol a la orilla del río, con montañas detrás.",
+          "ababol-5.jpg": "Tres ababoles en un jarrón de porcelana sobre la mesa.",
+          "ababol-6.jpg": "Dos ababoles rojos en un prado de flores silvestres.",
+          "ababol-7.jpg": "Un ababol creciendo sobre una piedra en medio del río.",
+          "ababol-8.jpg": "Un ababol rojo saliendo de la tierra seca y agrietada.",
+          "ababol-9.jpg": "Ababoles rojos entre las rocas, con el valle al fondo."
+        },
+        pieImagen: "Un ababol en primer plano, con un capullo.",
         referenciasVisuales: [
           "images/ababol-5.jpg",
           "images/ababol-6.jpg",
@@ -260,15 +261,15 @@ window.addEventListener('error', e => {
       homotecia:  { definicion: "Zoom geométrico a una figura que consta de un centro y una razón y fundamentalmente se amplía o reduce según que número real le coloques de razón." , imagen: "images/homotecia.jpg"  },
       "espíritu":{ definicion: "Parte inmaterial del binomio cuerpo y mente que sobrevive a la muerte y sirve para pensar, sentir y querer." , imagen: "images/espíritu.png" }, 
       alma:       { definicion: "Soplo que Adonai puso a Adán como añadido a su ser más bruto y que se traspasó al género humano." },
-      messi:      { definicion: "Genio del gol en fútbol.", imagenes: ["images/messi-1.jpg?v=20261005c", "images/messi-2.jpg?v=20261005c", "images/messi-3.jpg?v=20261005c", "images/messi-4.jpg?v=20261005c", "images/messi-5.jpg?v=20261005c", "images/messi-6.jpg?v=20261005d", "images/messi-7.jpg?v=20261005d"], pies: [
-        "Messi junto a Antonela, de noche, con la camiseta de Argentina.",
-        "Messi saludando de mano a Donald Trump con la selección.",
-        "Messi corriendo a festejar un gol con la camiseta albiceleste.",
-        "Messi levantando la Copa del Mundo en el estadio de Qatar.",
-        "Messi tomando mate en el sofá con sus tres hijos.",
-        "Messi firmando su extensión de contrato en Inter Miami, en el nuevo estadio.",
-        "Messi mostrando la camiseta número 10 del Barcelona."
-      ] }, 
+      messi:      { definicion: "Genio del gol en fútbol.", imagenes: ["images/messi-1.jpg?v=20261005c", "images/messi-2.jpg?v=20261005c", "images/messi-3.jpg?v=20261005c", "images/messi-4.jpg?v=20261005c", "images/messi-5.jpg?v=20261005c", "images/messi-6.jpg?v=20261005d", "images/messi-7.jpg?v=20261005d"], piesArchivo: {
+        "messi-1.jpg": "Messi junto a Antonela, de noche, con la camiseta de Argentina.",
+        "messi-2.jpg": "Messi saludando de mano a Donald Trump con la selección.",
+        "messi-3.jpg": "Messi festejando un gol ante Austria.",
+        "messi-4.jpg": "Messi levantando la Copa del Mundo en el estadio Lusail.",
+        "messi-5.jpg": "Messi tomando mate en el sofá con sus tres hijos.",
+        "messi-6.jpg": "Messi firmando su extensión de contrato en Inter Miami, en el nuevo estadio.",
+        "messi-7.jpg": "Messi mostrando la camiseta número 10 del Barcelona."
+      } }, 
       genio:      { definicion: "Poder mental extraordinario que produce obras de excepcional precio." },
       inteligencia:{ definicion: "Capacidad de aprender y resolver problemas adaptándose plásticamente al entorno." , imagen:"images/inteligencia.jpg" }, 
       interfaz:    { definicion: "Conexión física entre un usuario y la computadora o teléfono que permite navegar.", categorias: ["sustantivo"] },
@@ -829,10 +830,18 @@ searchInput.addEventListener('input', () => {
         }).join('');
         const imagenesVisibles = rutasImagenesDe(entry);
         const pies = Array.isArray(entry.pies) ? entry.pies : [];
+        const piesArchivo = entry.piesArchivo && typeof entry.piesArchivo === 'object' ? entry.piesArchivo : null;
         const escaparHtml = (s) => String(s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
+        const pieDeImagen = (src, i) => {
+          const limpia = String(src).split('?')[0];
+          const nombre = limpia.split('/').pop();
+          if (piesArchivo && nombre && piesArchivo[nombre]) return String(piesArchivo[nombre]);
+          if (limpia.startsWith('data:') && entry.pieImagen) return String(entry.pieImagen);
+          return pies[i] ? String(pies[i]) : '';
+        };
         const imagenHtml = imagenesVisibles.length
           ? `<div class="galeria-entrada${['ababol','messi'].includes(normalizeText(key)) ? ' galeria-3x3' : ''}">${imagenesVisibles.map((src, i) => {
-              const pie = pies[i] ? String(pies[i]) : '';
+              const pie = pieDeImagen(src, i);
               const srcEsc = escaparHtml(src);
               const alt = escaparHtml(pie || (key + ' ' + (i + 1)));
               if (!pie) return `<img src="${srcEsc}" alt="${alt}">`;
