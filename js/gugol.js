@@ -2,6 +2,13 @@
 'use strict';
 if(!document.getElementById('definition'))return;
 const datos={
+  heuristica:[
+    'heuristica','heuristica rae','heuristica definicion','heuristica que es',
+    'heuristica nielsen','heuristica ia','heuristica greedy','heuristica sinonimos',
+    'heuristica y hermeneutica','heuristica y sesgos','heuristica ejemplo',
+    'heuristica y metaheuristica'
+  ],
+
   interfaz:[
     'interfaz',
     'interfaz de audio',
