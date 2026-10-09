@@ -38,11 +38,10 @@ window.addEventListener('error', e => {
     }
     .galeria-entrada{display:flex;flex-wrap:wrap;gap:8px;margin-top:.6rem}
     .galeria-entrada img{flex:1 1 220px;width:100%;max-width:100%;height:auto;max-height:420px;object-fit:contain;background:#fff;border:1px solid #e4e4e4;border-radius:8px}
-    .galeria-entrada.galeria-3x3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 8px;align-items:stretch}
-    .galeria-entrada.galeria-3x3 figure{margin:0;min-width:0;display:flex;flex-direction:column;background:#fff;border:1px solid #e4e4e4;border-radius:8px;overflow:hidden}
-    .galeria-entrada.galeria-3x3 img{width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;max-height:none;min-width:0;border:0;border-radius:0}
-    .galeria-entrada.galeria-3x3 figcaption{margin:0;padding:6px 6px 7px;font-size:12px;line-height:1.3;color:#222;text-align:center;background:#f4f4f4;border-top:1px solid #e6e6e6}
-    @media(max-width:560px){.galeria-entrada.galeria-3x3{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.galeria-entrada.galeria-3x3 figcaption{font-size:11px;padding:5px 4px 6px}}
+    .galeria-entrada.galeria-3x3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    .galeria-entrada.galeria-3x3 figure{position:relative;margin:0;min-width:0;aspect-ratio:1/1;overflow:hidden;border-radius:8px;border:1px solid #e4e4e4;background:#111}
+    .galeria-entrada.galeria-3x3 figure img{position:absolute;inset:0;width:100%;height:100%;max-height:none;object-fit:cover;border:0;border-radius:0;aspect-ratio:auto}
+    .galeria-entrada.galeria-3x3 figcaption{position:absolute;left:0;right:0;bottom:0;margin:0;padding:2px 3px 3px;font-size:clamp(7px,1.35vw,10px);line-height:1.15;font-weight:600;color:#fff;text-align:center;background:rgba(0,0,0,.68);text-wrap:balance}
     .visor-imagen{flex-direction:column;gap:12px}
     .visor-pie{margin:0;max-width:min(92vw,760px);color:#fff;text-align:center;font-size:16px;line-height:1.35;background:#111;padding:8px 12px;border-radius:8px}
     .galeria-entrada img{cursor:zoom-in}
