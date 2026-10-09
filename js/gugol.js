@@ -2,6 +2,10 @@
 'use strict';
 if(!document.getElementById('definition'))return;
 const datos={
+  epistemologia:[
+    "epistemologia definicion","epistemologia ejemplo","epistemología que es","epistemologia y ontologia",
+    "epistemologia etimologia","epistemologia liminar","epistemologia positivista","epistemologia autores"
+  ],
   heuristica:[
     'heuristica','heuristica rae','heuristica definicion','heuristica que es',
     'heuristica nielsen','heuristica ia','heuristica greedy','heuristica sinonimos',
