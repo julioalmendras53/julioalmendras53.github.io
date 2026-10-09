@@ -112,6 +112,9 @@ const famososIniciales = {
 };
 
 const ejemplosAgente = [
+  '¿Cuáles son las definiciones que tienen circularidad?',
+  '¿Cuáles definiciones se definen con la misma palabra?',
+  '¿Qué significa que una palabra aparezca en rojo y gire 360°?',
   '¿Cuántos y cuáles adjetivos tienen alguna definición que empieza por «que»?',
   '¿Se cumple que los verbos se definen con otros verbos?',
   '¿Qué verbos no tienen ninguna definición que empiece con otro infinitivo?',
@@ -668,6 +671,8 @@ function consultarCircularidad(texto) {
 function analizarPreguntaDiccionario(pregunta) {
   const texto = limpiarConsulta(pregunta);
   const ayuda = respuesta => ({ respuesta, palabras: [], ejemplos: ejemplosAgente });
+  const circularidad = consultarCircularidad(texto);
+  if (circularidad) return circularidad;
   if (/(?:^|\s)prop[oó]n\w*(?:\s|$)/i.test(texto) && /(?:^|\s)(?:siguiente\s+)?palabra(?:\s|$)/i.test(texto) && /(?:^|\s)defin(?:ir|icion)(?:\s|$)/i.test(texto)) {
     return proponerPalabraNoDefinida();
   }
