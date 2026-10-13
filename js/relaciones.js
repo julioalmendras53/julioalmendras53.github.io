@@ -3,6 +3,7 @@
 if(!document.getElementById('definition'))return;
 const datos={
 arista:{sinonimos:["filo","borde","esquina","saliente"],relacionados:["vértice","lado","plano","poliedro","borde","trigo","faceta"]},
+arista:{sinonimos:["filo","borde","esquina","saliente"],relacionados:["vértice","lado","plano","poliedro","borde","trigo","faceta"]},
 epistemologia:{relacionados:["conocimiento","ciencia","filosofía","ontología","gnoseología","heurística"]},
 heuristica:{relacionados:['metaheurística','hermenéutica']},
 madre:{sinonimos:['mamá'],derivados:['materno','maternidad'],relacionados:['persona']},
