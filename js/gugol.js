@@ -2,6 +2,7 @@
 'use strict';
 if(!document.getElementById('definition'))return;
 const datos={
+  arista:["arista","arista de un cubo","arista y vertice","arista que es","arista a tu casa","arista vertice y cara","arista significado","arista networks","arista en ingles","arista hornli","arista networks stock","arista basal"],
   epistemologia:[
     "epistemologia definicion","epistemologia ejemplo","epistemología que es","epistemologia y ontologia",
     "epistemologia etimologia","epistemologia liminar","epistemologia positivista","epistemologia autores"
