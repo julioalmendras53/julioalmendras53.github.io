@@ -74,6 +74,16 @@ const datos={
     'Chileno de corazón — Canción de Mala Junta',
     'chileno a peso colombiano'
   ],
+  lematizacion:[
+    'lematizacion que es',
+    'lematización y stemming',
+    'lematizacion python',
+    'lematizacion nlp',
+    'lematizacion ai',
+    'lematizacion en ingles',
+    'lematizacion ejemplo',
+    'lematizacion pln'
+  ],
   lema:[
     'lema',
     'Cristian Lema — Exfutbolista argentino',
