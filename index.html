@@ -498,7 +498,11 @@ window.addEventListener('error', e => {
       "león":{ definiciones: [
                                  "1.Mamífero carnívoro de la familia de los félidos (Panthera leo), de pelaje amarillo rojizo, cabeza grande, cola larga terminada en un mechón y hasta unos 2,5 m de largo sin la cola. El macho tiene una melena abundante. Vive en manadas en las sabanas de África y en una pequeña población de la India.",
                                  "2.Persona valiente, fuerte o decidida. Por ejemplo: peleó como un león.",
-                                 "3.Quinto signo del Zodiaco, que corresponde aproximadamente a los nacidos entre el 23 de julio y el 22 de agosto. Se escribe con mayúscula: Leo." ] },
+                                 "3.Quinto signo del Zodiaco, que corresponde aproximadamente a los nacidos entre el 23 de julio y el 22 de agosto. Se escribe con mayúscula: Leo." ], imagenes: ["images/leon-1.jpg", "images/leon-2.jpg", "images/leon-3.jpg"], piesArchivo: {
+        "leon-1.jpg": "León rugiendo junto a una leona sobre un montículo en la sabana, al atardecer.",
+        "leon-2.jpg": "León y leona juntos y tranquilos sobre un montículo en la sabana, al atardecer.",
+        "leon-3.jpg": "León de melena dorada de pie sobre un montículo en la sabana, al atardecer."
+      } },
       mapear:{ definiciones: [ 
                                  "1.Crear mapas de territorios con sus límites." , 
                                  "2.Investigar la parte en el todo, por ejemplo: los genes en los cromosomas.",
@@ -916,7 +920,7 @@ searchInput.addEventListener('input', () => {
           return pies[i] ? String(pies[i]) : '';
         };
         const imagenHtml = imagenesVisibles.length
-          ? `<div class="galeria-entrada${['ababol','messi'].includes(normalizeText(key)) ? ' galeria-3x3' : ''}">${imagenesVisibles.map((src, i) => {
+          ? `<div class="galeria-entrada${['ababol','messi','leon'].includes(normalizeText(key)) ? ' galeria-3x3' : ''}">${imagenesVisibles.map((src, i) => {
               const pie = pieDeImagen(src, i);
               const srcEsc = escaparHtml(src);
               const alt = escaparHtml(pie || (key + ' ' + (i + 1)));
