@@ -835,7 +835,8 @@ searchInput.addEventListener('input', () => {
       const candidatos = Object.entries(window.dictionary||{}).map(([nombre,entrada])=>{
         const definiciones = Array.isArray(entrada.definiciones)?entrada.definiciones:
           entrada.definicion?[entrada.definicion]:[];
-        const contenido=normalizar(nombre+' '+definiciones.join(' '));
+        const contextoGeografico = normalizar(nombre)==='elefante' ? ' africa africano africana ' : '';
+        const contenido=normalizar(nombre+' '+definiciones.join(' ')+contextoGeografico);
         const coincidencias=terminos.filter(p=>variantes(p).some(v=>contenido.includes(v)));
         const puntuacion=coincidencias.length*10+(normalizar(nombre).includes(terminos[0])?2:0);
         return {nombre,entrada,definiciones,puntuacion,coincidencias:coincidencias.length};
@@ -856,7 +857,7 @@ searchInput.addEventListener('input', () => {
         const foto=(Array.isArray(item.entrada.imagenes)&&item.entrada.imagenes[0])||item.entrada.imagen;
         if(typeof foto==='string'&&foto.trim()){
           const img=document.createElement('img');img.src=foto;img.alt='Imagen de '+item.nombre;
-          img.loading='lazy';img.style.cssText='display:block;width:100px;height:85px;object-fit:contain;margin:8px 0;cursor:zoom-in;border-radius:6px';
+          img.loading='lazy';img.style.cssText='display:block;width:76px;height:64px;object-fit:contain;margin:8px 0;cursor:zoom-in;border-radius:6px';
           img.title='Tocar para ampliar';
           img.addEventListener('click',()=>{
             const visor=document.createElement('div');
@@ -867,7 +868,10 @@ searchInput.addEventListener('input', () => {
           });
           tarjeta.appendChild(img);
         }
-        item.definiciones.slice(0,3).forEach(d=>{const p=document.createElement('p');p.textContent=String(d);tarjeta.appendChild(p)});
+        const primeraDefinicion=String(item.definiciones[0]||'').trim();
+        const finOracion=primeraDefinicion.search(/\\.(?=\\s|$)/);
+        const resumen=finOracion>=0?primeraDefinicion.slice(0,finOracion+1):primeraDefinicion;
+        if(resumen){const p=document.createElement('p');p.textContent=resumen;tarjeta.appendChild(p)}
         output.appendChild(tarjeta);
       }
       resetBtn.style.display='none';setMediaButtons(false);
