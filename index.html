@@ -815,6 +815,65 @@ searchInput.addEventListener('input', () => {
   }
 });
 
+
+    // Búsqueda descriptiva local: presenta hasta tres entradas relacionadas.
+    function buscarPorDescripcion(consulta) {
+      const normalizar = t => String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+      const palabras = normalizar(consulta).match(/[a-zñ]+/g) || [];
+      const vacias = new Set(['el','la','los','las','un','una','unos','unas','de','del','en','que','y','con','por','para','es','son']);
+      const terminos = [...new Set(palabras.filter(p=>p.length>2&&!vacias.has(p)))];
+      if (terminos.length<2) return false;
+      const variantes = p => {
+        const v = [p];
+        if(p.endsWith('os')||p.endsWith('as'))v.push(p.slice(0,-2));
+        if(p.endsWith('o')||p.endsWith('a'))v.push(p.slice(0,-1));
+        if(p.endsWith('es'))v.push(p.slice(0,-2));
+        if(p.endsWith('s'))v.push(p.slice(0,-1));
+        if(p==='africano'||p==='africana')v.push('africa');
+        return [...new Set(v.filter(x=>x.length>=4))];
+      };
+      const candidatos = Object.entries(window.dictionary||{}).map(([nombre,entrada])=>{
+        const definiciones = Array.isArray(entrada.definiciones)?entrada.definiciones:
+          entrada.definicion?[entrada.definicion]:[];
+        const contenido=normalizar(nombre+' '+definiciones.join(' '));
+        const coincidencias=terminos.filter(p=>variantes(p).some(v=>contenido.includes(v)));
+        const puntuacion=coincidencias.length*10+(normalizar(nombre).includes(terminos[0])?2:0);
+        return {nombre,entrada,definiciones,puntuacion,coincidencias:coincidencias.length};
+      }).filter(x=>x.coincidencias===terminos.length).sort((a,b)=>b.puntuacion-a.puntuacion||a.nombre.localeCompare(b.nombre,'es')).slice(0,3);
+      if(!candidatos.length) return false;
+      output.replaceChildren();
+      const titulo=document.createElement('h3');
+      titulo.textContent='Resultados relacionados con «'+consulta+'»';
+      output.appendChild(titulo);
+      for(const item of candidatos){
+        const tarjeta=document.createElement('section');
+        tarjeta.style.cssText='padding:12px;margin:10px 0;background:white;border:1px solid #d9e2ed;border-radius:10px';
+        const nombre=document.createElement('button');
+        nombre.type='button';nombre.textContent=item.nombre;
+        nombre.style.cssText='font-weight:bold;font-size:1.1rem;border:0;background:none;color:#1769c2;cursor:pointer;padding:0';
+        nombre.addEventListener('click',()=>{searchInput.value=item.nombre;renderEntry(item.nombre,false,true)});
+        tarjeta.appendChild(nombre);
+        const foto=(Array.isArray(item.entrada.imagenes)&&item.entrada.imagenes[0])||item.entrada.imagen;
+        if(typeof foto==='string'&&foto.trim()){
+          const img=document.createElement('img');img.src=foto;img.alt='Imagen de '+item.nombre;
+          img.loading='lazy';img.style.cssText='display:block;width:100px;height:85px;object-fit:contain;margin:8px 0;cursor:zoom-in;border-radius:6px';
+          img.title='Tocar para ampliar';
+          img.addEventListener('click',()=>{
+            const visor=document.createElement('div');
+            visor.style.cssText='position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:16px';
+            const grande=document.createElement('img');grande.src=foto;grande.alt=img.alt;
+            grande.style.cssText='max-width:95vw;max-height:92vh;object-fit:contain';
+            visor.appendChild(grande);visor.addEventListener('click',()=>visor.remove());document.body.appendChild(visor);
+          });
+          tarjeta.appendChild(img);
+        }
+        item.definiciones.slice(0,3).forEach(d=>{const p=document.createElement('p');p.textContent=String(d);tarjeta.appendChild(p)});
+        output.appendChild(tarjeta);
+      }
+      resetBtn.style.display='none';setMediaButtons(false);
+      return true;
+    }
+
     function renderEntry(term, plain=false, push=true) {
       if (/[¿?]/.test(term) && window.responderPreguntaDiccionario) {
         searchInput.value = term;
@@ -826,6 +885,7 @@ searchInput.addEventListener('input', () => {
       const normTerm = normalizeText(term);
       const key      = normalizedMap[normTerm];
 
+      if (!key && buscarPorDescripcion(term)) return;
       if (!key) {
         output.textContent = term ? `La palabra "${term}" no está en el diccionario.` : 'Por favor, escribe una palabra.';
         resetBtn.style.display = 'none';
