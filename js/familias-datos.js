@@ -11,6 +11,8 @@
     'caótico': registro('caótico', 1853, 'Domínguez, Diccionario Nacional (1853)'),
     'caóticamente': { anio: 2010, tipo: 'Testimonio de uso', detalle: 'El Diccionario de americanismos (ASALE, 2010) emplea caóticamente en la acepción VI.1 de barajustar(se). Es un testimonio de uso, no una primera aparición acreditada.', fuente: 'ASALE: Diccionario de americanismos, barajustar(se)', url: 'https://www.asale.org/damer/barajustar' },
     infinito: registro('infinito', 1495, nebrija),
+    'dimensión': registro('dimensión', 1607, 'Oudin, Tesoro de las dos lenguas francesa y española (1607)'),
+    dimensional: registro('dimensional', 1791, 'Diccionario de la lengua española (1791)'),
     infinitamente: registro('infinitamente', 1495, nebrija),
     infinidad: registro('infinidad', 1495, nebrija),
     infinitesimal: registro('infinitesimal', 1787, 'Terreros, Diccionario castellano con las voces de ciencias y artes (1787)'),
