@@ -20,7 +20,7 @@ const sustantivosIniciales = [
   'madre', 'realidad', 'conciencia', 'homotecia', 'espíritu', 'alma', 'messi',
   'genio', 'inteligencia', 'triángulo', 'galaxia', 'humano', 'caos', 'infierno',
   'cabra', 'mundo', 'sol', 'meme', 'internet', 'egoísmo', 'profeta', 'ronaldo',
-  'judas', 'ciceron', 'espacio', 'blanco', 'dimension', 'cerebro', 'etiología',
+  'judas', 'ciceron', 'espacio', 'blanco', 'dimensión', 'cerebro', 'etiología',
   'librero', 'bbc', 'msn', 'google', 'partivo', 'adjetivo', 'ajedrez',
   'información', 'dato', 'escritor', 'escribidor', 'misericordia', 'dibu',
   'deporte', 'nostalgia', 'conjetura', 'matemática', 'matemático', 'dibujo',
