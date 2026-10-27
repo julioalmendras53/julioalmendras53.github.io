@@ -29,6 +29,7 @@ window.addEventListener('error', e => {
     #definition em { display: block; margin-top: 0.5rem; color: #666; font-style: italic; }
     #definition p { margin: 0.5rem 0; }
     #definition a { color: #0066cc; text-decoration: none; }
+    #definition .palabra-inexistente { color: #1a9e3a; font-weight: 600; }
     #definition a.referencia-circular { color: #d00000; font-weight: 600; }
     #definition a.referencia-circular { display: inline-block; transform-origin: center; }
     #definition a.referencia-circular.girando { animation: giro-circular .65s ease-in-out; }
@@ -304,6 +305,7 @@ window.addEventListener('error', e => {
       "ontología": { definiciones: ["1. Fil. Parte de la metafísica que estudia el ser en general, la existencia y sus propiedades trascendentales.", "2. Ciencias de la comunicación e IA. Sistema organizado que establece las relaciones entre los conceptos de un área del conocimiento."], categorias: ["sustantivo"] },
       inferencia: { definiciones: ["1. Acción y efecto de inferir.", "2. Conclusión que se obtiene a partir de uno o más datos, hechos o razonamientos; por ejemplo, al observar personas con paraguas mojados entrando a un edificio, se puede inferir que está lloviendo.", "3. IA. Proceso mediante el cual un modelo de inteligencia artificial utiliza lo aprendido durante su entrenamiento para generar un resultado a partir de una entrada."], categorias: ["sustantivo"] },
       vector: { definiciones: ["1. Agente que lleva algo entre lugares.", "2. Ser vivo que puede pegar una enfermedad siendo portador de un virus o bacteria.", "3. Trozo de ADN que puede unir otro trozo ajeno y propagarlo al genoma de otros seres.", "4. Clase de magnitudes, como la velocidad, que además de cuantía requiere punto de aplicación, dirección y sentido.", "5. Inform. Estructura de datos que contiene una serie ordenada de elementos a los que se accede mediante su posición o índice."], categorias: ["sustantivo"] },
+      vectorización: { definiciones: ["1. f. Acción y efecto de vectorizar.", "2. f. Inform. Conversión de una imagen hecha de píxeles en una imagen formada por líneas, curvas y figuras geométricas, que se puede ampliar sin perder nitidez.", "3. f. IA. Proceso de convertir palabras, textos, imágenes u otros datos en vectores numéricos para que una máquina pueda procesarlos y comparar sus semejanzas. Por ejemplo, los embebimientos.", "4. f. Inform. Técnica de programación que hace una misma operación sobre muchos datos a la vez, en lugar de hacerla uno por uno."], categorias: ["sustantivo"], relacionadas: ["vector", "embebimiento"], palabrasVerdes: ["vectorizar"] },
       algoritmo: { definiciones: ["1. Mat. e Inform. Conjunto ordenado y finito de instrucciones precisas y no ambiguas que, aplicadas paso a paso, permiten resolver un problema u obtener un resultado a partir de unos datos; por ejemplo, los procedimientos para realizar una suma, resta o división o, fuera de las matemáticas, una receta de cocina.", "2. Inform. Sistema de reglas y cálculos que procesa datos para seleccionar, clasificar o recomendar contenido a un usuario, como los algoritmos de recomendación de YouTube o X."], categorias: ["sustantivo"] },
       acepción: { definiciones: ["1. Cada sentido, cuando es más de uno, de una palabra o entrada. En caso de ser solo un sentido se llama rama única.", "2. Aceptación."], categorias: ["sustantivo"] },
       incrustación: { definiciones: ["1. Acción y efecto de fijar una cosa en otra, de manera que quede incorporada a ella parcial o totalmente.", "2. Técnica decorativa consistente en introducir piezas de un material en la superficie de otro para formar figuras u ornamentos.", "3. Odontología. Restauración fabricada para reemplazar una parte dañada de un diente y recuperar su forma y función."], categorias: ["sustantivo"] },
@@ -904,7 +906,8 @@ searchInput.addEventListener('input', () => {
         const defs  = entry.definiciones || [ entry.definicion || '' ];
         const videosAcepciones = entry.videosAcepciones || {};
         const htmlDefs = defs.map((d,i) => {
-          const texto = plain ? d : linkify(d, key);
+          let texto = plain ? d : linkify(d, key);
+          (entry.palabrasVerdes || []).forEach(w => { texto = texto.replace(new RegExp('(^|[^\\wáéíóúñ>])(' + w + ')(?![\\wáéíóúñ])', 'gi'), '$1<span class="palabra-inexistente" title="Esta palabra no existe en el diccionario">$2</span>'); });
           const v = videosAcepciones[i+1];
           if (!v) return `<p>${texto}</p>`;
           return `<div class="def-con-video"><p>${texto}</p><button class="video-miniatura" type="button" data-video-target="video-acepcion-${i+1}" aria-label="Ver video: ${v.titulo || ('Acepción '+(i+1))}"><video muted playsinline preload="metadata"><source src="${v.src}" type="video/webm"></video><span>▶ Ver ejemplo</span></button></div>`;
