@@ -2,6 +2,13 @@
 'use strict';
 if(!document.getElementById('definition'))return;
 const rutas={
+ontogenia:{ruta:["alemán Ontogenie","onto- + -genia","español ontogenia"],texto:"De onto- y -genia, a partir del al. Ontogenie. Fuente: Diccionario de la lengua española (RAE y ASALE)."},
+meronimia:{ruta:["griego μέρος méros 'parte' + -ωνυμία -ōnymía","español meronimia"],texto:"Del gr. μέρος méros 'parte' y -ωνυμία -ōnymía, der. de ὄνομα ónoma 'nombre'. Fuente: Diccionario de la lengua española (RAE y ASALE)."},
+sinonimia:{ruta:["griego συνωνυμία synōnymía","latín tardío synonymĭa","español sinonimia"],texto:"Del lat. tardío synonymĭa, y este del gr. συνωνυμία synōnymía. Fuente: Diccionario de la lengua española (RAE y ASALE)."},
+dimensional:{ruta:["latín dimensio, -ōnis","español dimensión","español dimensional"],texto:"El DLE registra «dimensional» sin etimología. Se forma en español sobre dimensión, que el DLE da como del lat. dimensio, -ōnis, con el sufijo -al. Fuente de dimensión: Diccionario de la lengua española (RAE y ASALE)."},
+adimensional:{ruta:["español dimensional","a- + dimensional","español adimensional"],texto:"El DLE registra «adimensional» sin etimología. Se forma en español con el prefijo a- 'sin' y dimensional. Fuente: Diccionario de la lengua española (RAE y ASALE)."},
+onomasiologia:{ruta:["griego ὀνομασία onomasía 'denominación' + -logía","español onomasiología"],texto:"Del gr. ὀνομασία onomasía 'denominación' y -logía. Fuente: Diccionario de la lengua española (RAE y ASALE)."},
+dimensionalidad:{ruta:["español dimensional","dimensional + -idad","español dimensionalidad"],texto:"La palabra no figura en el DLE. Se forma en español sobre dimensional con el sufijo -idad, que forma sustantivos de cualidad."},
 ababillarse:{ruta:["español baba","babilla","a- + babilla + -arse","español ababillarse"],texto:"El DLE registra «ababillarse», pero no le pone etimología. Es un verbo parasintético sobre babilla (a- + babilla + -arse). De babilla dice el DLE: «Del dim. de baba¹». Fuente de babilla: Diccionario de la lengua española (RAE y ASALE)."},
 ababol:{ruta:["latín papāver","árabe hispánico ḥappapáwr","español ababol"],texto:"Del ár. hisp. ḥappapáwr[a], y este del lat. papāver, con infl. del ár. ḥabb 'semillas'. Fuente: Diccionario de la lengua española (RAE y ASALE)."},
 abaca:{ruta:["tagalo","español abacá"],texto:"De or. tagalo. Fuente: Diccionario de la lengua española (RAE y ASALE)."},
