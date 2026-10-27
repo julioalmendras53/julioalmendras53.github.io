@@ -13,6 +13,7 @@
     infinito: registro('infinito', 1495, nebrija),
     'dimensión': registro('dimensión', 1607, 'Oudin, Tesoro de las dos lenguas francesa y española (1607)'),
     dimensional: registro('dimensional', 1791, 'Diccionario de la lengua española (1791)'),
+    dimensionalidad: { anio: 2026, tipo: 'Definición propuesta por Grok', detalle: 'Definición redactada con Grok e incorporada a este diccionario en 2026. Esta fecha no acredita cuándo se creó la palabra.', fuente: 'Grok (2026)', url: 'https://grok.com' },
     infinitamente: registro('infinitamente', 1495, nebrija),
     infinidad: registro('infinidad', 1495, nebrija),
     infinitesimal: registro('infinitesimal', 1787, 'Terreros, Diccionario castellano con las voces de ciencias y artes (1787)'),
