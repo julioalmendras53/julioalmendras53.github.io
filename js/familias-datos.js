@@ -58,7 +58,8 @@
     { nombre: 'vínculo', palabras: ['vínculo', 'hipervínculo'], descripcion: 'Hipervínculo se forma con hiper- y vínculo.', enlaces: [['vínculo','hipervínculo']] },
     { nombre: 'semántica', palabras: ['semántica', 'semántico'], descripcion: 'Voces de la familia léxica de semántica.' },
     { nombre: 'taxonomía', palabras: ['taxón', 'taxonomía', 'taxonómico'], descripcion: 'Voces relacionadas con la clasificación taxonómica.' },
-    { nombre: 'morfología', palabras: ['morfología', 'morfológico'], descripcion: 'Voces de la familia léxica de morfología.' }
+    { nombre: 'morfología', palabras: ['morfología', 'morfológico'], descripcion: 'Voces de la familia léxica de morfología.' },
+    { nombre: 'dimensión', palabras: ['dimensión', 'dimensional', 'adimensional', 'dimensionalidad'], descripcion: 'Dimensional se forma sobre dimensión; adimensional le suma el prefijo a- y dimensionalidad el sufijo -idad.', enlaces: [['dimensión','dimensional'],['dimensional','adimensional'],['dimensional','dimensionalidad']] }
   ];
   const nombres = { google: 'Google', gugol: 'gúgol', limite: 'límite', epica: 'épica', epico: 'épico', clitico: 'clítico', enclitico: 'enclítico', proclitico: 'proclítico' };
   function posiciones(palabras, historial = fechas, referencia = new Date().getFullYear()) {
