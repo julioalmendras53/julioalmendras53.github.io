@@ -53,7 +53,8 @@ const familiasIniciales = [
   { nombre: 'Google', descripcion: 'Formaciones basadas en el nombre Google.', palabras: ['google', 'googlear', 'googleable', 'ingoogleable'] },
   { nombre: 'poder', descripcion: 'Base poder y formaciones relacionadas; «epoder» es una voz de este diccionario.', palabras: ['poder', 'todopoderoso', 'epoder'] },
   { nombre: 'épica', descripcion: 'Palabras de base épic- con usos nominal y adjetivo.', palabras: ['epica', 'epico'] },
-  { nombre: 'clítico', descripcion: 'Comparten la base clítico con distintos prefijos.', palabras: ['clitico', 'enclitico', 'proclitico'] }
+  { nombre: 'clítico', descripcion: 'Comparten la base clítico con distintos prefijos.', palabras: ['clitico', 'enclitico', 'proclitico'] },
+  { nombre: 'dimensión', descripcion: 'Comparten la base dimension-: el sustantivo, sus adjetivos y la cualidad.', palabras: ['dimensión', 'dimensional', 'adimensional', 'dimensionalidad'] }
 ];
 const formasIniciales = [
   { nombre: 'poder', descripcion: '«Puede» y «pueda» son formas conjugadas de poder.', palabras: ['poder', 'puede', 'pueda'] }
