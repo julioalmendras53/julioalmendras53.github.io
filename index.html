@@ -26,6 +26,7 @@ window.addEventListener('error', e => {
     #image-search-input { display:none; }
     #definition { background-color: #f9f9f9; padding: 1rem; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); min-height: 100px; }
     .term { font-weight: bold; }
+    #definition .categoria-gramatical { color: #2878b8; font-weight: 500; }
     #definition em { display: block; margin-top: 0.5rem; color: #666; font-style: italic; }
     #definition p { margin: 0.5rem 0; }
     #definition a { color: #0066cc; text-decoration: none; }
@@ -649,6 +650,7 @@ window.addEventListener('error', e => {
       eco:{ definiciones: [ 
                                  "1.Repetición de un sonido producida por su reflexión.",
                                  "2.Persistencia de un sonido después de que la fuente ha dejado de emitirlo." ] }, 
+      inconmensurable: { definiciones: ["1. Que no puede medirse.", "2. Extraordinariamente grande o difícil de cuantificar.", "3. En matemáticas, dicho de dos magnitudes que no poseen una unidad de medida común."], categorias: ["adjetivo"] },
       inefable:{ definicion: "1.Que no puede expresarse plenamente con palabras.", categorias: ["adjetivo"] },   
       infinitesimal: { definiciones: [
                              "1.Infinitamente pequeño.",
@@ -915,7 +917,14 @@ searchInput.addEventListener('input', () => {
         const defs  = entry.definiciones || [ entry.definicion || '' ];
         const videosAcepciones = entry.videosAcepciones || {};
         const htmlDefs = defs.map((d,i) => {
-          let texto = plain ? d : linkify(d, key);
+          const abreviaturas = { sustantivo: "sust.", adjetivo: "adj.", verbo: "v.", adverbio: "adv." };
+          const partes = d.match(/^(\s*\d+\s*\.\s*)?(?:(adj\.|sust\.|adv\.|v\.)\s*)?/i);
+          const explicita = partes[2];
+          const categorias = (entry.categorias || []).map(c => abreviaturas[c]).filter(Boolean);
+          const marca = explicita || categorias.join(" / ");
+          const prefijo = partes[1] || "";
+          const cuerpo = d.slice(partes[0].length);
+          let texto = prefijo + (marca ? '<span class="categoria-gramatical">' + marca + '</span> ' : '') + (plain ? cuerpo : linkify(cuerpo, key));
           (entry.palabrasVerdes || []).forEach(w => { texto = texto.replace(new RegExp('(^|[^\\wáéíóúñ>])(' + w + ')(?![\\wáéíóúñ])', 'gi'), '$1<span class="palabra-inexistente" title="Esta palabra no existe en el diccionario">$2</span>'); });
           const v = videosAcepciones[i+1];
           if (!v) return `<p>${texto}</p>`;
